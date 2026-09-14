@@ -6,13 +6,15 @@
       "codigo": "01",
       "titulo": "Animales vivos",
       "notas": "1. Este Capítulo comprende todos los animales vivos, excepto:\n a) los peces, los crustáceos, moluscos y demás invertebrados acuáticos, de las partidas 03.01, 03.06, 03.07 ó 03.08;\n b) los cultivos de microorganismos y demás productos de la partida 30.02;\n c) los animales de la partida 95.08.",
-      "notas_seccion": "1. En esta Sección, cualquier referencia a un género o a una especie determinada de un animal se aplica también, salvo \ndisposición en contrario, a los animales jóvenes de ese género o de esa especie. \n2. Salvo disposición en contrario, cualquier referencia en la Nomenclatura a productos secos o desecados alcanza también a los \nproductos deshidratados, evaporados o liofilizados."
+      "notas_seccion": "1. En esta Sección, cualquier referencia a un género o a una especie determinada de un animal se aplica también, salvo \ndisposición en contrario, a los animales jóvenes de ese género o de esa especie. \n2. Salvo disposición en contrario, cualquier referencia en la Nomenclatura a productos secos o desecados alcanza también a los \nproductos deshidratados, evaporados o liofilizados.",
+      "notas_subpartida": ""
     },
     {
       "codigo": "09",
       "titulo": "Café, té, yerba mate y especias",
       "notas": "1. Las mezclas entre sí de los productos de las partidas 09.04 a 09.10 se clasifican como sigue:\n a) las mezclas entre sí de productos de una misma partida se clasifican en dicha partida;\n b) las mezclas entre sí de productos de distintas partidas se clasifican en la partida 09.10.\n El hecho de que se añadan otras sustancias a los productos comprendidos en las partidas 09.04 a 09.10 (incluidas las mez clas\ncitadas en los apartados a) o b) anteriores) no influye en su clasificación, siempre que las mezclas así obtenidas conserven el\ncarácter esencial de los productos citados en cada una de estas partidas. Por el contrario, dichas mezclas se excluyen de este\nCapítulo y se clasifican en la partida 21.03 si constituyen condimentos o sazonadores compuestos.\n2. Este Capítulo no comprende la pimienta de Cubeba ( Piper cubeba) ni los demás productos de la partida 12.11.",
-      "notas_seccion": ""
+      "notas_seccion": "",
+      "notas_subpartida": ""
     }
   ],
   "items": [
@@ -24,6 +26,7 @@
       "descripcion": "- - Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Caballos / Reproductores de raza pura"
     },
     {
@@ -34,6 +37,7 @@
       "descripcion": "- - Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Caballos / Los demás"
     },
     {
@@ -44,6 +48,7 @@
       "descripcion": "- Asnos",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Asnos"
     },
     {
@@ -54,6 +59,7 @@
       "descripcion": "- Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Los demás"
     },
     {
@@ -64,6 +70,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Reproductores de raza pura / Preñadas o con cría al pie"
     },
     {
@@ -74,6 +81,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Reproductores de raza pura / Los demás"
     },
     {
@@ -84,6 +92,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás / Preñadas o con cría al pie"
     },
     {
@@ -94,6 +103,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás"
     },
     {
@@ -104,6 +114,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás"
     },
     {
@@ -114,6 +125,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Reproductores de raza pura / Preñadas o con cría al pie"
     },
     {
@@ -124,6 +136,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Reproductores de raza pura / Los demás"
     },
     {
@@ -134,6 +147,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás / Preñadas o con cría al pie"
     },
     {
@@ -144,6 +158,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás"
     },
     {
@@ -154,6 +169,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás"
     },
     {
@@ -164,6 +180,7 @@
       "descripcion": "- Los demás",
       "aec": 0,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Los demás"
     },
     {
@@ -174,6 +191,7 @@
       "descripcion": "- Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Reproductores de raza pura"
     },
     {
@@ -184,6 +202,7 @@
       "descripcion": "- - De peso inferior a 50 kg",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Los demás / De peso inferior a 50 kg"
     },
     {
@@ -194,6 +213,7 @@
       "descripcion": "- - De peso superior o igual a 50 kg",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Los demás / De peso superior o igual a 50 kg"
     },
     {
@@ -204,6 +224,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Preñadas o con cría al pie"
     },
     {
@@ -214,6 +235,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Los demás"
     },
     {
@@ -224,6 +246,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Los demás"
     },
     {
@@ -234,6 +257,7 @@
       "descripcion": "Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie caprina / Reproductores de raza pura"
     },
     {
@@ -244,6 +268,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie caprina / Los demás"
     },
     {
@@ -254,6 +279,7 @@
       "descripcion": "De líneas puras o híbridas, para reproducción",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Aves de la especie Gallus domesticus / De líneas puras o híbridas, para reproducción"
     },
     {
@@ -264,6 +290,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Aves de la especie Gallus domesticus / Los demás"
     },
     {
@@ -274,6 +301,7 @@
       "descripcion": "- - Pavos (gallipavos)",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Pavos (gallipavos)"
     },
     {
@@ -284,6 +312,7 @@
       "descripcion": "- - Patos",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Patos"
     },
     {
@@ -294,6 +323,7 @@
       "descripcion": "- - Gansos",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Gansos"
     },
     {
@@ -304,6 +334,7 @@
       "descripcion": "- - Pintadas",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Pintadas"
     },
     {
@@ -314,6 +345,7 @@
       "descripcion": "- - Aves de la especie Gallus domesticus",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / Los demás / Aves de la especie Gallus domesticus"
     },
     {
@@ -324,6 +356,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / Los demás / Los demás"
     },
     {
@@ -334,6 +367,7 @@
       "descripcion": "- - Primates",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Primates"
     },
     {
@@ -344,6 +378,7 @@
       "descripcion": "- - Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o dugongos (mamíferos del orden Sirenia); otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o / Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o dugongos (mamíferos del orden Sirenia); otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)"
     },
     {
@@ -354,6 +389,7 @@
       "descripcion": "- - Camellos y demás camélidos ( Camelidae )",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Camellos y demás camélidos ( Camelidae )"
     },
     {
@@ -364,6 +400,7 @@
       "descripcion": "- - Conejos y liebres",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Conejos y liebres"
     },
     {
@@ -374,6 +411,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Los demás"
     },
     {
@@ -384,6 +422,7 @@
       "descripcion": "- Reptiles (incluidas las serpientes y tortugas de mar)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Reptiles (incluidas las serpientes y tortugas de mar)"
     },
     {
@@ -394,6 +433,7 @@
       "descripcion": "- - Aves de rapiña",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Aves de rapiña"
     },
     {
@@ -404,6 +444,7 @@
       "descripcion": "- - Psitaciformes (incluidos los loros, guacamayos, cacatúas y demás papagayos)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Psitaciformes (incluidos los loros, guacamayos, cacatúas y demás papagayos)"
     },
     {
@@ -414,6 +455,7 @@
       "descripcion": "Avestruces (Struthio camelus ), para reproducción",
       "aec": 0,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Avestruces; emúes ( Dromaius novaehollandiae ) / Avestruces (Struthio camelus ), para reproducción"
     },
     {
@@ -424,6 +466,7 @@
       "descripcion": "Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Avestruces; emúes ( Dromaius novaehollandiae ) / Los demás"
     },
     {
@@ -434,6 +477,7 @@
       "descripcion": "- - Las demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Las demás"
     },
     {
@@ -444,6 +488,7 @@
       "descripcion": "- - Abejas",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Insectos / Abejas"
     },
     {
@@ -454,6 +499,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Insectos / Los demás"
     },
     {
@@ -464,6 +510,7 @@
       "descripcion": "- Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Los demás"
     },
     {
@@ -474,6 +521,7 @@
       "descripcion": "En grano",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Sin descafeinar / En grano"
     },
     {
@@ -484,6 +532,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Sin descafeinar / Los demás"
     },
     {
@@ -494,6 +543,7 @@
       "descripcion": "- - Descafeinado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Descafeinado"
     },
     {
@@ -504,6 +554,7 @@
       "descripcion": "- - Sin descafeinar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café tostado / Sin descafeinar"
     },
     {
@@ -514,6 +565,7 @@
       "descripcion": "- - Descafeinado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café tostado / Descafeinado"
     },
     {
@@ -524,6 +576,7 @@
       "descripcion": "- Los demás",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Los demás"
     },
     {
@@ -534,6 +587,7 @@
       "descripcion": "- Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual a 3 kg",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual / Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual a 3 kg"
     },
     {
@@ -544,6 +598,7 @@
       "descripcion": "- Té verde (sin fermentar) presentado de otra forma",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té verde (sin fermentar) presentado de otra forma"
     },
     {
@@ -554,6 +609,7 @@
       "descripcion": "- Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos con un contenido inferior o igual a 3 kg",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos / Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos con un contenido inferior o igual a 3 kg"
     },
     {
@@ -564,6 +620,7 @@
       "descripcion": "- Té negro (fermentado) y té parcialmente fermentado, presentados de otra forma",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té negro (fermentado) y té parcialmente fermentado, presentados de otra forma"
     },
     {
@@ -574,6 +631,7 @@
       "descripcion": "Simplemente canchada",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Yerba mate. / Simplemente canchada"
     },
     {
@@ -584,6 +642,7 @@
       "descripcion": "Las demás",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Yerba mate. / Las demás"
     },
     {
@@ -594,6 +653,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Pimienta / Sin triturar ni pulverizar"
     },
     {
@@ -604,6 +664,7 @@
       "descripcion": "- - Triturada o pulverizada",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Pimienta / Triturada o pulverizada"
     },
     {
@@ -614,6 +675,7 @@
       "descripcion": "- - Secos, sin triturar ni pulverizar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Frutos de los géneros Capsicum o Pimenta / Secos, sin triturar ni pulverizar"
     },
     {
@@ -624,6 +686,7 @@
       "descripcion": "- - Triturados o pulverizados",
       "aec": 10,
       "re": "4,50",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Frutos de los géneros Capsicum o Pimenta / Triturados o pulverizados"
     },
     {
@@ -634,6 +697,7 @@
       "descripcion": "- Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Vainilla. / Sin triturar ni pulverizar"
     },
     {
@@ -644,6 +708,7 @@
       "descripcion": "- Triturada o pulverizada",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Vainilla. / Triturada o pulverizada"
     },
     {
@@ -654,6 +719,7 @@
       "descripcion": "- - Canela (Cinnamomum zeylanicum Blume )",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Sin triturar ni pulverizar / Canela (Cinnamomum zeylanicum Blume )"
     },
     {
@@ -664,6 +730,7 @@
       "descripcion": "- - Las demás",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Sin triturar ni pulverizar / Las demás"
     },
     {
@@ -674,6 +741,7 @@
       "descripcion": "- Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Trituradas o pulverizadas"
     },
     {
@@ -684,6 +752,7 @@
       "descripcion": "- Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Clavos (frutos enteros, clavillos y pedúnculos). / Sin triturar ni pulverizar"
     },
     {
@@ -694,6 +763,7 @@
       "descripcion": "- Triturados o pulverizados",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Clavos (frutos enteros, clavillos y pedúnculos). / Triturados o pulverizados"
     },
     {
@@ -704,6 +774,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Nuez moscada / Sin triturar ni pulverizar"
     },
     {
@@ -714,6 +785,7 @@
       "descripcion": "- - Triturada o pulverizada",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Nuez moscada / Triturada o pulverizada"
     },
     {
@@ -724,6 +796,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Macis / Sin triturar ni pulverizar"
     },
     {
@@ -734,6 +807,7 @@
       "descripcion": "- - Triturado o pulverizado",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Macis / Triturado o pulverizado"
     },
     {
@@ -744,6 +818,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Amomos y cardamomos / Sin triturar ni pulverizar"
     },
     {
@@ -754,6 +829,7 @@
       "descripcion": "- - Triturados o pulverizados",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Amomos y cardamomos / Triturados o pulverizados"
     },
     {
@@ -764,6 +840,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de cilantro / Sin triturar ni pulverizar"
     },
     {
@@ -774,6 +851,7 @@
       "descripcion": "- - Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de cilantro / Trituradas o pulverizadas"
     },
     {
@@ -784,6 +862,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de comino / Sin triturar ni pulverizar"
     },
     {
@@ -794,6 +873,7 @@
       "descripcion": "- - Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de comino / Trituradas o pulverizadas"
     },
     {
@@ -804,6 +884,7 @@
       "descripcion": "De anís (anís verde)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / De anís (anís verde)"
     },
     {
@@ -814,6 +895,7 @@
       "descripcion": "De badiana (anís estrellado)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / De badiana (anís estrellado)"
     },
     {
@@ -824,6 +906,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / Los demás"
     },
     {
@@ -834,6 +917,7 @@
       "descripcion": "De anís (anís verde)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / De anís (anís verde)"
     },
     {
@@ -844,6 +928,7 @@
       "descripcion": "De badiana (anís estrellado)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / De badiana (anís estrellado)"
     },
     {
@@ -854,6 +939,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / Los demás"
     },
     {
@@ -864,6 +950,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Jengibre / Sin triturar ni pulverizar"
     },
     {
@@ -874,6 +961,7 @@
       "descripcion": "- - Triturado o pulverizado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Jengibre / Triturado o pulverizado"
     },
     {
@@ -884,6 +972,7 @@
       "descripcion": "- Azafrán",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Azafrán"
     },
     {
@@ -894,6 +983,7 @@
       "descripcion": "- Cúrcuma",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Cúrcuma"
     },
     {
@@ -904,6 +994,7 @@
       "descripcion": "- - Mezclas previstas en la Nota 1 b) de este Capítulo",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Las demás especias / Mezclas previstas en la Nota 1 b) de este Capítulo"
     },
     {
@@ -914,6 +1005,7 @@
       "descripcion": "- - Las demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Las demás especias / Las demás"
     }
   ],
@@ -926,6 +1018,7 @@
       "descripcion": "Caballos, asnos, mulos y burdéganos, vivos.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos."
     },
     {
@@ -936,6 +1029,7 @@
       "descripcion": "- - Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Caballos / Reproductores de raza pura"
     },
     {
@@ -946,6 +1040,7 @@
       "descripcion": "- - Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Caballos / Los demás"
     },
     {
@@ -956,6 +1051,7 @@
       "descripcion": "- Asnos",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Asnos"
     },
     {
@@ -966,6 +1062,7 @@
       "descripcion": "- Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Caballos, asnos, mulos y burdéganos, vivos. / Los demás"
     },
     {
@@ -976,6 +1073,7 @@
       "descripcion": "Animales vivos de la especie bovina.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina."
     },
     {
@@ -986,6 +1084,7 @@
       "descripcion": "- - Reproductores de raza pura",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Reproductores de raza pura"
     },
     {
@@ -996,6 +1095,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Reproductores de raza pura / Preñadas o con cría al pie"
     },
     {
@@ -1006,6 +1106,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Reproductores de raza pura / Los demás"
     },
     {
@@ -1016,6 +1117,7 @@
       "descripcion": "- - Los demás",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás"
     },
     {
@@ -1026,6 +1128,7 @@
       "descripcion": "Para reproducción",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás / Para reproducción"
     },
     {
@@ -1036,6 +1139,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás / Preñadas o con cría al pie"
     },
     {
@@ -1046,6 +1150,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás"
     },
     {
@@ -1056,6 +1161,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Bovinos domésticos / Los demás"
     },
     {
@@ -1066,6 +1172,7 @@
       "descripcion": "- - Reproductores de raza pura",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Reproductores de raza pura"
     },
     {
@@ -1076,6 +1183,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Reproductores de raza pura / Preñadas o con cría al pie"
     },
     {
@@ -1086,6 +1194,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Reproductores de raza pura / Los demás"
     },
     {
@@ -1096,6 +1205,7 @@
       "descripcion": "- - Los demás",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás"
     },
     {
@@ -1106,6 +1216,7 @@
       "descripcion": "Para reproducción",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás / Para reproducción"
     },
     {
@@ -1116,6 +1227,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás / Preñadas o con cría al pie"
     },
     {
@@ -1126,6 +1238,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás"
     },
     {
@@ -1136,6 +1249,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Búfalos / Los demás"
     },
     {
@@ -1146,6 +1260,7 @@
       "descripcion": "- Los demás",
       "aec": 0,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie bovina. / Los demás"
     },
     {
@@ -1156,6 +1271,7 @@
       "descripcion": "Animales vivos de la especie porcina.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina."
     },
     {
@@ -1166,6 +1282,7 @@
       "descripcion": "- Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Reproductores de raza pura"
     },
     {
@@ -1176,6 +1293,7 @@
       "descripcion": "- - De peso inferior a 50 kg",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Los demás / De peso inferior a 50 kg"
     },
     {
@@ -1186,6 +1304,7 @@
       "descripcion": "- - De peso superior o igual a 50 kg",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de la especie porcina. / Los demás / De peso superior o igual a 50 kg"
     },
     {
@@ -1196,6 +1315,7 @@
       "descripcion": "Animales vivos de las especies ovina o caprina.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina."
     },
     {
@@ -1206,6 +1326,7 @@
       "descripcion": "- De la especie ovina",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina"
     },
     {
@@ -1216,6 +1337,7 @@
       "descripcion": "Reproductores de raza pura",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Reproductores de raza pura"
     },
     {
@@ -1226,6 +1348,7 @@
       "descripcion": "Preñadas o con cría al pie",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Preñadas o con cría al pie"
     },
     {
@@ -1236,6 +1359,7 @@
       "descripcion": "Los demás",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Los demás"
     },
     {
@@ -1246,6 +1370,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie ovina / Los demás"
     },
     {
@@ -1256,6 +1381,7 @@
       "descripcion": "- De la especie caprina",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie caprina"
     },
     {
@@ -1266,6 +1392,7 @@
       "descripcion": "Reproductores de raza pura",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie caprina / Reproductores de raza pura"
     },
     {
@@ -1276,6 +1403,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Animales vivos de las especies ovina o caprina. / De la especie caprina / Los demás"
     },
     {
@@ -1286,6 +1414,7 @@
       "descripcion": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos."
     },
     {
@@ -1296,6 +1425,7 @@
       "descripcion": "- - Aves de la especie Gallus domesticus",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Aves de la especie Gallus domesticus"
     },
     {
@@ -1306,6 +1436,7 @@
       "descripcion": "De líneas puras o híbridas, para reproducción",
       "aec": 0,
       "re": "2,05",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Aves de la especie Gallus domesticus / De líneas puras o híbridas, para reproducción"
     },
     {
@@ -1316,6 +1447,7 @@
       "descripcion": "Los demás",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Aves de la especie Gallus domesticus / Los demás"
     },
     {
@@ -1326,6 +1458,7 @@
       "descripcion": "- - Pavos (gallipavos)",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Pavos (gallipavos)"
     },
     {
@@ -1336,6 +1469,7 @@
       "descripcion": "- - Patos",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Patos"
     },
     {
@@ -1346,6 +1480,7 @@
       "descripcion": "- - Gansos",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Gansos"
     },
     {
@@ -1356,6 +1491,7 @@
       "descripcion": "- - Pintadas",
       "aec": 2,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / De peso inferior o igual a 185 g / Pintadas"
     },
     {
@@ -1366,6 +1502,7 @@
       "descripcion": "- - Aves de la especie Gallus domesticus",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / Los demás / Aves de la especie Gallus domesticus"
     },
     {
@@ -1376,6 +1513,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "G allos, gallinas, patos, gansos, pavos (gallipavos) y pintadas, de las especies domésticas, vivos. / Los demás / Los demás"
     },
     {
@@ -1386,6 +1524,7 @@
       "descripcion": "Los demás animales vivos.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos."
     },
     {
@@ -1396,6 +1535,7 @@
       "descripcion": "- - Primates",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Primates"
     },
     {
@@ -1406,6 +1546,7 @@
       "descripcion": "- - Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o dugongos (mamíferos del orden Sirenia); otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o / Ballenas, delfines y marsopas (mamíferos del orden Cetacea); manatíes y dugones o dugongos (mamíferos del orden Sirenia); otarios y focas, leones marinos y morsas (mamíferos del suborden Pinnipedia)"
     },
     {
@@ -1416,6 +1557,7 @@
       "descripcion": "- - Camellos y demás camélidos ( Camelidae )",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Camellos y demás camélidos ( Camelidae )"
     },
     {
@@ -1426,6 +1568,7 @@
       "descripcion": "- - Conejos y liebres",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Conejos y liebres"
     },
     {
@@ -1436,6 +1579,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Mamíferos / Los demás"
     },
     {
@@ -1446,6 +1590,7 @@
       "descripcion": "- Reptiles (incluidas las serpientes y tortugas de mar)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Reptiles (incluidas las serpientes y tortugas de mar)"
     },
     {
@@ -1456,6 +1601,7 @@
       "descripcion": "- - Aves de rapiña",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Aves de rapiña"
     },
     {
@@ -1466,6 +1612,7 @@
       "descripcion": "- - Psitaciformes (incluidos los loros, guacamayos, cacatúas y demás papagayos)",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Psitaciformes (incluidos los loros, guacamayos, cacatúas y demás papagayos)"
     },
     {
@@ -1476,6 +1623,7 @@
       "descripcion": "- - Avestruces; emúes ( Dromaius novaehollandiae )",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Avestruces; emúes ( Dromaius novaehollandiae )"
     },
     {
@@ -1486,6 +1634,7 @@
       "descripcion": "Avestruces (Struthio camelus ), para reproducción",
       "aec": 0,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Avestruces; emúes ( Dromaius novaehollandiae ) / Avestruces (Struthio camelus ), para reproducción"
     },
     {
@@ -1496,6 +1645,7 @@
       "descripcion": "Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Avestruces; emúes ( Dromaius novaehollandiae ) / Los demás"
     },
     {
@@ -1506,6 +1656,7 @@
       "descripcion": "- - Las demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Aves / Las demás"
     },
     {
@@ -1516,6 +1667,7 @@
       "descripcion": "- - Abejas",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Insectos / Abejas"
     },
     {
@@ -1526,6 +1678,7 @@
       "descripcion": "- - Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Insectos / Los demás"
     },
     {
@@ -1536,6 +1689,7 @@
       "descripcion": "- Los demás",
       "aec": 4,
       "re": "0,00",
+      "aec_flag": null,
       "descripcion_completa": "Los demás animales vivos. / Los demás"
     },
     {
@@ -1546,6 +1700,7 @@
       "descripcion": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción."
     },
     {
@@ -1556,6 +1711,7 @@
       "descripcion": "- - Sin descafeinar",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Sin descafeinar"
     },
     {
@@ -1566,6 +1722,7 @@
       "descripcion": "En grano",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Sin descafeinar / En grano"
     },
     {
@@ -1576,6 +1733,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Sin descafeinar / Los demás"
     },
     {
@@ -1586,6 +1744,7 @@
       "descripcion": "- - Descafeinado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café sin tostar / Descafeinado"
     },
     {
@@ -1596,6 +1755,7 @@
       "descripcion": "- - Sin descafeinar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café tostado / Sin descafeinar"
     },
     {
@@ -1606,6 +1766,7 @@
       "descripcion": "- - Descafeinado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Café tostado / Descafeinado"
     },
     {
@@ -1616,6 +1777,7 @@
       "descripcion": "- Los demás",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Café, incluso tostado o descafeinado; cáscara y cascarilla de café; sucedáneos del café que contengan café en cualquier proporción. / Los demás"
     },
     {
@@ -1626,6 +1788,7 @@
       "descripcion": "Té, incluso aromatizado.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado."
     },
     {
@@ -1636,6 +1799,7 @@
       "descripcion": "- Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual a 3 kg",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual / Té verde (sin fermentar) presentado en envases inmediatos con un contenido inferior o igual a 3 kg"
     },
     {
@@ -1646,6 +1810,7 @@
       "descripcion": "- Té verde (sin fermentar) presentado de otra forma",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té verde (sin fermentar) presentado de otra forma"
     },
     {
@@ -1656,6 +1821,7 @@
       "descripcion": "- Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos con un contenido inferior o igual a 3 kg",
       "aec": 10,
       "re": "3,50",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos / Té negro (fermentado) y té parcialmente fermentado, presentados en envases inmediatos con un contenido inferior o igual a 3 kg"
     },
     {
@@ -1666,6 +1832,7 @@
       "descripcion": "- Té negro (fermentado) y té parcialmente fermentado, presentados de otra forma",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Té, incluso aromatizado. / Té negro (fermentado) y té parcialmente fermentado, presentados de otra forma"
     },
     {
@@ -1676,6 +1843,7 @@
       "descripcion": "Yerba mate.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Yerba mate."
     },
     {
@@ -1686,6 +1854,7 @@
       "descripcion": "Simplemente canchada",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Yerba mate. / Simplemente canchada"
     },
     {
@@ -1696,6 +1865,7 @@
       "descripcion": "Las demás",
       "aec": 10,
       "re": "3,00",
+      "aec_flag": null,
       "descripcion_completa": "Yerba mate. / Las demás"
     },
     {
@@ -1706,6 +1876,7 @@
       "descripcion": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados."
     },
     {
@@ -1716,6 +1887,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Pimienta / Sin triturar ni pulverizar"
     },
     {
@@ -1726,6 +1898,7 @@
       "descripcion": "- - Triturada o pulverizada",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Pimienta / Triturada o pulverizada"
     },
     {
@@ -1736,6 +1909,7 @@
       "descripcion": "- - Secos, sin triturar ni pulverizar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Frutos de los géneros Capsicum o Pimenta / Secos, sin triturar ni pulverizar"
     },
     {
@@ -1746,6 +1920,7 @@
       "descripcion": "- - Triturados o pulverizados",
       "aec": 10,
       "re": "4,50",
+      "aec_flag": null,
       "descripcion_completa": "Pimienta del género Piper; frutos de los géneros Capsicum o Pimenta , secos, triturados o pulverizados. / Frutos de los géneros Capsicum o Pimenta / Triturados o pulverizados"
     },
     {
@@ -1756,6 +1931,7 @@
       "descripcion": "Vainilla.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Vainilla."
     },
     {
@@ -1766,6 +1942,7 @@
       "descripcion": "- Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Vainilla. / Sin triturar ni pulverizar"
     },
     {
@@ -1776,6 +1953,7 @@
       "descripcion": "- Triturada o pulverizada",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Vainilla. / Triturada o pulverizada"
     },
     {
@@ -1786,6 +1964,7 @@
       "descripcion": "Canela y flores de canelero.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero."
     },
     {
@@ -1796,6 +1975,7 @@
       "descripcion": "- - Canela (Cinnamomum zeylanicum Blume )",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Sin triturar ni pulverizar / Canela (Cinnamomum zeylanicum Blume )"
     },
     {
@@ -1806,6 +1986,7 @@
       "descripcion": "- - Las demás",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Sin triturar ni pulverizar / Las demás"
     },
     {
@@ -1816,6 +1997,7 @@
       "descripcion": "- Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Canela y flores de canelero. / Trituradas o pulverizadas"
     },
     {
@@ -1826,6 +2008,7 @@
       "descripcion": "Clavos (frutos enteros, clavillos y pedúnculos).",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Clavos (frutos enteros, clavillos y pedúnculos)."
     },
     {
@@ -1836,6 +2019,7 @@
       "descripcion": "- Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Clavos (frutos enteros, clavillos y pedúnculos). / Sin triturar ni pulverizar"
     },
     {
@@ -1846,6 +2030,7 @@
       "descripcion": "- Triturados o pulverizados",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Clavos (frutos enteros, clavillos y pedúnculos). / Triturados o pulverizados"
     },
     {
@@ -1856,6 +2041,7 @@
       "descripcion": "Nuez moscada, macis, amomos y cardamomos.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos."
     },
     {
@@ -1866,6 +2052,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Nuez moscada / Sin triturar ni pulverizar"
     },
     {
@@ -1876,6 +2063,7 @@
       "descripcion": "- - Triturada o pulverizada",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Nuez moscada / Triturada o pulverizada"
     },
     {
@@ -1886,6 +2074,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Macis / Sin triturar ni pulverizar"
     },
     {
@@ -1896,6 +2085,7 @@
       "descripcion": "- - Triturado o pulverizado",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Macis / Triturado o pulverizado"
     },
     {
@@ -1906,6 +2096,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Amomos y cardamomos / Sin triturar ni pulverizar"
     },
     {
@@ -1916,6 +2107,7 @@
       "descripcion": "- - Triturados o pulverizados",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Nuez moscada, macis, amomos y cardamomos. / Amomos y cardamomos / Triturados o pulverizados"
     },
     {
@@ -1926,6 +2118,7 @@
       "descripcion": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro."
     },
     {
@@ -1936,6 +2129,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de cilantro / Sin triturar ni pulverizar"
     },
     {
@@ -1946,6 +2140,7 @@
       "descripcion": "- - Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de cilantro / Trituradas o pulverizadas"
     },
     {
@@ -1956,6 +2151,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de comino / Sin triturar ni pulverizar"
     },
     {
@@ -1966,6 +2162,7 @@
       "descripcion": "- - Trituradas o pulverizadas",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de comino / Trituradas o pulverizadas"
     },
     {
@@ -1976,6 +2173,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar"
     },
     {
@@ -1986,6 +2184,7 @@
       "descripcion": "De anís (anís verde)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / De anís (anís verde)"
     },
     {
@@ -1996,6 +2195,7 @@
       "descripcion": "De badiana (anís estrellado)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / De badiana (anís estrellado)"
     },
     {
@@ -2006,6 +2206,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Sin triturar ni pulverizar / Los demás"
     },
     {
@@ -2016,6 +2217,7 @@
       "descripcion": "- - Trituradas o pulverizadas",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas"
     },
     {
@@ -2026,6 +2228,7 @@
       "descripcion": "De anís (anís verde)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / De anís (anís verde)"
     },
     {
@@ -2036,6 +2239,7 @@
       "descripcion": "De badiana (anís estrellado)",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / De badiana (anís estrellado)"
     },
     {
@@ -2046,6 +2250,7 @@
       "descripcion": "Los demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Semillas de anís, badiana, hinojo, cilantro, comino o alcaravea; bayas de enebro. / Semillas de anís, badiana, alcaravea o hinojo; bayas de enebro / Trituradas o pulverizadas / Los demás"
     },
     {
@@ -2056,6 +2261,7 @@
       "descripcion": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias.",
       "aec": null,
       "re": null,
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias."
     },
     {
@@ -2066,6 +2272,7 @@
       "descripcion": "- - Sin triturar ni pulverizar",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Jengibre / Sin triturar ni pulverizar"
     },
     {
@@ -2076,6 +2283,7 @@
       "descripcion": "- - Triturado o pulverizado",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Jengibre / Triturado o pulverizado"
     },
     {
@@ -2086,6 +2294,7 @@
       "descripcion": "- Azafrán",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Azafrán"
     },
     {
@@ -2096,6 +2305,7 @@
       "descripcion": "- Cúrcuma",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Cúrcuma"
     },
     {
@@ -2106,6 +2316,7 @@
       "descripcion": "- - Mezclas previstas en la Nota 1 b) de este Capítulo",
       "aec": 10,
       "re": "4,00",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Las demás especias / Mezclas previstas en la Nota 1 b) de este Capítulo"
     },
     {
@@ -2116,6 +2327,7 @@
       "descripcion": "- - Las demás",
       "aec": 10,
       "re": "3,40",
+      "aec_flag": null,
       "descripcion_completa": "Jengibre, azafrán, cúrcuma, tomillo, hojas de laurel, curri y demás especias. / Las demás especias / Las demás"
     }
   ]

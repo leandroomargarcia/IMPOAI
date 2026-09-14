@@ -19,7 +19,7 @@ Given a product description and a **FOB value you type in**:
 3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with a **fixed** FX in `graph/consts.py`
 4. Web-search habilitation requirements (SENASA / ANMAT, etc.)
 
-Classification uses a **parsed JSON catalog**, not PDF RAG. The POC catalog covers **chapters 1 and 9** only (coffee, horses, yerba mate, …).
+Classification uses a **parsed JSON catalog**, not PDF RAG. The catalog covers **all 97 NCM chapters** (`ncm/data/catalog.json`). Rebuild it offline with `python -m ncm` (needs the Mercosur PDF next to the repo root).
 
 ## Setup
 
@@ -51,6 +51,7 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
 | Path | Role |
 |---|---|
 | `ncm/` | PDF parser (offline) + catalog lookup |
+| `ncm/data/catalog.json` | Full 97-chapter NCM (rebuild: `python -m ncm`) |
 | `graph/graph.py` | LangGraph wiring |
 | `graph/chains/` | LLM forms (NCM, price, hab) |
 | `graph/nodes/` | State in / state out |
@@ -59,4 +60,4 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
 
 ## Status
 
-POC. Next: complete NCM catalog, CIF-based tax stack, live USD/ARS, conversational input for FOB / freight / province.
+POC graph (sequential). NCM catalog is the full 97-chapter JSON. Next: CIF-based tax stack, live USD/ARS, conversational input for FOB / freight / province.

@@ -21,7 +21,8 @@ def load_notes(state: GraphState) -> dict:
     notes_text = (
         f"{notes['title']}\n"
         f"{notes['chapter_notes']}\n"
-        f"{notes['section_notes']}"
+        f"{notes['section_notes']}\n"
+        f"{notes.get('subheading_notes') or ''}"
     )
     print("notes loaded")
     print(notes_text)

@@ -8,7 +8,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any
 
-from ncm.parser import CATALOG_PATH, parse_poc, save_catalog
+from ncm.parser import CATALOG_PATH, CATALOG_POC_PATH, parse_ncm, save_catalog
 
 def _norm(code: str) -> str:
     return code.replace(" ", "")
@@ -22,12 +22,14 @@ class NcmCatalog:
 
     @classmethod
     def from_pdf(cls) -> "NcmCatalog":
-        catalog = parse_poc()
-        save_catalog(catalog)
+        catalog = parse_ncm()
+        save_catalog(catalog, CATALOG_PATH)
         return cls(catalog)
 
     @classmethod
-    def from_json(cls, path: Path = CATALOG_PATH) -> "NcmCatalog":
+    def from_json(cls, path: Path | None = None) -> "NcmCatalog":
+        if path is None:
+            path = CATALOG_PATH if CATALOG_PATH.exists() else CATALOG_POC_PATH
         if not path.exists():
             return cls.from_pdf()
         return cls(json.loads(path.read_text(encoding="utf-8")))
@@ -41,7 +43,7 @@ class NcmCatalog:
         return list(self.data["chapters"])
 
     def search_chapters(self, query: str) -> list[dict[str, str]]:
-        """Returns the chapters of the POC catalog; LLM chooses, not the score."""
+        """Returns catalog chapters; LLM chooses, not the score."""
         q = set(re.findall(r"\w+", query.lower()))
         ranked = []
         for ch in self.chapters:
@@ -73,6 +75,7 @@ class NcmCatalog:
             "title": ch["titulo"],
             "chapter_notes": ch["notas"],
             "section_notes": ch.get("notas_seccion") or "",
+            "subheading_notes": ch.get("notas_subpartida") or "",
         }
 
     def list_headings(self, chapter: str) -> list[dict[str, Any]]:
@@ -90,6 +93,17 @@ class NcmCatalog:
                 headings.setdefault(item["partida"], item["descripcion_completa"])
         return [{"heading": k, "description": v} for k, v in headings.items()]
 
+    def list_subheadings(self, heading: str) -> list[dict[str, Any]]:
+        p = _norm(heading)
+        return [
+            {
+                "subheading": node["codigo"],
+                "description": node["descripcion"],
+            }
+            for node in self.data["nodes"]
+            if node["partida"] == p and node["nivel"] == 6
+        ]
+
     def list_items(self, heading: str) -> list[dict[str, Any]]:
         p = _norm(heading)
         return [
@@ -99,6 +113,7 @@ class NcmCatalog:
                 "full_description": node["descripcion_completa"],
                 "aec": node["aec"],
                 "re": node["re"],
+                "aec_flag": node.get("aec_flag"),
             }
             for node in self.data["items"]
             if node["partida"] == p

@@ -1,18 +1,18 @@
 # TODO — IMPOAI
 
-Hecho: POC NCM con capítulos 1 y 9 (café, caballo, yerba) y pipeline secuencial capítulo → notas → partida → ítem → `get_ncm` → grade.
+Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de café/caballo/yerba sigue como regresión.
 
 ## Catálogo completo
 
-- [ ] Parsear los 97 capítulos del PDF (sacar `POC_CHAPTERS = {1, 9}`)
-- [ ] Resetear jerarquía cuando cambia la partida (caso `0903.00` sin `09.03`)
-- [ ] Aceptar AEC con flags `BK` / `BIT`
-- [ ] Saltar la tabla aeronáutica
-- [ ] Colgar notas de sección y de subpartida en el capítulo
-- [ ] Generar `ncm/data/catalog.json` (una sola vez, offline)
-- [ ] Auditar el JSON: 97 capítulos, ítems 8 dígitos, path con padre, AEC nulos
-- [ ] Regresión POC: `0901.11.10`, `0101.21.00`, `0903.00.10`
-- [ ] Spot-check capítulos 27, 39, 84
+- [x] Parsear los 97 capítulos del PDF (sacar `POC_CHAPTERS = {1, 9}`)
+- [x] Resetear jerarquía cuando cambia la partida (caso `0903.00` sin `09.03`)
+- [x] Aceptar AEC con flags `BK` / `BIT`
+- [x] Saltar la tabla aeronáutica
+- [x] Colgar notas de sección y de subpartida en el capítulo
+- [x] Generar `ncm/data/catalog.json` (una sola vez, offline)
+- [x] Auditar el JSON: 97 capítulos, ítems 8 dígitos, path con padre, AEC nulos
+- [x] Regresión POC: `0901.11.10`, `0101.21.00`, `0903.00.10`
+- [x] Spot-check capítulos 27, 39, 84
 - [ ] Si una partida tiene muchos ítems, listar primero subpartidas de 6 dígitos
 
 ## Grafo

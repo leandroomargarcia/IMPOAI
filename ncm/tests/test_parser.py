@@ -1,3 +1,6 @@
+from ncm.parser import _parse_table, _strip_aec
+
+
 def _item(data, codigo):
     matches = [i for i in data["items"] if i["codigo"] == codigo]
     assert matches, f"falta {codigo}"
@@ -42,3 +45,39 @@ def test_yerba_mate_canchada(catalog_data):
 def test_notas_capitulo_1_excluyen_peces(catalog_data):
     ch1 = next(c for c in catalog_data["chapters"] if c["codigo"] == "01")
     assert "peces" in ch1["notas"].lower()
+
+
+def test_strip_aec_plain_and_bk_bit():
+    desc, aec, re_val, flag = _strip_aec("En grano  10  3,50")
+    assert desc == "En grano"
+    assert aec == 10
+    assert re_val == "3,50"
+    assert flag is None
+
+    desc, aec, re_val, flag = _strip_aec(
+        "- Calderas acuotubulares con una producción de vapor superior a 45 t por hora  14 BK 8,00"
+    )
+    assert aec == 14
+    assert flag == "BK"
+    assert re_val == "8,00"
+    assert "45" in desc
+
+    desc, aec, re_val, flag = _strip_aec("Guías de agujas para cabezales de impresión  0 BIT 0,00")
+    assert aec == 0
+    assert flag == "BIT"
+
+
+def test_parse_table_resets_path_when_partida_changes():
+    table = """
+09.02 Té, incluso aromatizado.
+0902.10.00  - Té verde  10 3,00
+0903.00  Yerba mate.
+0903.00.10  Simplemente canchada  10 3,00
+"""
+    nodes = _parse_table(table, "09")
+    yerba = next(n for n in nodes if n["codigo"] == "0903.00.10")
+    path = yerba["descripcion_completa"].lower()
+    assert "yerba" in path
+    assert "té" not in path and "te," not in path
+    assert yerba["partida"] == "09.03"
+
