@@ -2,6 +2,7 @@ import graph.nodes.hab_agent as hab_agent_mod
 import graph.nodes.ncm_node as ncm_node
 import graph.nodes.search_price as search_price_mod
 import graph.nodes.web_search_hab as web_search_mod
+import pytest
 from langgraph.graph import END, START, StateGraph
 
 from graph.nodes.calculate_costs import calc_duty
@@ -39,13 +40,13 @@ def _ncm_app():
         "grade_ncm",
         after_grade,
         {
-            "ok": "search_price",
+            "ok": "calc_duty",
             "retry": "pick_chapter",
             "fail": END,
         }
     )
-    g.add_edge("search_price", "calc_duty")
-    g.add_edge("calc_duty", END)
+    g.add_edge("calc_duty", "search_price")
+    g.add_edge("search_price", END)
     return g.compile()
 
 def _hab_app():
@@ -88,14 +89,24 @@ def test_rama_ncm_caballo(monkeypatch):
         "price_chain",
         type("C", (), {"invoke": staticmethod(lambda _: type("R", (), {"price": 100.0, "currency": "USD", "motive": "x"})())})(),
     )
-    out = _ncm_app().invoke({"question": "purebred breeding horse", "attempts": 0})
+    out = _ncm_app().invoke(
+        {"question": "purebred breeding horse", "attempts": 0, "fob": 1000.0}
+    )
     assert out["ncm"] == "0101.21.00" # NCM encontrado
     assert out["ncm_aec"] == 0 # AEC encontrado
     assert out["es_valido"] is True # NCM válido
-    assert out["precio_ref"] == 100.0 # Precio de referencia encontrado
-    assert out["impuestos_estimados"] == 0.0 # Impuestos estimados encontrado
+    assert out["fob"] == 1000.0
+    assert out["impuestos_estimados"] == 0.0 # AEC 0% of FOB
+    assert out["precio_ref"] == 100.0 # already USD, no FX
+    assert out.get("ncm_currency") == "USD"
     assert not out.get("hab_docs") # No se encontraron documentos de HAB
     assert not out.get("hab_info") # No se encontraron información de HAB
+
+
+def test_duty_uses_user_fob_not_sale_price():
+    out = calc_duty({"fob": 4.50, "ncm_aec": 10, "precio_ref": 9999})
+    assert out["impuestos_estimados"] == pytest.approx(0.45)
+
 
 def test_rama_hab_sin_ncm(monkeypatch):
     monkeypatch.setattr(
@@ -128,4 +139,32 @@ def test_rama_hab_sin_ncm(monkeypatch):
     assert "https://ejemplo.gob.ar/senasa" in out["hab_info"] # URL del documento encontrado
     assert not out.get("ncm") # No se encontró NCM
     assert out.get("es_valido") is None
+
+
+def test_tavily_hits_json_string_and_answer():
+    from graph.nodes.tavily_hits import tavily_hits
+
+    raw = '{"answer": "2 USD/kg", "results": [{"title": "A", "content": "cafe"}]}'
+    hits = tavily_hits(raw)
+    assert hits[0]["content"] == "2 USD/kg"
+    assert hits[1]["title"] == "A"
+
+
+def test_tavily_hits_keeps_plain_text_for_price():
+    from graph.nodes.tavily_hits import tavily_hits
+
+    assert tavily_hits("not json", keep_raw_text=True)[0]["content"] == "not json"
+    assert tavily_hits("not json") == []
+
+
+def test_ars_to_usd_fixed_rate():
+    from graph.nodes.search_price import _to_usd
+
+    usd, code = _to_usd(12000.0, "ARS")
+    assert code == "USD"
+    assert usd == pytest.approx(10.0)
+    usd2, code2 = _to_usd(8.0, "USD")
+    assert code2 == "USD"
+    assert usd2 == pytest.approx(8.0)
+
 

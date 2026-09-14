@@ -30,3 +30,7 @@ Hecho: POC NCM con capítulos 1 y 9 (café, caballo, yerba) y pipeline secuencia
 - [ ] **Notas explicativas (NESH)** — índice aparte de la NCM; inyectarlas por partida, no por similitud al PDF del AEC
 - [ ] **Precedentes** — dictámenes AFIP/DGA, opiniones de clasificación, declaraciones parecidas
 - [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo
+
+## Precio local / FX
+
+- [ ] **Scrapear el tipo de cambio USD/ARS** (oficial o el que definamos para el negocio) en vez del fijo `USD_ARS_RATE` en `graph/consts.py`. Hoy el precio de venta en Argentina se extrae en pesos y se divide por esa constante para compararlo con el FOB en USD.

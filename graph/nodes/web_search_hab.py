@@ -1,6 +1,7 @@
 from langchain_core.documents import Document
 from langchain_tavily import TavilySearch
 
+from graph.nodes.tavily_hits import tavily_hits
 from graph.state import GraphState
 
 tavily = None
@@ -25,7 +26,7 @@ def web_search_hab(state: GraphState) -> dict:
             page_content=hit.get("content") or "",
             metadata={"url": hit.get("url") or "", "title": hit.get("title") or ""},
         )
-        for hit in (raw.get("results") or [])
-        if hit.get("content")
+        for hit in tavily_hits(raw)
+        if isinstance(hit, dict) and hit.get("content")
     ]
     return {"hab_docs": hab_docs}

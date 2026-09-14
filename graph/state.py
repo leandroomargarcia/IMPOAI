@@ -14,9 +14,10 @@ class GraphState(TypedDict):
         hab_info: extracted habilitation requirements (analista_hab).
         attempts: Number of attempts to classify the product.
         es_valido: groundedness del NCM (grade_generation)
-        precio_ref: price reference (buscar_precio)
+        fob: customs value entered by the user (not searched)
+        precio_ref: Argentine selling price converted to USD
         costos_asociados: associated costs (desglose_costos)
-        impuestos_estimados: estimated taxes (calcular_costos)
+        impuestos_estimados: AEC duty on FOB (calcular_costos)
         reporte_final: final report (generar_reporte)
     """
 
@@ -33,6 +34,7 @@ class GraphState(TypedDict):
     hab_info: str
     attempts: int
     es_valido: bool
+    fob: float
     precio_ref: float
     costos_asociados: str
     impuestos_estimados: float

@@ -43,23 +43,26 @@ builder.add_edge("fetch_ncm", "grade_ncm")
 builder.add_conditional_edges(
     "grade_ncm",
     after_grade,
-    {"ok": "search_price", "retry": "pick_chapter", "fail": END},
+    {"ok": "calc_duty", "retry": "pick_chapter", "fail": END},
 )
-builder.add_edge("search_price", "calc_duty")
-builder.add_edge("calc_duty", "web_search_hab")
+builder.add_edge("calc_duty", "search_price")
+builder.add_edge("search_price", "web_search_hab")
 builder.add_edge("web_search_hab", "hab_agent")
 builder.add_edge("hab_agent", END)
 
 app = builder.compile()
 
 if __name__ == "__main__":
-    out = app.invoke({"question": "purebred breeding horse", "attempts": 0})
+    out = app.invoke(
+        {"question": "green coffee beans", "attempts": 0, "fob": 4.50}
+    )
     print("STATE chapter", out.get("ncm_chapter"), "attempts", out.get("attempts"))
     print("STATE notes", (out.get("ncm_notes") or "")[:80], "...")
     print("STATE heading", out.get("ncm_heading"))
     print("STATE item", out.get("ncm_item"))
     print("STATE ncm", out.get("ncm"), "AEC", out.get("ncm_aec"))
     print("STATE grade", out.get("es_valido"))
-    print("STATE price", out.get("precio_ref"), out.get("ncm_currency"))
+    print("STATE fob", out.get("fob"))
     print("STATE duty", out.get("impuestos_estimados"))
+    print("STATE sale USD", out.get("precio_ref"), out.get("ncm_currency"))
     print("STATE hab", (out.get("hab_info") or "")[:200])
