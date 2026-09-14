@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+client_secret*.json
+
+# Caches
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
+
+# Vector store
+.chroma/
+
+# Documents (NCM PDF, etc.)
+*.pdf
+
+# Output
+data/output/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
