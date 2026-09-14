@@ -158,9 +158,10 @@ def test_tavily_hits_keeps_plain_text_for_price():
 
 
 def test_ars_to_usd_fixed_rate():
+    from graph.consts import USD_ARS_RATE
     from graph.nodes.search_price import _to_usd
 
-    usd, code = _to_usd(12000.0, "ARS")
+    usd, code = _to_usd(USD_ARS_RATE * 10.0, "ARS")
     assert code == "USD"
     assert usd == pytest.approx(10.0)
     usd2, code2 = _to_usd(8.0, "USD")

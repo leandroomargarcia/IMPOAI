@@ -14,7 +14,6 @@ Hecho: POC NCM con capítulos 1 y 9 (café, caballo, yerba) y pipeline secuencia
 - [ ] Regresión POC: `0901.11.10`, `0101.21.00`, `0903.00.10`
 - [ ] Spot-check capítulos 27, 39, 84
 - [ ] Si una partida tiene muchos ítems, listar primero subpartidas de 6 dígitos
-- [ ] Dejar de chunkear el PDF en `ingestion.py`
 
 ## Grafo
 

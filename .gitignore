@@ -33,9 +33,6 @@ client_secret*.json
 htmlcov/
 *.log
 
-# Vector store
-.chroma/
-
 # Documents (NCM PDF, etc.)
 *.pdf
 
