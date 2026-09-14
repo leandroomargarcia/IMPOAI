@@ -1,7 +1,7 @@
 [project]
 name = "impoai"
 version = "0.1.0"
-description = "Add your description here"
+description = "LangGraph assistant for Mercosur NCM classification, reference pricing, AEC duty estimates, and Argentina import permits."
 readme = "README.md"
 authors = [
     { name = "Leandro Garcia", email = "leandro.garcia@fiadoapp.com" }
