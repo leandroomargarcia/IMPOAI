@@ -6,7 +6,7 @@ This is a **budgeting tool**, not a customs filing. It does not replace a *despa
 
 ## Architecture
 
-Target graph: NCM walk and habilitation search run **in parallel**, join, then Argentine selling price, costs, and a report. The POC in `graph/graph.py` is still a **single sequence** (classify → AEC on FOB → price → hab).
+Target graph: NCM walk and habilitation search run **in parallel**, join, then Argentine selling price, AEC on FOB, and a written report. Duty is still `FOB × AEC%` (not a CIF liquidation).
 
 ![Target LangGraph: parallel NCM walk and habilitation search, join, then price, costs, and report](docs/architecture.png)
 
@@ -14,10 +14,10 @@ Target graph: NCM walk and habilitation search run **in parallel**, join, then A
 
 Given a product description and a **FOB value you type in**:
 
-1. Walk the NCM catalog (chapter → notes → heading → item → code exists → grade), with up to 3 retries
+1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
 2. Estimate **AEC duty** as `FOB × AEC%` (CIF, statistical fee, VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`)
 3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with a **fixed** FX in `graph/consts.py`
-4. Web-search habilitation requirements (SENASA / ANMAT, etc.)
+5. Assemble a **report** (`reporte_final`) that labels the output as an estimate, not an AFIP filing
 
 Classification uses a **parsed JSON catalog**, not PDF RAG. The catalog covers **all 97 NCM chapters** (`ncm/data/catalog.json`). Rebuild it offline with `python -m ncm` (needs the Mercosur PDF next to the repo root).
 
@@ -60,4 +60,4 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
 
 ## Status
 
-POC graph (sequential). NCM catalog is the full 97-chapter JSON. Next: CIF-based tax stack, live USD/ARS, conversational input for FOB / freight / province.
+POC graph matches the office diagram (parallel NCM + hab → join → price → AEC stub → report). Next: CIF-based tax stack, live USD/ARS, conversational input for FOB / freight / province, then observability.

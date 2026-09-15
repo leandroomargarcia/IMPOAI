@@ -23,7 +23,7 @@ def search_price(state: GraphState) -> dict:
     path = state.get("ncm_descripcion") or ""
     spanish_name = " / ".join(
         part.strip() for part in path.split("/")[-3:] if part.strip()
-    ) or path
+    ) or path or (state.get("question") or "")
     query = f"precio mayorista Argentina {spanish_name} kg"
     print("PRICE query", query)
     raw = _tavily().invoke({"query": query})
@@ -37,7 +37,7 @@ def search_price(state: GraphState) -> dict:
     quote = price_chain.invoke(
         {
             "question": state["question"],
-            "card": f"{state['ncm']} | {state['ncm_descripcion']}",
+            "card": f"{state.get('ncm') or '-'} | {state.get('ncm_descripcion') or state.get('question')}",
             "hits": hits_text or "(no hits)",
         }
     )

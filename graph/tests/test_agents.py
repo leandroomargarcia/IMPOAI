@@ -9,6 +9,7 @@ from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.hab_agent import hab_agent
 from graph.nodes.ncm_node import (
     after_grade,
+    after_heading,
     choose_heading,
     choose_item,
     fetch_ncm,
@@ -167,5 +168,130 @@ def test_ars_to_usd_fixed_rate():
     usd2, code2 = _to_usd(8.0, "USD")
     assert code2 == "USD"
     assert usd2 == pytest.approx(8.0)
+
+
+def _fake_choice(**fields):
+    return type("R", (), fields)()
+
+
+def _patch_office(monkeypatch, *, item="0101.21.00", valid=True):
+    monkeypatch.setattr(
+        ncm_node,
+        "router",
+        type("C", (), {"invoke": staticmethod(lambda _: _fake_choice(chapter="01", motive="x"))})(),
+    )
+    monkeypatch.setattr(
+        ncm_node,
+        "heading_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: _fake_choice(heading="01.01", motive="x"))})(),
+    )
+    monkeypatch.setattr(
+        ncm_node,
+        "item_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: _fake_choice(item=item, motive="x"))})(),
+    )
+    monkeypatch.setattr(
+        ncm_node,
+        "grade_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: _fake_choice(is_valid=valid, motive="ok" if valid else "no"))})(),
+    )
+    monkeypatch.setattr(
+        search_price_mod,
+        "tavily",
+        type("T", (), {"invoke": staticmethod(lambda _: {"results": [{"title": "t", "content": "USD 100"}]})})(),
+    )
+    monkeypatch.setattr(
+        search_price_mod,
+        "price_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: _fake_choice(price=100.0, currency="USD", motive="x"))})(),
+    )
+    monkeypatch.setattr(
+        web_search_mod,
+        "tavily",
+        type("T", (), {
+            "invoke": staticmethod(lambda _: {
+                "results": [{
+                    "title": "SENASA",
+                    "url": "https://ejemplo.gob.ar/senasa",
+                    "content": "Importación de equinos requiere certificado zoosanitario SENASA.",
+                }]
+            })
+        })(),
+    )
+    class Fake:
+        requisitos = [type("R", (), {"texto": "Certificado SENASA", "source_ids": [1]})()]
+        resumen = "Hay un requisito SENASA."
+
+    monkeypatch.setattr(
+        hab_agent_mod,
+        "analista_hab_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: Fake())})(),
+    )
+
+
+def test_office_parallel_join_writes_report(monkeypatch):
+    from graph.graph import build_graph
+
+    _patch_office(monkeypatch)
+    out = build_graph().invoke(
+        {"question": "purebred breeding horse", "attempts": 0, "fob": 1000.0}
+    )
+    assert out["ncm"] == "0101.21.00"
+    assert out["es_valido"] is True
+    assert out["impuestos_estimados"] == 0.0
+    assert out["precio_ref"] == 100.0
+    assert "SENASA" in out["hab_info"]
+    assert "0101.21.00" in out["reporte_final"]
+    assert "estimación" in out["reporte_final"].lower()
+    assert "no es un despacho" in out["reporte_final"].lower()
+
+
+def test_ncm_fail_still_joins_hab_and_report(monkeypatch):
+    from graph.graph import build_graph
+
+    _patch_office(monkeypatch, valid=False)
+    out = build_graph().invoke(
+        {"question": "purebred breeding horse", "attempts": 0, "fob": 1000.0}
+    )
+    assert out["es_valido"] is False
+    assert "No se pudo clasificar" in out["ncm_info"]
+    assert "SENASA" in out["hab_info"]
+    assert out["reporte_final"]
+    assert out["attempts"] == 3
+
+
+def test_missing_ncm_skips_grader(monkeypatch):
+    from graph.graph import build_graph
+
+    called = []
+
+    def _grade(_):
+        called.append(1)
+        return _fake_choice(is_valid=True, motive="ok")
+
+    _patch_office(monkeypatch, item="9999.99.99")
+    monkeypatch.setattr(ncm_node, "grade_chain", type("C", (), {"invoke": staticmethod(_grade)})())
+    out = build_graph().invoke(
+        {"question": "purebred breeding horse", "attempts": 0, "fob": 10.0}
+    )
+    assert called == []
+    assert out["es_valido"] is False
+    assert "No se pudo clasificar" in out["ncm_info"]
+
+
+def test_after_heading_uses_subheading_when_list_is_long(monkeypatch):
+    monkeypatch.setattr(
+        ncm_node.catalog,
+        "list_items",
+        lambda _: [{"ncm": f"0901.11.{i:02d}"} for i in range(21)],
+    )
+    monkeypatch.setattr(
+        ncm_node.catalog,
+        "list_subheadings",
+        lambda _: [{"subheading": "0901.11", "description": "x"}],
+    )
+    assert after_heading({"ncm_heading": "09.01"}) == "subheading"
+    monkeypatch.setattr(ncm_node.catalog, "list_items", lambda _: [{"ncm": "0901.11.10"}])
+    assert after_heading({"ncm_heading": "09.01"}) == "item"
 
 

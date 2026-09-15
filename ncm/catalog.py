@@ -105,7 +105,23 @@ class NcmCatalog:
         ]
 
     def list_items(self, heading: str) -> list[dict[str, Any]]:
-        p = _norm(heading)
+        raw = _norm(heading)
+        digits = raw.replace(".", "")
+        if len(digits) >= 6:
+            prefix = f"{digits[:4]}.{digits[4:6]}"
+            return [
+                {
+                    "ncm": node["codigo"],
+                    "description": node["descripcion"],
+                    "full_description": node["descripcion_completa"],
+                    "aec": node["aec"],
+                    "re": node["re"],
+                    "aec_flag": node.get("aec_flag"),
+                }
+                for node in self.data["items"]
+                if node["codigo"].startswith(prefix)
+            ]
+        p = raw
         return [
             {
                 "ncm": node["codigo"],

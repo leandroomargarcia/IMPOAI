@@ -13,14 +13,15 @@ Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de ca
 - [x] Auditar el JSON: 97 capítulos, ítems 8 dígitos, path con padre, AEC nulos
 - [x] Regresión POC: `0901.11.10`, `0101.21.00`, `0903.00.10`
 - [x] Spot-check capítulos 27, 39, 84
-- [ ] Si una partida tiene muchos ítems, listar primero subpartidas de 6 dígitos
+- [x] Si una partida tiene muchos ítems, listar primero subpartidas de 6 dígitos
 
 ## Grafo
 
-- [ ] Completar `GraphState` de la rama NCM (`ncm_capitulo`, `ncm_notas`, `ncm_partida`, `ncm_item`, `ncm`, `ncm_aec`, `ncm_feedback`, …)
-- [ ] Partir `clasificar_ncm` en nodos: router → notas → partida → ítem → `get_ncm` → grade
-- [ ] Si `get_ncm` falla, no llamar al grader
-- [ ] Si se acaba el presupuesto sin groundear, `ncm_info` debe decir que no clasificó
+- [x] Completar `GraphState` de la rama NCM (`ncm_chapter`, `ncm_notes`, `ncm_heading`, `ncm_item`, `ncm`, `ncm_aec`, `ncm_feedback`, `ncm_info`, …)
+- [x] Partir `clasificar_ncm` en nodos: router → notas → partida → ítem → `get_ncm` → grade
+- [x] Si `get_ncm` falla, no llamar al grader
+- [x] Si se acaba el presupuesto sin groundear, `ncm_info` debe decir que no clasificó
+- [x] Cablear el office: NCM ∥ hab → join → precio → AEC → orquestador
 - [ ] Probar 3 productos fuera de los capítulos 1 y 9
 
 ## Lo que usa un despachante y todavía no tenemos

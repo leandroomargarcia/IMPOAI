@@ -5,59 +5,84 @@ from dotenv import load_dotenv
 
 from langgraph.graph import StateGraph, START, END
 from graph.state import GraphState
-from graph.nodes.ncm_node import(
+from graph.nodes.ncm_node import (
     pick_chapter,
     load_notes,
     choose_heading,
+    after_heading,
+    choose_subheading,
     choose_item,
     fetch_ncm,
+    after_fetch,
     grade_ncm,
     after_grade,
-
+    ncm_done,
 )
-
 from graph.nodes.search_price import search_price
 from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.web_search_hab import web_search_hab
 from graph.nodes.hab_agent import hab_agent
+from graph.nodes.orchestrator import join_branches, orchestrator
 
 load_dotenv()
 
-builder = StateGraph(GraphState)
-builder.add_node("pick_chapter", pick_chapter)
-builder.add_node("load_notes", load_notes)
-builder.add_node("choose_heading", choose_heading)
-builder.add_node("choose_item", choose_item)
-builder.add_node("fetch_ncm", fetch_ncm)
-builder.add_node("grade_ncm", grade_ncm)
-builder.add_node("search_price", search_price)
-builder.add_node("calc_duty", calc_duty)
-builder.add_node("web_search_hab", web_search_hab)
-builder.add_node("hab_agent", hab_agent)
-builder.add_edge(START, "pick_chapter")
-builder.add_edge("pick_chapter", "load_notes")
-builder.add_edge("load_notes", "choose_heading")
-builder.add_edge("choose_heading", "choose_item")
-builder.add_edge("choose_item", "fetch_ncm")
-builder.add_edge("fetch_ncm", "grade_ncm")
-builder.add_conditional_edges(
-    "grade_ncm",
-    after_grade,
-    {"ok": "calc_duty", "retry": "pick_chapter", "fail": END},
-)
-builder.add_edge("calc_duty", "search_price")
-builder.add_edge("search_price", "web_search_hab")
-builder.add_edge("web_search_hab", "hab_agent")
-builder.add_edge("hab_agent", END)
 
-app = builder.compile()
+def build_graph():
+    builder = StateGraph(GraphState)
+    builder.add_node("pick_chapter", pick_chapter)
+    builder.add_node("load_notes", load_notes)
+    builder.add_node("choose_heading", choose_heading)
+    builder.add_node("choose_subheading", choose_subheading)
+    builder.add_node("choose_item", choose_item)
+    builder.add_node("fetch_ncm", fetch_ncm)
+    builder.add_node("grade_ncm", grade_ncm)
+    builder.add_node("ncm_done", ncm_done)
+    builder.add_node("web_search_hab", web_search_hab)
+    builder.add_node("hab_agent", hab_agent)
+    builder.add_node("join", join_branches)
+    builder.add_node("search_price", search_price)
+    builder.add_node("calc_duty", calc_duty)
+    builder.add_node("orchestrator", orchestrator)
+
+    builder.add_edge(START, "pick_chapter")
+    builder.add_edge(START, "web_search_hab")
+    builder.add_edge("web_search_hab", "hab_agent")
+
+    builder.add_edge("pick_chapter", "load_notes")
+    builder.add_edge("load_notes", "choose_heading")
+    builder.add_conditional_edges(
+        "choose_heading",
+        after_heading,
+        {"subheading": "choose_subheading", "item": "choose_item"},
+    )
+    builder.add_edge("choose_subheading", "choose_item")
+    builder.add_edge("choose_item", "fetch_ncm")
+    builder.add_conditional_edges(
+        "fetch_ncm",
+        after_fetch,
+        {"grade": "grade_ncm", "retry": "pick_chapter", "fail": "ncm_done"},
+    )
+    builder.add_conditional_edges(
+        "grade_ncm",
+        after_grade,
+        {"ok": "ncm_done", "retry": "pick_chapter", "fail": "ncm_done"},
+    )
+
+    builder.add_edge(["ncm_done", "hab_agent"], "join")
+    builder.add_edge("join", "search_price")
+    builder.add_edge("search_price", "calc_duty")
+    builder.add_edge("calc_duty", "orchestrator")
+    builder.add_edge("orchestrator", END)
+    return builder.compile()
+
+
+app = build_graph()
 
 if __name__ == "__main__":
     out = app.invoke(
         {"question": "green coffee beans", "attempts": 0, "fob": 4.50}
     )
     print("STATE chapter", out.get("ncm_chapter"), "attempts", out.get("attempts"))
-    print("STATE notes", (out.get("ncm_notes") or "")[:80], "...")
     print("STATE heading", out.get("ncm_heading"))
     print("STATE item", out.get("ncm_item"))
     print("STATE ncm", out.get("ncm"), "AEC", out.get("ncm_aec"))
@@ -66,3 +91,5 @@ if __name__ == "__main__":
     print("STATE duty", out.get("impuestos_estimados"))
     print("STATE sale USD", out.get("precio_ref"), out.get("ncm_currency"))
     print("STATE hab", (out.get("hab_info") or "")[:200])
+    print("REPORT")
+    print(out.get("reporte_final"))

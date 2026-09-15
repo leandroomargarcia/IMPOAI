@@ -1,20 +1,35 @@
 from graph.state import GraphState
 from ncm.catalog import NcmCatalog
-from graph.chains.ncm_agent import router, heading_chain, item_chain, grade_chain
-from graph.consts import MAX_ATTEMPTS
+from graph.chains.ncm_agent import (
+    router,
+    heading_chain,
+    subheading_chain,
+    item_chain,
+    grade_chain,
+)
+from graph.consts import ITEM_LIST_LIMIT, MAX_ATTEMPTS
 
 catalog = NcmCatalog.from_json()
 
+
 def pick_chapter(state: GraphState) -> dict:
-        question = state["question"]
-        caps = catalog.search_chapters(question)
-        list_caps = "\n".join(f"- {c['chapter']}: {c['title']}" for c in caps)
-        cap = router.invoke({"rgi": catalog.rgi, "question": question, "chapters": list_caps})
-        print("chapter", cap.chapter, "-", cap.motive)
-        return {
-            "ncm_chapter": cap.chapter.zfill(2),
-            "attempts": state.get("attempts", 0) + 1,
-        }
+    question = state["question"]
+    caps = catalog.search_chapters(question)
+    list_caps = "\n".join(f"- {c['chapter']}: {c['title']}" for c in caps)
+    cap = router.invoke({"rgi": catalog.rgi, "question": question, "chapters": list_caps})
+    print("chapter", cap.chapter, "-", cap.motive)
+    return {
+        "ncm_chapter": cap.chapter.zfill(2),
+        "attempts": state.get("attempts", 0) + 1,
+        "ncm": "",
+        "ncm_item": "",
+        "ncm_heading": "",
+        "ncm_subheading": "",
+        "ncm_descripcion": "",
+        "ncm_aec": 0.0,
+        "es_valido": False,
+    }
+
 
 def load_notes(state: GraphState) -> dict:
     notes = catalog.get_notes(state["ncm_chapter"])
@@ -27,6 +42,7 @@ def load_notes(state: GraphState) -> dict:
     print("notes loaded")
     print(notes_text)
     return {"ncm_notes": notes_text}
+
 
 def choose_heading(state: GraphState) -> dict:
     headings = catalog.list_headings(state["ncm_chapter"])
@@ -42,10 +58,38 @@ def choose_heading(state: GraphState) -> dict:
         }
     )
     print("heading", heading.heading, "-", heading.motive)
-    return {"ncm_heading": heading.heading}
+    return {"ncm_heading": heading.heading, "ncm_subheading": ""}
+
+
+def after_heading(state: GraphState) -> str:
+    heading = state["ncm_heading"]
+    items = catalog.list_items(heading)
+    subs = catalog.list_subheadings(heading)
+    if len(items) > ITEM_LIST_LIMIT and subs:
+        return "subheading"
+    return "item"
+
+
+def choose_subheading(state: GraphState) -> dict:
+    subs = catalog.list_subheadings(state["ncm_heading"])
+    list_subs = "\n".join(
+        f"- {s['subheading']}: {s['description']}" for s in subs
+    )
+    choice = subheading_chain.invoke(
+        {
+            "rgi": catalog.rgi,
+            "question": state["question"],
+            "notes": state["ncm_notes"],
+            "subheadings": list_subs,
+        }
+    )
+    print("subheading", choice.subheading, "-", choice.motive)
+    return {"ncm_subheading": choice.subheading}
+
 
 def choose_item(state: GraphState) -> dict:
-    items = catalog.list_items(state["ncm_heading"])
+    key = state.get("ncm_subheading") or state["ncm_heading"]
+    items = catalog.list_items(key)
     list_items = "\n".join(
         f"- {i['ncm']} | AEC {i['aec']} | {i['full_description']}" for i in items
     )
@@ -60,11 +104,17 @@ def choose_item(state: GraphState) -> dict:
     print("item", item.item, "-", item.motive)
     return {"ncm_item": item.item}
 
+
 def fetch_ncm(state: GraphState) -> dict:
     card = catalog.get_ncm(state["ncm_item"])
     if not card:
         print("code not in catalog:", state["ncm_item"])
-        return {"es_valido": False}
+        return {
+            "es_valido": False,
+            "ncm": "",
+            "ncm_aec": 0.0,
+            "ncm_descripcion": "",
+        }
     print("card OK", card["codigo"], "AEC", card["aec"])
     print(card["descripcion_completa"])
     return {
@@ -73,10 +123,17 @@ def fetch_ncm(state: GraphState) -> dict:
         "ncm_descripcion": card["descripcion_completa"],
     }
 
+
+def after_fetch(state: GraphState) -> str:
+    if state.get("ncm"):
+        return "grade"
+    return after_grade(state)
+
+
 def grade_ncm(state: GraphState) -> dict:
     if not state.get("ncm"):
         print("no card, skip grade")
-        return {"es_valido": False}
+        return {"es_valido": False, "ncm_feedback": "code not in catalog"}
     grade = grade_chain.invoke(
         {
             "rgi": catalog.rgi,
@@ -90,7 +147,8 @@ def grade_ncm(state: GraphState) -> dict:
         print("DONE", state["ncm"], "AEC", state["ncm_aec"])
     else:
         print("rejected:", grade.motive)
-    return {"es_valido": grade.is_valid}
+    return {"es_valido": grade.is_valid, "ncm_feedback": grade.motive}
+
 
 def after_grade(state: GraphState) -> str:
     if state.get("es_valido"):
@@ -100,3 +158,19 @@ def after_grade(state: GraphState) -> str:
         return "retry"
     print("FAILED after 3 attempts")
     return "fail"
+
+
+def ncm_done(state: GraphState) -> dict:
+    if state.get("es_valido") and state.get("ncm"):
+        info = (
+            f"{state['ncm']} | {state.get('ncm_descripcion')} | "
+            f"AEC {state.get('ncm_aec')}"
+        )
+        print("NCM done", info)
+        return {"ncm_info": info}
+    feedback = state.get("ncm_feedback") or ""
+    info = "No se pudo clasificar el NCM (presupuesto de intentos agotado)."
+    if feedback:
+        info = f"{info} {feedback}"
+    print("NCM fail", info)
+    return {"ncm_info": info, "es_valido": False}

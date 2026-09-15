@@ -9,7 +9,8 @@ class GraphState(TypedDict):
 
     Attributes:
         question: The question that the user asked (invoke).
-        ncm_info: NCM classification.
+        ncm_info: NCM classification (or why it failed).
+        ncm_feedback: grader motive / miss reason.
         hab_docs: web search hits on import permits (web_search_hab).
         hab_info: extracted habilitation requirements (analista_hab).
         attempts: Number of attempts to classify the product.
@@ -18,17 +19,20 @@ class GraphState(TypedDict):
         precio_ref: Argentine selling price converted to USD
         costos_asociados: associated costs (desglose_costos)
         impuestos_estimados: AEC duty on FOB (calcular_costos)
-        reporte_final: final report (generar_reporte)
+        reporte_final: final report (orquestador)
     """
 
     question: str
     ncm_chapter: str
     ncm_notes: str
     ncm_heading: str
+    ncm_subheading: str
     ncm_item: str
     ncm: str
     ncm_aec: float
     ncm_descripcion: str
+    ncm_info: str
+    ncm_feedback: str
     ncm_currency: str
     hab_docs: List[Document]
     hab_info: str
