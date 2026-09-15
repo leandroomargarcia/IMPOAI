@@ -20,7 +20,7 @@ def orchestrator(state: GraphState) -> dict:
             f"FOB: {fob if fob is not None else '-'} USD",
             f"Derecho AEC estimado: {duty if duty is not None else '-'} USD (FOB × AEC%; no es CIF ni liquidación completa).",
             f"FOB + AEC: {landed if landed is not None else '-'} USD",
-            f"Precio de referencia venta Argentina: {state.get('precio_ref') if state.get('precio_ref') is not None else '-'} USD",
+            f"Precio de referencia venta Argentina: {state.get('precio_info') or 'sin datos'}",
             "Habilitaciones (trámites, no aranceles):",
             state.get("hab_info") or "(sin datos)",
         ]

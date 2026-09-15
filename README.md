@@ -12,7 +12,7 @@ Target graph: NCM walk and habilitation search run **in parallel**, join, then A
 
 ## What it does today
 
-Given a product description and a **FOB value you type in**:
+Given a product description and a **FOB in the same question** (e.g. `green coffee beans FOB 4.50`):
 
 1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
 2. Estimate **AEC duty** as `FOB × AEC%` (CIF, statistical fee, VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`)
@@ -38,7 +38,7 @@ Fill `OPENAI_API_KEY` and `TAVILY_API_KEY` in `.env`. Never commit `.env`.
 .\.venv\Scripts\python.exe -m graph.graph
 ```
 
-Edit the play button in `graph/graph.py`: `question` + `fob`. Later this will come from a chat turn.
+Edit the play button in `graph/graph.py`: put the product and the FOB in `question` (e.g. `green coffee beans FOB 4.50`). Later this will come from a chat turn.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest graph\tests ncm\tests -q

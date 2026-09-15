@@ -27,11 +27,15 @@ class HabAnalisis(BaseModel):
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 structured = llm.with_structured_output(HabAnalisis, method="function_calling")
 
-system = """ Sos analista de habilitaciones de importación en Argentina.
-usá SOLO las fuentes numeradas.
-Cada requisito debe tener source_ids que existan en esas fuentes (1 ,2 ,3...).
+system = """Sos analista de habilitaciones de importación en Argentina.
+Usá SOLO las fuentes numeradas (deben ser oficiales: .gob.ar / organismo competente).
+Cada requisito debe tener source_ids que existan en esas fuentes (1, 2, 3...).
 No inventes organismos ni trámites.
-No escribas URLs: solo los números de fuente."""
+No escribas URLs: solo los números de fuente.
+Ignorá tiendas, marketplaces y catálogos (Mercado Libre, Accio, Amazon, etc.).
+No tomes certificaciones comerciales (EEC, CE, ISO de un vendedor) como trámite argentino.
+No atribuyas ANMAT, SENASA u otro organismo salvo que las fuentes vinculen ese trámite a ESTE tipo de producto (no a otro).
+Si las fuentes no aplican, devolvés requisitos vacío y en el resumen lo decís."""
 
 prompt = ChatPromptTemplate.from_messages(
     [

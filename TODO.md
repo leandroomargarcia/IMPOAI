@@ -15,6 +15,8 @@ Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de ca
 - [x] Spot-check capítulos 27, 39, 84
 - [x] Si una partida tiene muchos ítems, listar primero subpartidas de 6 dígitos
 
+
+
 ## Grafo
 
 - [x] Completar `GraphState` de la rama NCM (`ncm_chapter`, `ncm_notes`, `ncm_heading`, `ncm_item`, `ncm`, `ncm_aec`, `ncm_feedback`, `ncm_info`, …)
@@ -24,12 +26,16 @@ Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de ca
 - [x] Cablear el office: NCM ∥ hab → join → precio → AEC → orquestador
 - [ ] Probar 3 productos fuera de los capítulos 1 y 9
 
+
+
 ## Lo que usa un despachante y todavía no tenemos
 
 - [ ] **Ficha técnica** — pedir/armar composición, uso, presentación, si va armado. No clasificar solo con el nombre comercial
 - [ ] **Notas explicativas (NESH)** — índice aparte de la NCM; inyectarlas por partida, no por similitud al PDF del AEC
 - [ ] **Precedentes** — dictámenes AFIP/DGA, opiniones de clasificación, declaraciones parecidas
 - [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo
+
+
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
@@ -43,12 +49,16 @@ Hoy `calc_duty` solo hace `FOB × AEC%`. Eso no es un despacho. El objetivo es *
 - [ ] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
 - [ ] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
 
+
+
 ### Derechos y tasas (sobre CIF)
 
 - [ ] **AEC / derechos de importación** — ya tenemos la alícuota del catálogo; aplicarla sobre CIF, no sobre FOB
 - [ ] Derechos **específicos**, antidumping o salvaguardias si la posición los tiene (el POC no los parsea)
 - [ ] **Tasa de estadística** — % sobre CIF, con exenciones, orígenes y topes (no un 3 % fijo eterno)
 - [ ] Flags AEC `BK` / `BIT` y demás del PDF cuando el catálogo los traiga
+
+
 
 ### IVA y percepciones AFIP
 
@@ -57,16 +67,22 @@ Hoy `calc_duty` solo hace `FOB × AEC%`. Eso no es un despacho. El objetivo es *
 - [ ] **Percepción Ganancias** — RG vigente; no un % único para todos
 - [ ] Guardar en el state si el usuario está **inscripto** (cambia percepciones)
 
+
+
 ### IIBB
 
 - [ ] No usar un % nacional. Pedir **provincia** (o SIRPEI) y aplicar alícuota de esa jurisdicción
 - [ ] Default 0 si el usuario no informa provincia
+
+
 
 ### Costos operativos (después de la liquidación aduanera)
 
 - [ ] Honorarios de despachante (estimado; % de CIF o fijo)
 - [ ] Depósito fiscal / terminal / flete interno / seguro local
 - [ ] **Habilitaciones (SENASA/ANMAT, etc.)** — el nodo hab lista trámites, no montos. No costearlos como % del FOB. Opciones: el usuario carga el fee; tabla organismo → arancel; Tavily + extract (después)
+
+
 
 ### Precio local / FX (ya empezado)
 
