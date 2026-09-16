@@ -541,6 +541,58 @@ def test_ars_to_usd_fixed_rate():
     assert usd2 == pytest.approx(8.0)
 
 
+def test_parse_bcra_usd_a3500():
+    from graph.nodes.search_price import parse_bcra_usd
+
+    payload = {
+        "status": 200,
+        "results": [{
+            "fecha": "2026-09-16",
+            "detalle": [{"codigoMoneda": "USD", "descripcion": "DOLAR E.E.U.U.", "tipoCotizacion": 1513.5}],
+        }],
+    }
+    rate, fecha = parse_bcra_usd(payload)
+    assert rate == pytest.approx(1513.5)
+    assert fecha == "2026-09-16"
+    assert parse_bcra_usd({"results": []}) is None
+
+
+def test_fetch_usd_ars_falls_back(monkeypatch):
+    import urllib.error
+
+    from graph.consts import USD_ARS_RATE
+    from graph.nodes.search_price import fetch_usd_ars_rate
+
+    def boom(*_a, **_k):
+        raise urllib.error.URLError("down")
+
+    monkeypatch.setattr(search_price_mod.urllib.request, "urlopen", boom)
+    rate, note = fetch_usd_ars_rate()
+    assert rate == USD_ARS_RATE
+    assert "BCRA no disponible" in note
+
+
+def test_search_price_ars_uses_bcra(monkeypatch):
+    monkeypatch.setattr(
+        search_price_mod,
+        "tavily",
+        type("T", (), {"invoke": staticmethod(lambda _: {"results": [{"title": "t", "content": "$ 15135"}]})})(),
+    )
+    monkeypatch.setattr(
+        search_price_mod,
+        "price_chain",
+        type("C", (), {"invoke": staticmethod(lambda _: type("R", (), {"price": 15135.0, "currency": "ARS", "motive": "x"})())})(),
+    )
+    monkeypatch.setattr(
+        search_price_mod,
+        "fetch_usd_ars_rate",
+        lambda: (1513.5, "BCRA A3500 2026-09-16"),
+    )
+    out = search_price({"question": "ibuprofeno", "ncm": "3004.90.69", "ncm_descripcion": "x"})
+    assert out["precio_ref"] == pytest.approx(10.0)
+    assert "BCRA A3500 2026-09-16" in out["precio_info"]
+
+
 def test_missing_argentine_price_is_explained(monkeypatch):
     monkeypatch.setattr(
         search_price_mod,

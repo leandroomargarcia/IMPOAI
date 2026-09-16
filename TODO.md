@@ -88,5 +88,5 @@ Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística + medidas CNCE + **IVA
 
 ### Precio local / FX (ya empezado)
 
-- [ ] **Scrapear el tipo de cambio USD/ARS** (oficial o el que definamos para el negocio) en vez del fijo `USD_ARS_RATE` en `graph/consts.py`. Hoy el precio de venta en Argentina se extrae en pesos y se divide por esa constante para compararlo con el CIF en USD.
+- [x] **Tipo de cambio USD/ARS** — BCRA Comunicación A 3500 (`api.bcra.gob.ar/estadisticascambiarias`, `tipoCotizacion` USD). Solo convierte góndola ARS→USD. Si la API falla, `USD_ARS_RATE` 1535 y el reporte lo dice.
 - [ ] Comparar **CIF + liquidación estimada** contra `precio_ref` (venta local en USD)

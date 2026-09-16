@@ -1,8 +1,9 @@
 MAX_ATTEMPTS = 3
 ITEM_LIST_LIMIT = 20
 
-# Placeholder until we scrape a live USD/ARS rate.
+# Fallback if the BCRA A 3500 feed is down. Live quote: graph.nodes.search_price.fetch_usd_ars_rate.
 USD_ARS_RATE = 1535.0
+BCRA_USD_URL = "https://api.bcra.gob.ar/estadisticascambiarias/v1.0/Cotizaciones/USD"
 
 # Decreto 1140/2024: 3 % until 2027-12-31, with USD caps. Not the AIA "RE" column.
 ESTADISTICA_RATE = 3.0

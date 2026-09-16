@@ -16,7 +16,7 @@ Given a product description, **CIF**, optionally **origen**, **cantidad**, tax s
 
 1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
 2. Estimate **DIE** as `CIF × DIE%`, plus **tasa de estadística** (3 % of CIF with USD caps; 0 if origin is Mercosur), plus **IVA 21%** on `CIF + DIE + estadística + medidas`, plus **percepción IVA** (RG 2937: 20 % / 10 % on the same base), **percepción Ganancias** (RG 2281: 11 % default monotributista, 6 % `responsable inscripto`, 3 % `responsable inscripto CVDI`) and **IIBB** if the question has **provincia** (general-rate estimate; 0 if omitted; `IIBB 3.5` overrides). If `docs/*medidas*.xlsx` is present and the question has **origen**, add matching **antidumping ad valorem**. If it also has **cantidad** and the CNCE row has a single specific rate, add `cantidad × USD/unidad`. Min FOB and ambiguous rates are reported, not liquidated.
-3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with a **fixed** FX in `graph/consts.py`
+3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with the BCRA **A 3500** wholesale rate (fallback `USD_ARS_RATE` in `graph/consts.py`)
 5. Assemble a **report** (`reporte_final`) that labels the output as an estimate, not an AFIP filing
 
 Classification uses a **parsed JSON catalog**, not PDF RAG. The catalog covers **all 97 NCM chapters** (`ncm/data/catalog.json`). Rebuild it offline with `python -m ncm` (needs the Mercosur PDF next to the repo root).
