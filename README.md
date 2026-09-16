@@ -6,20 +6,22 @@ This is a **budgeting tool**, not a customs filing. It does not replace a *despa
 
 ## Architecture
 
-Target graph: NCM walk and habilitation search run **in parallel**, join, then Argentine selling price, AEC on FOB, and a written report. Duty is still `FOB × AEC%` (not a CIF liquidation).
+Target graph: NCM walk and habilitation search run **in parallel**, join, then Argentine selling price, DIE on user-entered CIF, and a written report. Duty is `CIF × DIE%`. Statistical fee, VAT, perceptions, IIBB are not in the calculator yet.
 
 ![Target LangGraph: parallel NCM walk and habilitation search, join, then price, costs, and report](docs/architecture.png)
 
 ## What it does today
 
-Given a product description and a **FOB in the same question** (e.g. `green coffee beans FOB 4.50`):
+Given a product description and a **CIF in the same question** (e.g. `green coffee beans CIF 4.50`):
 
 1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
-2. Estimate **AEC duty** as `FOB × AEC%` (CIF, statistical fee, VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`)
+2. Estimate **DIE duty** as `CIF × DIE%`, with CIF parsed from the question. Statistical fee, VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`
 3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with a **fixed** FX in `graph/consts.py`
 5. Assemble a **report** (`reporte_final`) that labels the output as an estimate, not an AFIP filing
 
 Classification uses a **parsed JSON catalog**, not PDF RAG. The catalog covers **all 97 NCM chapters** (`ncm/data/catalog.json`). Rebuild it offline with `python -m ncm` (needs the Mercosur PDF next to the repo root).
+
+If `docs/nomenclador_*.txt` and `docs/capitulo_*.txt` (Arancel Integrado dumps) are present, **current Argentine DIE** overlays the catalog AEC at lookup time. Those dumps are local (gitignored); without them the graph falls back to the PDF rates.
 
 ## Setup
 
@@ -38,7 +40,7 @@ Fill `OPENAI_API_KEY` and `TAVILY_API_KEY` in `.env`. Never commit `.env`.
 .\.venv\Scripts\python.exe -m graph.graph
 ```
 
-Edit the play button in `graph/graph.py`: put the product and the FOB in `question` (e.g. `green coffee beans FOB 4.50`). Later this will come from a chat turn.
+Edit the play button in `graph/graph.py`: put the product and the CIF in `question` (e.g. `green coffee beans CIF 4.50`). Later this will come from a chat turn.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest graph\tests ncm\tests -q
@@ -50,8 +52,9 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
 
 | Path | Role |
 |---|---|
-| `ncm/` | PDF parser (offline) + catalog lookup |
+| `ncm/` | PDF parser (offline) + catalog lookup + AIA overlay |
 | `ncm/data/catalog.json` | Full 97-chapter NCM (rebuild: `python -m ncm`) |
+| `docs/nomenclador_*.txt` | Local Arancel Integrado dump (gitignored; DIE overlay) |
 | `graph/graph.py` | LangGraph wiring |
 | `graph/chains/` | LLM forms (NCM, price, hab) |
 | `graph/nodes/` | State in / state out |
@@ -60,4 +63,4 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
 
 ## Status
 
-POC graph matches the office diagram (parallel NCM + hab → join → price → AEC stub → report). Next: CIF-based tax stack, live USD/ARS, conversational input for FOB / freight / province, then observability.
+POC graph matches the office diagram (parallel NCM + hab → join → price → DIE on CIF → report). Next: rest of the tax stack, live USD/ARS, conversational input for CIF / province, then observability.

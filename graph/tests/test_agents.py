@@ -91,13 +91,13 @@ def test_rama_ncm_caballo(monkeypatch):
         type("C", (), {"invoke": staticmethod(lambda _: type("R", (), {"price": 100.0, "currency": "USD", "motive": "x"})())})(),
     )
     out = _ncm_app().invoke(
-        {"question": "purebred breeding horse FOB 1000", "attempts": 0}
+        {"question": "purebred breeding horse CIF 1000", "attempts": 0}
     )
     assert out["ncm"] == "0101.21.00" # NCM encontrado
     assert out["ncm_aec"] == 0 # AEC encontrado
     assert out["es_valido"] is True # NCM válido
-    assert out["fob"] == 1000.0
-    assert out["impuestos_estimados"] == 0.0 # AEC 0% of FOB
+    assert out["cif"] == 1000.0
+    assert out["impuestos_estimados"] == 0.0 # DIE 0% of CIF
     assert out["precio_ref"] == 100.0 # already USD, no FX
     assert out.get("ncm_currency") == "USD"
     assert "No se encontró este producto" not in (out.get("precio_info") or "")
@@ -105,20 +105,26 @@ def test_rama_ncm_caballo(monkeypatch):
     assert not out.get("hab_info") # No se encontraron información de HAB
 
 
-def test_duty_uses_user_fob_not_sale_price():
-    out = calc_duty({"question": "coffee FOB 4.50", "ncm_aec": 10, "precio_ref": 9999})
+def test_duty_uses_user_cif_not_sale_price():
+    out = calc_duty({"question": "coffee CIF 4.50", "ncm_aec": 10, "precio_ref": 9999})
     assert out["impuestos_estimados"] == pytest.approx(0.45)
-    assert out["fob"] == pytest.approx(4.50)
+    assert out["cif"] == pytest.approx(4.50)
 
 
-def test_parse_fob_from_question():
-    from graph.nodes.calculate_costs import parse_fob, strip_fob_clause
+def test_duty_ignores_fob_in_question():
+    out = calc_duty({"question": "coffee FOB 4.50", "ncm_aec": 10})
+    assert out["impuestos_estimados"] == 0
 
-    assert parse_fob("green coffee beans FOB 4.50") == pytest.approx(4.50)
-    assert parse_fob("café fob: 4,50") == pytest.approx(4.50)
-    assert parse_fob("green coffee beans") is None
-    assert "FOB" not in strip_fob_clause("triciclo plegable FOB 223 USD")
-    assert "223" not in strip_fob_clause("triciclo plegable FOB 223 USD")
+
+def test_parse_cif_from_question():
+    from graph.nodes.calculate_costs import parse_cif, strip_cif_clause
+
+    assert parse_cif("green coffee beans CIF 4.50") == pytest.approx(4.50)
+    assert parse_cif("café cif: 4,50") == pytest.approx(4.50)
+    assert parse_cif("green coffee beans") is None
+    assert parse_cif("coffee FOB 4.50") is None
+    assert "CIF" not in strip_cif_clause("triciclo plegable CIF 223 USD")
+    assert "223" not in strip_cif_clause("triciclo plegable CIF 223 USD")
 
 
 def test_price_query_uses_product_not_ncm_kg():
@@ -126,7 +132,7 @@ def test_price_query_uses_product_not_ncm_kg():
 
     q = _price_query(
         {
-            "question": "JMMD Triciclo plegable FOB 223 USD",
+            "question": "JMMD Triciclo plegable CIF 223 USD",
             "ncm_descripcion": (
                 "Triciclos, patinetes, coches de pedal y juguetes similares con ruedas; "
                 "coches y sillas de ruedas para muñecas / Triciclos, patinetes"
@@ -134,13 +140,13 @@ def test_price_query_uses_product_not_ncm_kg():
         }
     )
     assert "kg" not in q.lower()
-    assert "FOB" not in q
+    assert "CIF" not in q
     assert "223" not in q
     assert "Triciclo" in q or "triciclo" in q.lower()
 
 
-def test_duty_skips_without_fob_in_question():
-    out = calc_duty({"question": "green coffee beans", "ncm_aec": 10, "fob": 4.50})
+def test_duty_skips_without_cif_in_question():
+    out = calc_duty({"question": "green coffee beans", "ncm_aec": 10, "cif": 4.50})
     assert out["impuestos_estimados"] == 0
 
 
@@ -209,7 +215,7 @@ def test_hab_drops_shop_hits(monkeypatch):
             })
         })(),
     )
-    out = web_search_hab({"question": "triciclo plegable FOB 223 USD"})
+    out = web_search_hab({"question": "triciclo plegable CIF 223 USD"})
     urls = [doc.metadata["url"] for doc in out["hab_docs"]]
     assert urls == ["https://www.argentina.gob.ar/senasa"]
 
@@ -359,7 +365,7 @@ def test_office_parallel_join_writes_report(monkeypatch):
 
     _patch_office(monkeypatch)
     out = build_graph().invoke(
-        {"question": "purebred breeding horse FOB 1000", "attempts": 0}
+        {"question": "purebred breeding horse CIF 1000", "attempts": 0}
     )
     assert out["ncm"] == "0101.21.00"
     assert out["es_valido"] is True
@@ -377,7 +383,7 @@ def test_ncm_fail_still_joins_hab_and_report(monkeypatch):
 
     _patch_office(monkeypatch, valid=False)
     out = build_graph().invoke(
-        {"question": "purebred breeding horse FOB 1000", "attempts": 0}
+        {"question": "purebred breeding horse CIF 1000", "attempts": 0}
     )
     assert out["es_valido"] is False
     assert "No se pudo clasificar" in out["ncm_info"]
@@ -398,7 +404,7 @@ def test_missing_ncm_skips_grader(monkeypatch):
     _patch_office(monkeypatch, item="9999.99.99")
     monkeypatch.setattr(ncm_node, "grade_chain", type("C", (), {"invoke": staticmethod(_grade)})())
     out = build_graph().invoke(
-        {"question": "purebred breeding horse FOB 10", "attempts": 0}
+        {"question": "purebred breeding horse CIF 10", "attempts": 0}
     )
     assert called == []
     assert out["es_valido"] is False
@@ -428,5 +434,6 @@ def test_grade_prompt_treats_notes_as_exclusions():
     assert "exclusion" in text
     assert "do not reject because the product name is absent" in text
     assert "false if the notes exclude it or the description does not match" not in text
+
 
 

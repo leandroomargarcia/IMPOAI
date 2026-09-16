@@ -80,14 +80,14 @@ app = build_graph()
 
 if __name__ == "__main__":
     out = app.invoke(
-        {"question": "Ibuprofeno 400 mg comprimidos recubiertos FOB 12 USD", "attempts": 0}
+        {"question": "Ibuprofeno 400 mg comprimidos recubiertos CIF 12 USD", "attempts": 0}
     )
     print("STATE chapter", out.get("ncm_chapter"), "attempts", out.get("attempts"))
     print("STATE heading", out.get("ncm_heading"))
     print("STATE item", out.get("ncm_item"))
     print("STATE ncm", out.get("ncm"), "AEC", out.get("ncm_aec"))
     print("STATE grade", out.get("es_valido"))
-    print("STATE fob", out.get("fob"))
+    print("STATE cif", out.get("cif"))
     print("STATE duty", out.get("impuestos_estimados"))
     print("STATE sale", out.get("precio_info") or out.get("precio_ref"), out.get("ncm_currency"))
     print("STATE hab", (out.get("hab_info") or "")[:200])

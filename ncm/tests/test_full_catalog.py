@@ -51,3 +51,4 @@ def test_full_catalog_spot_check_27_39_84(full_catalog):
     assert reactor["aec"] == 14
     assert reactor["aec_flag"] == "BK"
     assert reactor["capitulo"] == "84"
+

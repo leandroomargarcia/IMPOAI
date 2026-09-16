@@ -8,6 +8,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any
 
+from ncm.aia import AiaIndex, load_aia
 from ncm.parser import CATALOG_PATH, CATALOG_POC_PATH, parse_ncm, save_catalog
 
 def _norm(code: str) -> str:
@@ -15,16 +16,17 @@ def _norm(code: str) -> str:
 
 
 class NcmCatalog:
-    def __init__(self, data: dict[str, Any]):
+    def __init__(self, data: dict[str, Any], aia: AiaIndex | None = None):
         self.data = data
         self._chapter = {c["codigo"]: c for c in data["chapters"]}
         self._by_code = {_norm(n["codigo"]): n for n in data["nodes"]}
+        self.aia = aia
 
     @classmethod
     def from_pdf(cls) -> "NcmCatalog":
         catalog = parse_ncm()
         save_catalog(catalog, CATALOG_PATH)
-        return cls(catalog)
+        return cls(catalog, aia=load_aia())
 
     @classmethod
     def from_json(cls, path: Path | None = None) -> "NcmCatalog":
@@ -32,7 +34,7 @@ class NcmCatalog:
             path = CATALOG_PATH if CATALOG_PATH.exists() else CATALOG_POC_PATH
         if not path.exists():
             return cls.from_pdf()
-        return cls(json.loads(path.read_text(encoding="utf-8")))
+        return cls(json.loads(path.read_text(encoding="utf-8")), aia=load_aia())
 
     @property
     def rgi(self) -> str:
@@ -70,10 +72,13 @@ class NcmCatalog:
             A dictionary with the chapter code, title, chapter notes, and section notes.
         """
         ch = self._chapter[_norm(chapter).zfill(2)]
+        aia_notes = ""
+        if self.aia:
+            aia_notes = self.aia.chapter_notes.get(_norm(chapter).zfill(2)) or ""
         return {
             "chapter": ch["codigo"],
             "title": ch["titulo"],
-            "chapter_notes": ch["notas"],
+            "chapter_notes": aia_notes or ch["notas"],
             "section_notes": ch.get("notas_seccion") or "",
             "subheading_notes": ch.get("notas_subpartida") or "",
         }
@@ -109,34 +114,31 @@ class NcmCatalog:
         digits = raw.replace(".", "")
         if len(digits) >= 6:
             prefix = f"{digits[:4]}.{digits[4:6]}"
-            return [
-                {
-                    "ncm": node["codigo"],
-                    "description": node["descripcion"],
-                    "full_description": node["descripcion_completa"],
-                    "aec": node["aec"],
-                    "re": node["re"],
-                    "aec_flag": node.get("aec_flag"),
-                }
-                for node in self.data["items"]
-                if node["codigo"].startswith(prefix)
+            items = [
+                node for node in self.data["items"] if node["codigo"].startswith(prefix)
             ]
-        p = raw
-        return [
-            {
-                "ncm": node["codigo"],
-                "description": node["descripcion"],
-                "full_description": node["descripcion_completa"],
-                "aec": node["aec"],
-                "re": node["re"],
-                "aec_flag": node.get("aec_flag"),
-            }
-            for node in self.data["items"]
-            if node["partida"] == p
-        ]
+        else:
+            items = [node for node in self.data["items"] if node["partida"] == raw]
+        return [self._item_card(node) for node in items]
 
     def get_ncm(self, code: str) -> dict[str, Any] | None:
         node = self._by_code.get(_norm(code))
         if not node or node["nivel"] != 8 or node["aec"] is None:
             return None
-        return dict(node)
+        return self._item_card(node)
+
+    def _aec(self, code: str, fallback: float | None) -> float | None:
+        if self.aia:
+            die = self.aia.die(code)
+            if die is not None:
+                return die
+        return fallback
+
+    def _item_card(self, node: dict[str, Any]) -> dict[str, Any]:
+        card = dict(node)
+        card["aec"] = self._aec(node["codigo"], node.get("aec"))
+        card["ncm"] = node["codigo"]
+        card["description"] = node["descripcion"]
+        card["full_description"] = node["descripcion_completa"]
+        card["aec_flag"] = node.get("aec_flag")
+        return card

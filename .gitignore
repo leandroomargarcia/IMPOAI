@@ -33,8 +33,11 @@ client_secret*.json
 htmlcov/
 *.log
 
-# Documents (NCM PDF, etc.)
+# Documents (NCM PDF, Arancel Integrado dumps)
 *.pdf
+docs/nomenclador_*.txt
+docs/capitulo_*.txt
+docs/sufijos_*.txt
 
 # Output
 data/output/

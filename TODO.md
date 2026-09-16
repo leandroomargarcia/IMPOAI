@@ -31,21 +31,21 @@ Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de ca
 ## Lo que usa un despachante y todavía no tenemos
 
 - [ ] **Ficha técnica** — pedir/armar composición, uso, presentación, si va armado. No clasificar solo con el nombre comercial
-- [ ] **Notas explicativas (NESH)** — índice aparte de la NCM; inyectarlas por partida, no por similitud al PDF del AEC
-- [ ] **Precedentes** — dictámenes AFIP/DGA, opiniones de clasificación, declaraciones parecidas
+- [ ] **NESH** — cerrado: el libro de la OMA no es gratuito; no hay índice NESH en el repo
+- [ ] **Criterios de clasificación AFIP/ARCA** — precedentes por posición NCM (RG + anexos; Arancel Integrado para consultar). Van después de `get_ncm`
 - [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo
 
 
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
-Hoy `calc_duty` solo hace `FOB × AEC%`. Eso no es un despacho. El objetivo es **simular la hoja del despachante** (presupuesto), no liquidar en el sistema aduanero.
+Hoy `calc_duty` hace `CIF × DIE%`. El usuario ingresa el **CIF** en la pregunta (no FOB + flete + seguro). Todavía no es un despacho. El objetivo es **simular la hoja del despachante** (presupuesto), no liquidar en el sistema aduanero.
 
 ### Modificar lo que ya está
 
-- [ ] Dejar de tratar el FOB como valor en aduana. Base = **CIF** = FOB + flete internacional + seguro (el usuario los carga; el chat los pedirá después)
+- [x] Base = **CIF** ingresado por el usuario (el chat lo pedirá después)
 - [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada**, no solo el AEC
-- [ ] Llenar `costos_asociados` con **desglose renglón a renglón** (no un solo número)
+- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE)
 - [ ] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
 - [ ] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
 
@@ -53,7 +53,8 @@ Hoy `calc_duty` solo hace `FOB × AEC%`. Eso no es un despacho. El objetivo es *
 
 ### Derechos y tasas (sobre CIF)
 
-- [ ] **AEC / derechos de importación** — ya tenemos la alícuota del catálogo; aplicarla sobre CIF, no sobre FOB
+- [x] Parsear dump Arancel Integrado (`docs/nomenclador_*.txt`) y usar DIE vigente como AEC en `get_ncm`
+- [x] **AEC / derechos de importación** — aplicar la alícuota sobre CIF, no sobre FOB
 - [ ] Derechos **específicos**, antidumping o salvaguardias si la posición los tiene (el POC no los parsea)
 - [ ] **Tasa de estadística** — % sobre CIF, con exenciones, orígenes y topes (no un 3 % fijo eterno)
 - [ ] Flags AEC `BK` / `BIT` y demás del PDF cuando el catálogo los traiga

@@ -7,19 +7,20 @@ def join_branches(state: GraphState) -> dict:
 
 
 def orchestrator(state: GraphState) -> dict:
-    fob = state.get("fob")
+    cif = state.get("cif")
     duty = state.get("impuestos_estimados")
     landed = None
-    if fob is not None and duty is not None:
-        landed = fob + duty
+    if cif is not None and duty is not None:
+        landed = cif + duty
     report = "\n".join(
         [
             "IMPOAI — estimación de importación (no es un despacho AFIP / SIM / María).",
             f"Producto: {state.get('question') or '-'}",
             f"NCM: {state.get('ncm_info') or 'sin clasificar'}",
-            f"FOB: {fob if fob is not None else '-'} USD",
-            f"Derecho AEC estimado: {duty if duty is not None else '-'} USD (FOB × AEC%; no es CIF ni liquidación completa).",
-            f"FOB + AEC: {landed if landed is not None else '-'} USD",
+            f"CIF: {cif if cif is not None else '-'} USD",
+            f"Derecho DIE estimado: {duty if duty is not None else '-'} USD (CIF × DIE%; no es liquidación completa).",
+            f"CIF + DIE: {landed if landed is not None else '-'} USD",
+            f"Desglose: {state.get('costos_asociados') or '-'}",
             f"Precio de referencia venta Argentina: {state.get('precio_info') or 'sin datos'}",
             "Habilitaciones (trámites, no aranceles):",
             state.get("hab_info") or "(sin datos)",

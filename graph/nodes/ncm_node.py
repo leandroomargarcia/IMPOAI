@@ -115,7 +115,8 @@ def fetch_ncm(state: GraphState) -> dict:
             "ncm_aec": 0.0,
             "ncm_descripcion": "",
         }
-    print("card OK", card["codigo"], "AEC", card["aec"])
+    print("card OK", card["codigo"], "AEC", card["aec"],
+          "AIA" if catalog.aia and catalog.aia.die(card["codigo"]) is not None else "NCM")
     print(card["descripcion_completa"])
     return {
         "ncm": card["codigo"],
