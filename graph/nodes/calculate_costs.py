@@ -2,7 +2,13 @@ import re
 
 from graph.consts import ESTADISTICA_CAPS, ESTADISTICA_RATE, MERCOSUR_ORIGINS
 from graph.state import GraphState
-from ncm.medidas import fold, origin_matches, rate_for_origin
+from ncm.medidas import (
+    fold,
+    norm_unit,
+    origin_matches,
+    rate_for_origin,
+    specific_for_origin,
+)
 
 _NUM = r"(\d+(?:[.,]\d+)?)"
 CIF_RE = re.compile(rf"\bcif\s*[:=]?\s*{_NUM}", re.I)
@@ -10,9 +16,15 @@ ORIGEN_RE = re.compile(
     r"\b(?:origen|origin|procedencia)\s*[:=]?\s*([A-Za-zÁÉÍÓÚáéíóúñüÑ]+(?:\s+[A-Za-zÁÉÍÓÚáéíóúñüÑ]+)?)",
     re.I,
 )
+CANT_RE = re.compile(
+    rf"(?<![.\d]){_NUM}\s*"
+    r"(?P<unit>unidad(?:es)?|kilogramos?|kg|metros?(?:\s+lineales?|\s+cuadrados?)?|m2|pares?)\b",
+    re.I,
+)
 VALUE_CLAUSE_RE = re.compile(
     rf"\b(?:cif|fob|flete|freight|seguro|insurance)\s*[:=]?\s*{_NUM}(?:\s*usd)?"
-    r"|\b(?:origen|origin|procedencia)\s*[:=]?\s*[A-Za-zÁÉÍÓÚáéíóúñüÑ]+(?:\s+[A-Za-zÁÉÍÓÚáéíóúñüÑ]+)?",
+    r"|\b(?:origen|origin|procedencia)\s*[:=]?\s*[A-Za-zÁÉÍÓÚáéíóúñüÑ]+(?:\s+[A-Za-zÁÉÍÓÚáéíóúñüÑ]+)?"
+    rf"|{_NUM}\s*(?:unidad(?:es)?|kilogramos?|kg|metros?(?:\s+lineales?|\s+cuadrados?)?|m2|pares?)\b",
     re.I,
 )
 
@@ -29,6 +41,16 @@ def parse_origen(question: str) -> str | None:
     if not match:
         return None
     return match.group(1).strip()
+
+
+def parse_cantidad(question: str) -> tuple[float, str] | None:
+    match = CANT_RE.search(question or "")
+    if not match:
+        return None
+    unit = norm_unit(match.group("unit"))
+    if not unit:
+        return None
+    return float(match.group(1).replace(",", ".")), unit
 
 
 def strip_cif_clause(question: str) -> str:
@@ -78,6 +100,7 @@ def calc_duty(state: GraphState) -> dict:
     aec = state.get("ncm_aec") or 0
     die = cif * (aec / 100)
     origen = parse_origen(question)
+    qty = parse_cantidad(question)
     te, te_line = calc_estadistica(cif, origen)
     extra = 0.0
     lines = [
@@ -87,10 +110,14 @@ def calc_duty(state: GraphState) -> dict:
     ]
     if origen:
         lines.append(f"Origen {origen}")
+    if qty:
+        lines.append(f"Cantidad {qty[0]:g} {qty[1]}")
     for medida in state.get("ncm_medidas") or []:
+        text = medida.get("medida") or ""
+        kind = medida.get("kind") or ""
         lines.append(
             f"Medida {medida.get('producto') or '-'} / {medida.get('origen') or '-'}: "
-            f"{medida.get('medida') or '-'}"
+            f"{text}"
         )
         if not origen:
             lines.append("No se aplicó: falta origen en la pregunta.")
@@ -99,21 +126,43 @@ def calc_duty(state: GraphState) -> dict:
         if not origin_matches(origen, listed):
             lines.append(f"No aplica a origen {origen}.")
             continue
-        rate = rate_for_origin(medida.get("medida") or "", listed, origen)
+        rate = rate_for_origin(text, listed, origen)
+        applied = False
         if rate is not None:
             amount = cif * (rate / 100)
             extra += amount
+            applied = True
             lines.append(
                 f"Antidumping ad valorem {rate:g}% sobre CIF = {amount:g} USD"
             )
-            if (medida.get("kind") or "") in {"especifico", "combinada", "min_fob"}:
+        spec = specific_for_origin(text, listed, origen)
+        if spec:
+            if not qty:
                 lines.append(
-                    "Queda un tramo específico o valor mínimo sin liquidar (hace falta cantidad/unidad)."
+                    f"Derecho específico {spec['usd']:g} USD/{spec['unit']}: "
+                    "falta cantidad en la pregunta."
                 )
-        else:
+            elif qty[1] != spec["unit"]:
+                lines.append(
+                    f"Derecho específico {spec['usd']:g} USD/{spec['unit']}: "
+                    f"la cantidad está en {qty[1]}, no en {spec['unit']}."
+                )
+            else:
+                amount = qty[0] * spec["usd"]
+                extra += amount
+                applied = True
+                lines.append(
+                    f"Derecho específico {qty[0]:g} × {spec['usd']:g} USD/"
+                    f"{spec['unit']} = {amount:g} USD"
+                )
+        elif kind == "min_fob":
+            lines.append("Valor mínimo FOB: no es un derecho; no se liquidó.")
+        elif kind in {"especifico", "combinada"} and not spec:
             lines.append(
-                "Hay derecho específico o valor mínimo FOB; no se liquidó (hace falta cantidad/unidad)."
+                "Hay derecho específico ambiguo (varias tarifas); no se liquidó."
             )
+        elif not applied:
+            lines.append("La medida no se liquidó.")
     total = die + extra + te
     print("DUTY", total, "USD", f"(DIE {die} + TE {te} + extra {extra} of CIF {cif})")
     print("LANDED", cif + total, "USD")
@@ -121,5 +170,7 @@ def calc_duty(state: GraphState) -> dict:
         "impuestos_estimados": total,
         "cif": cif,
         "origen": origen or "",
+        "cantidad": qty[0] if qty else 0.0,
+        "unidad": qty[1] if qty else "",
         "costos_asociados": "\n".join(lines),
     }

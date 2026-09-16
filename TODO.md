@@ -32,14 +32,14 @@ Hecho: catálogo NCM de 97 capítulos (JSON, no RAG). Office: NCM ∥ hab → jo
 
 - [ ] **Ficha técnica** — pedir/armar composición, uso, presentación, si va armado. No clasificar solo con el nombre comercial
 - [x] **NESH** — cerrado: el libro de la OMA no es gratuito; no hay índice NESH en el repo
-- [ ] **Criterios de clasificación AFIP/ARCA** — precedentes por posición NCM (RG + anexos; Biblioteca ARCA). Van después de `get_ncm`. Hace falta el dump (PDF/JSON); el nomenclador AIA no es esto
-- [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo
+- [ ] **Criterios de clasificación AFIP/ARCA** — **prioridad muy baja (post-MVP)**. Cubren casos puntuales, no el flujo general. Si se hacen, van después de `get_ncm` como validación (no como clasificador). Hace falta dump de anexos de RG (Biblioteca ARCA); el nomenclador AIA no es esto.
+- [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo. **Después de la ficha técnica** (sin composición/uso el retry del grader alcanza). No es la próxima caja.
 
 
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
-Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si origen Mercosur) + antidumping **ad valorem** si hay origen y el xlsx CNCE matchea. Específico / FOB mínimo se informan, no se liquidan. Todavía no es un despacho.
+Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si origen Mercosur) + antidumping **ad valorem** si hay origen + **específico** si hay cantidad/unidad unívoca. FOB mínimo y tarifas múltiples se informan, no se liquidan. Todavía no es un despacho.
 
 ### Modificar lo que ya está
 
@@ -56,7 +56,7 @@ Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si or
 - [x] Parsear dump Arancel Integrado (`docs/nomenclador_*.txt`) y usar DIE vigente como AEC en `get_ncm`
 - [x] **AEC / derechos de importación** — aplicar la alícuota sobre CIF
 - [x] Derechos **específicos**, antidumping o salvaguardias: lookup del xlsx CNCE por NCM; se suma ad valorem si hay origen; específico / FOB mínimo se informan, no se liquidan. Este dump no trae salvaguardias
-- [ ] Liquidar **específico** cuando el usuario dé cantidad/unidad (hoy solo se avisa)
+- [x] Liquidar **específico** cuando el usuario da cantidad/unidad y el Excel tiene **una** tarifa (origen + unidad coinciden). Si hay varias (secas vs vapor) o es FOB mínimo, solo se avisa
 - [x] **Tasa de estadística** — 3 % sobre CIF (Decreto 1140/2024), con topes en USD y 0 si el origen es Mercosur. No se usa la columna RE del nomenclador (no es esta tasa)
 - [ ] Usar flags `BK` / `BIT` del catálogo en la liquidación (hoy se parsean y se guardan, `calc_duty` no los mira)
 

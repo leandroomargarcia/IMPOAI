@@ -12,10 +12,10 @@ Target graph: NCM walk and habilitation search run **in parallel**, join, then A
 
 ## What it does today
 
-Given a product description, a **CIF**, and optionally **origen** in the same question (e.g. `bombas de agua CIF 100 origen China`):
+Given a product description, **CIF**, optionally **origen** and **cantidad** (e.g. `pelotas de tenis CIF 100 origen China 200 unidades`):
 
 1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
-2. Estimate **DIE** as `CIF × DIE%`, plus **tasa de estadística** (3 % of CIF with USD caps; 0 if origin is Mercosur). If `docs/*medidas*.xlsx` is present and the question has **origen**, add matching **antidumping ad valorem**. Specific duties and min FOB are reported, not liquidated. VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`
+2. Estimate **DIE** as `CIF × DIE%`, plus **tasa de estadística** (3 % of CIF with USD caps; 0 if origin is Mercosur). If `docs/*medidas*.xlsx` is present and the question has **origen**, add matching **antidumping ad valorem**. If it also has **cantidad** and the CNCE row has a single specific rate, add `cantidad × USD/unidad`. Min FOB and ambiguous rates are reported, not liquidated. VAT, perceptions, IIBB are not in the calculator yet — see `TODO.md`
 3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with a **fixed** FX in `graph/consts.py`
 5. Assemble a **report** (`reporte_final`) that labels the output as an estimate, not an AFIP filing
 

@@ -25,11 +25,13 @@ class GraphState(TypedDict):
         es_valido: groundedness del NCM (grade_generation)
         cif: CIF entered in the question (duty base; not derived from FOB)
         origen: country of origin parsed from the question (antidumping)
+        cantidad: import quantity from the question (specific duty)
+        unidad: unit for cantidad (unidad, kg, m, m2, par)
         ncm_medidas: CNCE trade-defense rows for this NCM
         precio_ref: Argentine selling price converted to USD
         precio_info: human message (found price, or not found in Argentina)
         costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas)
-        impuestos_estimados: DIE + estadística + matching ad valorem extra (calcular_costos)
+        impuestos_estimados: DIE + estadística + AD ad valorem + específico (calcular_costos)
         reporte_final: final report (orquestador)
     """
 
@@ -51,6 +53,8 @@ class GraphState(TypedDict):
     es_valido: bool
     cif: float
     origen: str
+    cantidad: float
+    unidad: str
     ncm_medidas: list
     precio_ref: float
     precio_info: str

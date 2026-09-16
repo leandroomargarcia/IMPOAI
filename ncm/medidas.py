@@ -100,6 +100,80 @@ def rate_for_origin(medida: str, origen_listed: str, user_origin: str) -> float 
     return None
 
 
+UNIT_ALIASES = {
+    "unidad": "unidad",
+    "unidades": "unidad",
+    "kg": "kg",
+    "kilogramo": "kg",
+    "kilogramos": "kg",
+    "metro": "m",
+    "metros": "m",
+    "metro lineal": "m",
+    "metros lineales": "m",
+    "metro cuadrado": "m2",
+    "metros cuadrados": "m2",
+    "m2": "m2",
+    "par": "par",
+    "pares": "par",
+}
+
+SPEC_RE = re.compile(
+    r"(?:(?P<ori>[A-Za-zÁÉÍÓÚáéíóúñüÑ]+)\s*:\s*)?"
+    r"(?:u\$s|us\$|usd)\s*(?P<usd>\d+(?:[.,]\d+)?)\s*por\s+"
+    r"(?P<unit>metro\s+cuadrado|metros?\s+cuadrados?|metro\s+lineal|"
+    r"metros?\s+lineales?|kilogramos?|unidad(?:es)?|kg|pares?)",
+    re.I,
+)
+
+
+def norm_unit(raw: str) -> str | None:
+    key = fold(raw)
+    return UNIT_ALIASES.get(key)
+
+
+def extract_especifico(medida: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for match in SPEC_RE.finditer(medida or ""):
+        unit = norm_unit(match.group("unit"))
+        if not unit:
+            continue
+        ori = fold(match.group("ori") or "").replace(" ", "")
+        rows.append(
+            {
+                "origen": ori,
+                "usd": float(match.group("usd").replace(",", ".")),
+                "unit": unit,
+            }
+        )
+    return rows
+
+
+def specific_for_origin(
+    medida: str, origen_listed: str, user_origin: str
+) -> dict[str, Any] | None:
+    """One USD/unit rate if origin matches and the text is not ambiguous."""
+    if not origin_matches(user_origin, origen_listed):
+        return None
+    rows = extract_especifico(medida)
+    if not rows:
+        return None
+    u = fold(user_origin).replace(" ", "")
+    picked = [
+        r
+        for r in rows
+        if not r["origen"] or r["origen"] in u or u in r["origen"]
+    ]
+    if not picked:
+        picked = [r for r in rows if not r["origen"]]
+    if not picked:
+        return None
+    amounts = {(r["usd"], r["unit"]) for r in picked}
+    if len(amounts) != 1:
+        return None
+    usd, unit = next(iter(amounts))
+    return {"usd": usd, "unit": unit}
+
+
 def measure_kind(medida: str) -> str:
     text = fold(medida)
     specific = "especific" in text

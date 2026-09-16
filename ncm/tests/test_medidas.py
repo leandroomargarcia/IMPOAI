@@ -2,11 +2,13 @@ import pytest
 
 from ncm.medidas import (
     extract_ad_valorem,
+    extract_especifico,
     latest_medidas_xlsx,
     load_medidas,
     origin_matches,
     parse_ncm_list,
     rate_for_origin,
+    specific_for_origin,
 )
 
 
@@ -43,6 +45,21 @@ def test_origin_matches_ignores_accents():
     assert origin_matches("China", "Brasil, China, India")
     assert origin_matches("vietnam", "Malasia, Vietnám")
     assert not origin_matches("Chile", "Brasil, China")
+
+
+def test_specific_picks_country_rate():
+    medida = (
+        "Derechos específicos: China: U$S 0,46 por unidad, "
+        "Tailandia: U$S 0,21 por unidad."
+    )
+    assert extract_especifico(medida)[0]["usd"] == pytest.approx(0.46)
+    picked = specific_for_origin(medida, "China, Tailandia", "China")
+    assert picked == {"usd": 0.46, "unit": "unidad"}
+    assert specific_for_origin(
+        "US$ 13,22 por unidad a las secas, y de US$ 15,41 por unidad a vapor.",
+        "China",
+        "China",
+    ) is None
 
 
 @pytest.mark.skipif(latest_medidas_xlsx() is None, reason="no medidas xlsx in docs/")

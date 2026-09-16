@@ -117,13 +117,20 @@ def test_duty_ignores_fob_in_question():
 
 
 def test_parse_cif_from_question():
-    from graph.nodes.calculate_costs import parse_cif, parse_origen, strip_cif_clause
+    from graph.nodes.calculate_costs import (
+        parse_cantidad,
+        parse_cif,
+        parse_origen,
+        strip_cif_clause,
+    )
 
     assert parse_cif("green coffee beans CIF 4.50") == pytest.approx(4.50)
     assert parse_cif("café cif: 4,50") == pytest.approx(4.50)
     assert parse_cif("green coffee beans") is None
     assert parse_cif("coffee FOB 4.50") is None
     assert parse_origen("bombas CIF 100 origen China") == "China"
+    assert parse_cantidad("pelotas CIF 100 200 unidades") == (200.0, "unidad")
+    assert parse_cantidad("café CIF 4.50") is None
     assert "CIF" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "223" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "China" not in strip_cif_clause("bombas CIF 100 origen China")
@@ -197,7 +204,50 @@ def test_duty_skips_ad_without_origin_and_skips_specific():
         }
     )
     assert tennis["impuestos_estimados"] == pytest.approx(3)
-    assert "específico" in tennis["costos_asociados"].lower() or "especifico" in tennis["costos_asociados"].lower()
+    assert "falta cantidad" in tennis["costos_asociados"]
+
+
+def test_duty_multiplies_specific_when_quantity_matches():
+    specific = {
+        "producto": "Pelotas de tenis",
+        "origen": "China, Filipinas, Tailandia",
+        "medida": (
+            "Derechos específicos: China: U$S 0,46 por unidad, "
+            "Tailandia: U$S 0,21 por unidad."
+        ),
+        "kind": "especifico",
+    }
+    out = calc_duty(
+        {
+            "question": "pelotas CIF 100 origen China 200 unidades",
+            "ncm_aec": 0,
+            "ncm_medidas": [specific],
+        }
+    )
+    assert out["cantidad"] == 200
+    assert out["unidad"] == "unidad"
+    assert out["impuestos_estimados"] == pytest.approx(3 + 200 * 0.46)
+
+
+def test_duty_skips_ambiguous_specific_even_with_quantity():
+    medida = {
+        "producto": "Planchas",
+        "origen": "China",
+        "medida": (
+            "Derecho antidumping específico de US$ 13,22 por unidad a las "
+            "planchas secas, y de US$ 15,41 por unidad a las planchas a vapor."
+        ),
+        "kind": "especifico",
+    }
+    out = calc_duty(
+        {
+            "question": "planchas CIF 100 origen China 10 unidades",
+            "ncm_aec": 0,
+            "ncm_medidas": [medida],
+        }
+    )
+    assert out["impuestos_estimados"] == pytest.approx(3)
+    assert "ambiguo" in out["costos_asociados"]
 
 
 def test_estadistica_cap_and_mercosur_exemption():
