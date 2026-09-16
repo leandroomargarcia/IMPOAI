@@ -39,13 +39,13 @@ Hecho: catálogo NCM de 97 capítulos (JSON, no RAG). Office: NCM ∥ hab → jo
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
-Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística + medidas CNCE + **IVA** + **percepción IVA** + **percepción Ganancias**. IIBB no está. Todavía no es un despacho.
+Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística + medidas CNCE + **IVA** + **percepción IVA** + **percepción Ganancias** + **IIBB** (si hay provincia). Todavía no es un despacho.
 
 ### Modificar lo que ya está
 
 - [x] Base = **CIF** ingresado por el usuario (el chat lo pedirá después)
-- [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada** (hoy: DIE + estadística + medidas + IVA + percepciones; falta IIBB)
-- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE, estadística, medidas, IVA, percepciones)
+- [x] `impuestos_estimados` pasa a ser un **total de liquidación estimada** (DIE + estadística + medidas + IVA + percepciones + IIBB)
+- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE, estadística, medidas, IVA, percepciones, IIBB)
 - [x] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
 - [x] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
 
@@ -73,8 +73,8 @@ Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística + medidas CNCE + **IVA
 
 ### IIBB
 
-- [ ] No usar un % nacional. Pedir **provincia** (o SIRPEI) y aplicar alícuota de esa jurisdicción
-- [ ] Default 0 si el usuario no informa provincia
+- [x] No usar un % nacional. Pedir **provincia** (o `IIBB 3.5` a mano) y aplicar alícuota general estimada de esa jurisdicción (tabla SIRPEI de presupuesto; no es el factor del CUIT)
+- [x] Default 0 si el usuario no informa provincia
 
 
 

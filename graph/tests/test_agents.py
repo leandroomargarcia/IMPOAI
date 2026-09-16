@@ -30,13 +30,15 @@ def _taxes(
     extra: float = 0.0,
     iva_rate: float = IVA_RATE,
     ganancias_rate: float = 11.0,
+    iibb_rate: float = 0.0,
 ) -> float:
     base = cif + die + te + extra
     iva = base * (iva_rate / 100)
     perc_iva_rate = 0.0 if iva_rate <= 0 else (10.0 if iva_rate <= 10.5 else 20.0)
     perc_iva = base * (perc_iva_rate / 100)
     ganancias = base * (ganancias_rate / 100)
-    return die + te + extra + iva + perc_iva + ganancias
+    iibb = base * (iibb_rate / 100)
+    return die + te + extra + iva + perc_iva + ganancias + iibb
 
 def _ncm_app():
     g = StateGraph(GraphState)
@@ -137,9 +139,11 @@ def test_parse_cif_from_question():
     from graph.nodes.calculate_costs import (
         parse_cantidad,
         parse_cif,
+        parse_iibb_rate,
         parse_inscripto,
         parse_iva_rate,
         parse_origen,
+        parse_provincia,
         strip_cif_clause,
     )
 
@@ -157,6 +161,12 @@ def test_parse_cif_from_question():
     assert parse_iva_rate("coffee CIF 100") == pytest.approx(21)
     assert parse_iva_rate("coffee CIF 100 IVA 10.5") == pytest.approx(10.5)
     assert parse_iva_rate("coffee CIF 100 IVA exento") == pytest.approx(0)
+    assert parse_provincia("coffee CIF 100") is None
+    assert parse_provincia("coffee CIF 100 provincia CABA") == "CABA"
+    assert parse_provincia("coffee CIF 100 provincia Buenos Aires origen China") == "Buenos Aires"
+    assert parse_provincia("coffee CIF 100 provincia Tierra del Fuego") == "Tierra del Fuego"
+    assert parse_iibb_rate("coffee CIF 100") is None
+    assert parse_iibb_rate("coffee CIF 100 IIBB 4") == pytest.approx(4)
     assert "CIF" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "223" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "China" not in strip_cif_clause("bombas CIF 100 origen China")
@@ -338,6 +348,29 @@ def test_ganancias_particular_and_cvdi():
     assert excluded["ganancias"] == pytest.approx(0)
 
 
+def test_iibb_zero_without_province_and_applies_when_given():
+    none = calc_duty({"question": "coffee CIF 100", "ncm_aec": 0})
+    assert none["iibb"] == 0
+    assert none["provincia"] == ""
+    assert "falta provincia" in none["costos_asociados"]
+    caba = calc_duty({"question": "coffee CIF 100 provincia CABA", "ncm_aec": 0})
+    assert caba["provincia"] == "CABA"
+    assert caba["iibb"] == pytest.approx(103 * 0.03)
+    assert caba["impuestos_estimados"] == pytest.approx(
+        _taxes(100, 0, 3, iibb_rate=3)
+    )
+    pba = calc_duty(
+        {"question": "coffee CIF 100 provincia Buenos Aires", "ncm_aec": 0}
+    )
+    assert pba["iibb"] == pytest.approx(103 * 0.035)
+    override = calc_duty({"question": "coffee CIF 100 IIBB 4", "ncm_aec": 0})
+    assert override["iibb"] == pytest.approx(103 * 0.04)
+    unknown = calc_duty({"question": "coffee CIF 100 provincia Atlántida", "ncm_aec": 0})
+    assert unknown["iibb"] == 0
+    assert unknown["provincia"] == ""
+    assert "no reconocida" in unknown["costos_asociados"]
+
+
 def test_rama_hab_sin_ncm(monkeypatch):
     monkeypatch.setattr(
         web_search_mod,
@@ -372,7 +405,7 @@ def test_rama_hab_sin_ncm(monkeypatch):
 
 
 def test_official_hab_url():
-    from graph.nodes.web_search_hab import is_official_hab_url
+    from graph.nodes.web_search_hab import hab_domains, is_official_hab_url
 
     assert is_official_hab_url("https://www.argentina.gob.ar/senasa")
     assert is_official_hab_url("https://ejemplo.gob.ar/senasa")
@@ -380,6 +413,9 @@ def test_official_hab_url():
     assert not is_official_hab_url("https://es.accio.com/plp/triciclo")
     assert not is_official_hab_url("https://www.mercadolibre.com.ar/triciclo")
     assert not is_official_hab_url("")
+    assert hab_domains("ibuprofeno 400 mg comprimidos CIF 12") == ["anmat.gob.ar"]
+    assert hab_domains("purebred breeding horse CIF 1000") == ["senasa.gob.ar"]
+    assert hab_domains("triciclo plegable CIF 223") == ["argentina.gob.ar"]
 
 
 def test_hab_drops_shop_hits(monkeypatch):
@@ -406,6 +442,43 @@ def test_hab_drops_shop_hits(monkeypatch):
     out = web_search_hab({"question": "triciclo plegable CIF 223 USD"})
     urls = [doc.metadata["url"] for doc in out["hab_docs"]]
     assert urls == ["https://www.argentina.gob.ar/senasa"]
+
+
+def test_hab_retries_official_domains_when_first_search_is_shops(monkeypatch):
+    shop = {
+        "title": "Accio",
+        "url": "https://es.accio.com/plp/ibuprofeno",
+        "content": "Comprar ibuprofeno.",
+    }
+    official = {
+        "title": "ANMAT",
+        "url": "https://www.argentina.gob.ar/anmat",
+        "content": "Inscripción en el Registro de Especialidades Medicinales.",
+    }
+    calls = []
+
+    def _invoke(payload):
+        calls.append(payload)
+        if len(calls) == 1:
+            return {"results": [shop]}
+        return {"results": [shop, official]}
+
+    monkeypatch.setattr(
+        web_search_mod,
+        "tavily",
+        type("T", (), {"invoke": staticmethod(_invoke)})(),
+    )
+    out = web_search_hab(
+        {"question": "ibuprofeno 400 mg comprimidos recubiertos CIF 12"}
+    )
+    assert len(calls) == 2
+    domains = ["anmat.gob.ar"]
+    assert calls[0].get("include_domains") == domains
+    assert "site:.gob.ar" not in (calls[0].get("query") or "")
+    assert calls[1].get("include_domains") == domains
+    assert "comprimidos" not in (calls[1].get("query") or "").lower()
+    urls = [doc.metadata["url"] for doc in out["hab_docs"]]
+    assert urls == ["https://www.argentina.gob.ar/anmat"]
 
 
 def test_hab_shops_only_says_not_found(monkeypatch):

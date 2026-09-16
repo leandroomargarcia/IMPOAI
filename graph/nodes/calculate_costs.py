@@ -6,6 +6,8 @@ from graph.consts import (
     GANANCIAS_PERC_CVDI,
     GANANCIAS_PERC_INSCRIPTO,
     GANANCIAS_PERC_PARTICULAR,
+    IIBB_ALIASES,
+    IIBB_RATES,
     IVA_PERC_GENERAL,
     IVA_PERC_REDUCED,
     IVA_RATE,
@@ -43,7 +45,9 @@ VALUE_CLAUSE_RE = re.compile(
     r"|\bcvdi\b"
     r"|\biva\s*[:=]?\s*\d+(?:[.,]\d+)?\s*%?"
     r"|\bexento\s+(?:de\s+)?iva\b"
-    r"|\bcertificado\s+de\s+exclusi[oó]n\b",
+    r"|\bcertificado\s+de\s+exclusi[oó]n\b"
+    r"|\b(?:provincia|jurisdicci[oó]n)(?:\s+de)?\s*[:=]?\s*[A-Za-zÁÉÍÓÚáéíóúñüÑ]+(?:\s+(?:de|del|los|las|el)?\s*[A-Za-zÁÉÍÓÚáéíóúñüÑ]+){0,4}"
+    r"|\biibb\s*[:=]?\s*\d+(?:[.,]\d+)?\s*%?",
     re.I,
 )
 INSCRIPTO_NO_RE = re.compile(
@@ -64,6 +68,11 @@ EXCLUSION_RE = re.compile(
     r"|no\s+retenci[oó]n\s+ganancias",
     re.I,
 )
+PROVINCIA_RE = re.compile(
+    r"\b(?:provincia|jurisdicci[oó]n)(?:\s+de)?\s*[:=]?\s*",
+    re.I,
+)
+IIBB_RATE_RE = re.compile(rf"\biibb\s*[:=]?\s*{_NUM}\s*%?", re.I)
 
 
 def parse_cif(question: str) -> float | None:
@@ -108,6 +117,27 @@ def parse_iva_rate(question: str) -> float:
     if IVA_REDUCED_RE.search(text):
         return IVA_REDUCED_RATE
     return IVA_RATE
+
+
+def parse_provincia(question: str) -> str | None:
+    """Canonical province, '' if mentioned but unknown, None if omitted."""
+    match = PROVINCIA_RE.search(question or "")
+    if not match:
+        return None
+    rest = fold(question[match.end() :]).replace(".", "").replace(" ", "")
+    if not rest:
+        return ""
+    for key in sorted(IIBB_ALIASES, key=len, reverse=True):
+        if rest.startswith(key):
+            return IIBB_ALIASES[key]
+    return ""
+
+
+def parse_iibb_rate(question: str) -> float | None:
+    match = IIBB_RATE_RE.search(question or "")
+    if not match:
+        return None
+    return float(match.group(1).replace(",", "."))
 
 
 def strip_cif_clause(question: str) -> str:
@@ -222,6 +252,38 @@ def calc_ganancias(
     return amount, note
 
 
+def calc_iibb(
+    cif: float,
+    die: float,
+    te: float,
+    extra: float,
+    provincia: str | None,
+    override: float | None,
+) -> tuple[float, str]:
+    """IIBB perception by province. 0 if the question has no provincia / IIBB rate."""
+    base = iva_base(cif, die, te, extra)
+    if override is not None:
+        amount = base * (override / 100)
+        where = f"provincia {provincia}" if provincia else "pregunta"
+        return amount, (
+            f"IIBB {override:g}% ({where}) sobre CIF+DIE+estadística+medidas "
+            f"({base:g} USD) = {amount:g} USD"
+        )
+    if provincia is None:
+        return 0.0, "IIBB 0 USD (falta provincia; no se usa un % nacional)"
+    if not provincia:
+        return 0.0, "IIBB 0 USD (provincia no reconocida)"
+    rate = IIBB_RATES.get(provincia)
+    if rate is None:
+        return 0.0, f"IIBB 0 USD (sin alícuota cargada para {provincia})"
+    amount = base * (rate / 100)
+    return amount, (
+        f"IIBB {rate:g}% ({provincia}, alícuota general estimada SIRPEI; "
+        f"no es el factor del CUIT) sobre CIF+DIE+estadística+medidas "
+        f"({base:g} USD) = {amount:g} USD"
+    )
+
+
 def calc_duty(state: GraphState) -> dict:
     question = state.get("question") or ""
     cif = parse_cif(question)
@@ -234,6 +296,8 @@ def calc_duty(state: GraphState) -> dict:
     qty = parse_cantidad(question)
     inscripto = parse_inscripto(question)
     iva_rate = parse_iva_rate(question)
+    provincia = parse_provincia(question)
+    iibb_override = parse_iibb_rate(question)
     te, te_line = calc_estadistica(cif, origen)
     extra = 0.0
     lines = [
@@ -245,6 +309,8 @@ def calc_duty(state: GraphState) -> dict:
         lines.append(f"Origen {origen}")
     if qty:
         lines.append(f"Cantidad {qty[0]:g} {qty[1]}")
+    if provincia:
+        lines.append(f"Provincia {provincia}")
     if inscripto:
         lines.append("Importador responsable inscripto")
     elif re.search(r"consumo\s+particular|uso\s+particular|consumidor\s+final", question, re.I):
@@ -305,18 +371,20 @@ def calc_duty(state: GraphState) -> dict:
     iva, iva_line = calc_iva(cif, die, te, extra, iva_rate)
     perc_iva, perc_iva_line = calc_iva_percepcion(cif, die, te, extra, iva_rate)
     gcias, gcias_line = calc_ganancias(cif, die, te, extra, question, inscripto)
+    iibb, iibb_line = calc_iibb(cif, die, te, extra, provincia, iibb_override)
     lines.append(iva_line)
     lines.append(perc_iva_line)
     if inscripto and perc_iva:
         lines.append("La percepción IVA es crédito fiscal para el inscripto.")
     lines.append(gcias_line)
-    total = die + extra + te + iva + perc_iva + gcias
+    lines.append(iibb_line)
+    total = die + extra + te + iva + perc_iva + gcias + iibb
     print(
         "DUTY",
         total,
         "USD",
         f"(DIE {die} + TE {te} + extra {extra} + IVA {iva} "
-        f"+ percIVA {perc_iva} + Gcias {gcias} of CIF {cif})",
+        f"+ percIVA {perc_iva} + Gcias {gcias} + IIBB {iibb} of CIF {cif})",
     )
     print("LANDED", cif + total, "USD")
     return {
@@ -326,8 +394,10 @@ def calc_duty(state: GraphState) -> dict:
         "cantidad": qty[0] if qty else 0.0,
         "unidad": qty[1] if qty else "",
         "inscripto": inscripto,
+        "provincia": provincia or "",
         "iva": iva,
         "iva_percepcion": perc_iva,
         "ganancias": gcias,
+        "iibb": iibb,
         "costos_asociados": "\n".join(lines),
     }

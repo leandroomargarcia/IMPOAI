@@ -29,12 +29,14 @@ class GraphState(TypedDict):
         unidad: unit for cantidad (unidad, kg, m, m2, par)
         ncm_medidas: CNCE trade-defense rows for this NCM
         inscripto: IVA-registered importer; True only if the question says so (default monotributista)
+        provincia: Argentine province for IIBB (empty unless the question has it)
         iva_percepcion: RG 2937 VAT perception amount
         ganancias: RG 2281 income-tax perception amount
+        iibb: IIBB perception by province (0 if no provincia)
         precio_ref: Argentine selling price converted to USD
         precio_info: human message (found price, or not found in Argentina)
-        costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas, IVA, percepciones)
-        impuestos_estimados: DIE + estadística + medidas + IVA + percepciones (calcular_costos)
+        costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas, IVA, percepciones, IIBB)
+        impuestos_estimados: DIE + estadística + medidas + IVA + percepciones + IIBB (calcular_costos)
         reporte_final: final report (orquestador)
     """
 
@@ -61,7 +63,9 @@ class GraphState(TypedDict):
     iva: float
     iva_percepcion: float
     ganancias: float
+    iibb: float
     inscripto: bool
+    provincia: str
     ncm_medidas: list
     precio_ref: float
     precio_info: str
