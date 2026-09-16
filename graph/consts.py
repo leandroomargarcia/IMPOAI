@@ -15,3 +15,16 @@ ESTADISTICA_CAPS = (
 MERCOSUR_ORIGINS = frozenset(
     {"argentina", "brasil", "brazil", "paraguay", "uruguay", "mercosur"}
 )
+
+# Import VAT default. 10.5 % by NCM is a later table; the question may override.
+IVA_RATE = 21.0
+IVA_REDUCED_RATE = 10.5
+
+# RG 2937 / 4461: percepción IVA on the same art. 25 base as IVA.
+IVA_PERC_GENERAL = 20.0
+IVA_PERC_REDUCED = 10.0
+
+# RG 2281: percepción Ganancias. Default = monotributista (11%). Inscripto is 6%.
+GANANCIAS_PERC_INSCRIPTO = 6.0
+GANANCIAS_PERC_CVDI = 3.0
+GANANCIAS_PERC_PARTICULAR = 11.0

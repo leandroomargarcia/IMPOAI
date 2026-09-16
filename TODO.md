@@ -39,13 +39,13 @@ Hecho: catálogo NCM de 97 capítulos (JSON, no RAG). Office: NCM ∥ hab → jo
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
-Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si origen Mercosur) + antidumping **ad valorem** si hay origen + **específico** si hay cantidad/unidad unívoca. FOB mínimo y tarifas múltiples se informan, no se liquidan. Todavía no es un despacho.
+Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística + medidas CNCE + **IVA** + **percepción IVA** + **percepción Ganancias**. IIBB no está. Todavía no es un despacho.
 
 ### Modificar lo que ya está
 
 - [x] Base = **CIF** ingresado por el usuario (el chat lo pedirá después)
-- [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada** (hoy: DIE + estadística + AD ad valorem; faltan IVA, percepciones, IIBB)
-- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE, estadística, medidas)
+- [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada** (hoy: DIE + estadística + medidas + IVA + percepciones; falta IIBB)
+- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE, estadística, medidas, IVA, percepciones)
 - [x] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
 - [x] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
 
@@ -64,10 +64,10 @@ Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si or
 
 ### IVA y percepciones AFIP
 
-- [ ] **IVA** 10,5 % o 21 % según NCM (tabla o default). Base: CIF + derechos + estadística
-- [ ] **IVA percepción (adicional)** — RG vigente; depende de inscripción del importador
-- [ ] **Percepción Ganancias** — RG vigente; no un % único para todos
-- [ ] Guardar en el state si el usuario está **inscripto** (cambia percepciones)
+- [x] **IVA** 21 % default sobre CIF + DIE + estadística + medidas. Tabla 10,5 % por NCM: después. El usuario puede poner `IVA 10.5` (o `IVA exento`) en la pregunta
+- [x] **IVA percepción (adicional)** — RG 2937/4461: 20 % si IVA 21 %, 10 % si IVA 10,5 %, misma base. 0 si IVA exento. Crédito para el inscripto
+- [x] **Percepción Ganancias** — RG 2281: 11 % monotributista (**default**), 6 % si la pregunta dice `responsable inscripto`, 3 % `responsable inscripto CVDI`, 11 % uso particular, 0 con certificado de exclusión. Base: CIF + DIE + estadística + medidas (sin IVA, art. 6)
+- [x] Guardar en el state si el usuario está **inscripto** (default no / monotributista; hay que aclarar `responsable inscripto`)
 
 
 

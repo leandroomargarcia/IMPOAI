@@ -5,6 +5,7 @@ import graph.nodes.web_search_hab as web_search_mod
 import pytest
 from langgraph.graph import END, START, StateGraph
 
+from graph.consts import IVA_RATE
 from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.hab_agent import hab_agent
 from graph.nodes.ncm_node import (
@@ -20,6 +21,22 @@ from graph.nodes.ncm_node import (
 from graph.nodes.search_price import search_price
 from graph.nodes.web_search_hab import web_search_hab
 from graph.state import GraphState
+
+
+def _taxes(
+    cif: float,
+    die: float,
+    te: float,
+    extra: float = 0.0,
+    iva_rate: float = IVA_RATE,
+    ganancias_rate: float = 11.0,
+) -> float:
+    base = cif + die + te + extra
+    iva = base * (iva_rate / 100)
+    perc_iva_rate = 0.0 if iva_rate <= 0 else (10.0 if iva_rate <= 10.5 else 20.0)
+    perc_iva = base * (perc_iva_rate / 100)
+    ganancias = base * (ganancias_rate / 100)
+    return die + te + extra + iva + perc_iva + ganancias
 
 def _ncm_app():
     g = StateGraph(GraphState)
@@ -97,7 +114,7 @@ def test_rama_ncm_caballo(monkeypatch):
     assert out["ncm_aec"] == 0 # AEC encontrado
     assert out["es_valido"] is True # NCM válido
     assert out["cif"] == 1000.0
-    assert out["impuestos_estimados"] == pytest.approx(30.0)  # DIE 0 + estadística 3%
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(1000, 0, 30))  # DIE 0 + TE 3% + IVA
     assert out["precio_ref"] == 100.0 # already USD, no FX
     assert out.get("ncm_currency") == "USD"
     assert "No se encontró este producto" not in (out.get("precio_info") or "")
@@ -107,7 +124,7 @@ def test_rama_ncm_caballo(monkeypatch):
 
 def test_duty_uses_user_cif_not_sale_price():
     out = calc_duty({"question": "coffee CIF 4.50", "ncm_aec": 10, "precio_ref": 9999})
-    assert out["impuestos_estimados"] == pytest.approx(0.45 + 0.135)
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(4.50, 0.45, 0.135))
     assert out["cif"] == pytest.approx(4.50)
 
 
@@ -120,6 +137,8 @@ def test_parse_cif_from_question():
     from graph.nodes.calculate_costs import (
         parse_cantidad,
         parse_cif,
+        parse_inscripto,
+        parse_iva_rate,
         parse_origen,
         strip_cif_clause,
     )
@@ -131,9 +150,17 @@ def test_parse_cif_from_question():
     assert parse_origen("bombas CIF 100 origen China") == "China"
     assert parse_cantidad("pelotas CIF 100 200 unidades") == (200.0, "unidad")
     assert parse_cantidad("café CIF 4.50") is None
+    assert parse_inscripto("coffee CIF 100") is False
+    assert parse_inscripto("coffee CIF 100 responsable inscripto") is True
+    assert parse_inscripto("coffee CIF 100 no inscripto") is False
+    assert parse_inscripto("coffee CIF 100 consumo particular") is False
+    assert parse_iva_rate("coffee CIF 100") == pytest.approx(21)
+    assert parse_iva_rate("coffee CIF 100 IVA 10.5") == pytest.approx(10.5)
+    assert parse_iva_rate("coffee CIF 100 IVA exento") == pytest.approx(0)
     assert "CIF" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "223" not in strip_cif_clause("triciclo plegable CIF 223 USD")
     assert "China" not in strip_cif_clause("bombas CIF 100 origen China")
+    assert "inscripto" not in strip_cif_clause("café CIF 100 responsable inscripto").lower()
 
 
 def test_price_query_uses_product_not_ncm_kg():
@@ -175,7 +202,7 @@ def test_duty_adds_ad_valorem_when_origin_matches():
     )
     assert out["cif"] == 100
     assert out["origen"] == "China"
-    assert out["impuestos_estimados"] == pytest.approx(10 + 246 + 3)
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(100, 10, 3, 246))
 
 
 def test_duty_skips_ad_without_origin_and_skips_specific():
@@ -194,7 +221,7 @@ def test_duty_skips_ad_without_origin_and_skips_specific():
     no_origin = calc_duty(
         {"question": "bombas CIF 100", "ncm_aec": 10, "ncm_medidas": [ad]}
     )
-    assert no_origin["impuestos_estimados"] == pytest.approx(10 + 3)
+    assert no_origin["impuestos_estimados"] == pytest.approx(_taxes(100, 10, 3))
     assert "falta origen" in no_origin["costos_asociados"]
     tennis = calc_duty(
         {
@@ -203,7 +230,7 @@ def test_duty_skips_ad_without_origin_and_skips_specific():
             "ncm_medidas": [specific],
         }
     )
-    assert tennis["impuestos_estimados"] == pytest.approx(3)
+    assert tennis["impuestos_estimados"] == pytest.approx(_taxes(100, 0, 3))
     assert "falta cantidad" in tennis["costos_asociados"]
 
 
@@ -226,7 +253,7 @@ def test_duty_multiplies_specific_when_quantity_matches():
     )
     assert out["cantidad"] == 200
     assert out["unidad"] == "unidad"
-    assert out["impuestos_estimados"] == pytest.approx(3 + 200 * 0.46)
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(100, 0, 3, 200 * 0.46))
 
 
 def test_duty_skips_ambiguous_specific_even_with_quantity():
@@ -246,7 +273,7 @@ def test_duty_skips_ambiguous_specific_even_with_quantity():
             "ncm_medidas": [medida],
         }
     )
-    assert out["impuestos_estimados"] == pytest.approx(3)
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(100, 0, 3))
     assert "ambiguo" in out["costos_asociados"]
 
 
@@ -261,6 +288,54 @@ def test_estadistica_cap_and_mercosur_exemption():
     zero, mercosur_note = calc_estadistica(10_000, "Brasil")
     assert zero == 0
     assert "Mercosur" in mercosur_note
+
+
+def test_iva_is_21_percent_of_cif_plus_duties():
+    from graph.nodes.calculate_costs import calc_iva
+
+    amount, note = calc_iva(100, 10, 3, 0)
+    assert amount == pytest.approx(23.73)
+    assert "21" in note
+    out = calc_duty({"question": "coffee CIF 100", "ncm_aec": 0})
+    assert out["iva"] == pytest.approx(103 * 0.21)
+    assert out["iva_percepcion"] == pytest.approx(103 * 0.20)
+    assert out["ganancias"] == pytest.approx(103 * 0.11)
+    assert out["inscripto"] is False
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(100, 0, 3))
+    assert "Percepción IVA" in out["costos_asociados"]
+    assert "Percepción Ganancias" in out["costos_asociados"]
+
+
+def test_iva_reducido_halves_percepcion():
+    out = calc_duty({"question": "ibuprofeno CIF 100 IVA 10.5", "ncm_aec": 0})
+    assert out["iva"] == pytest.approx(103 * 0.105)
+    assert out["iva_percepcion"] == pytest.approx(103 * 0.10)
+    assert out["impuestos_estimados"] == pytest.approx(
+        _taxes(100, 0, 3, iva_rate=10.5)
+    )
+
+
+def test_ganancias_particular_and_cvdi():
+    particular = calc_duty(
+        {"question": "coffee CIF 100 consumo particular", "ncm_aec": 0}
+    )
+    assert particular["inscripto"] is False
+    assert particular["ganancias"] == pytest.approx(103 * 0.11)
+    assert particular["impuestos_estimados"] == pytest.approx(
+        _taxes(100, 0, 3, ganancias_rate=11)
+    )
+    ri = calc_duty({"question": "coffee CIF 100 responsable inscripto", "ncm_aec": 0})
+    assert ri["inscripto"] is True
+    assert ri["ganancias"] == pytest.approx(103 * 0.06)
+    cvdi = calc_duty(
+        {"question": "coffee CIF 100 responsable inscripto CVDI", "ncm_aec": 0}
+    )
+    assert cvdi["inscripto"] is True
+    assert cvdi["ganancias"] == pytest.approx(103 * 0.03)
+    excluded = calc_duty(
+        {"question": "coffee CIF 100 certificado de exclusión", "ncm_aec": 0}
+    )
+    assert excluded["ganancias"] == pytest.approx(0)
 
 
 def test_rama_hab_sin_ncm(monkeypatch):
@@ -482,7 +557,7 @@ def test_office_parallel_join_writes_report(monkeypatch):
     )
     assert out["ncm"] == "0101.21.00"
     assert out["es_valido"] is True
-    assert out["impuestos_estimados"] == pytest.approx(30.0)
+    assert out["impuestos_estimados"] == pytest.approx(_taxes(1000, 0, 30))
     assert out["precio_ref"] == 100.0
     assert "SENASA" in out["hab_info"]
     assert "0101.21.00" in out["reporte_final"]

@@ -28,10 +28,13 @@ class GraphState(TypedDict):
         cantidad: import quantity from the question (specific duty)
         unidad: unit for cantidad (unidad, kg, m, m2, par)
         ncm_medidas: CNCE trade-defense rows for this NCM
+        inscripto: IVA-registered importer; True only if the question says so (default monotributista)
+        iva_percepcion: RG 2937 VAT perception amount
+        ganancias: RG 2281 income-tax perception amount
         precio_ref: Argentine selling price converted to USD
         precio_info: human message (found price, or not found in Argentina)
-        costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas)
-        impuestos_estimados: DIE + estadística + AD ad valorem + específico (calcular_costos)
+        costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas, IVA, percepciones)
+        impuestos_estimados: DIE + estadística + medidas + IVA + percepciones (calcular_costos)
         reporte_final: final report (orquestador)
     """
 
@@ -55,6 +58,10 @@ class GraphState(TypedDict):
     origen: str
     cantidad: float
     unidad: str
+    iva: float
+    iva_percepcion: float
+    ganancias: float
+    inscripto: bool
     ncm_medidas: list
     precio_ref: float
     precio_info: str

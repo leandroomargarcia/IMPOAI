@@ -1,6 +1,17 @@
 import re
 
-from graph.consts import ESTADISTICA_CAPS, ESTADISTICA_RATE, MERCOSUR_ORIGINS
+from graph.consts import (
+    ESTADISTICA_CAPS,
+    ESTADISTICA_RATE,
+    GANANCIAS_PERC_CVDI,
+    GANANCIAS_PERC_INSCRIPTO,
+    GANANCIAS_PERC_PARTICULAR,
+    IVA_PERC_GENERAL,
+    IVA_PERC_REDUCED,
+    IVA_RATE,
+    IVA_REDUCED_RATE,
+    MERCOSUR_ORIGINS,
+)
 from graph.state import GraphState
 from ncm.medidas import (
     fold,
@@ -24,7 +35,33 @@ CANT_RE = re.compile(
 VALUE_CLAUSE_RE = re.compile(
     rf"\b(?:cif|fob|flete|freight|seguro|insurance)\s*[:=]?\s*{_NUM}(?:\s*usd)?"
     r"|\b(?:origen|origin|procedencia)\s*[:=]?\s*[A-Za-zÁÉÍÓÚáéíóúñüÑ]+(?:\s+[A-Za-zÁÉÍÓÚáéíóúñüÑ]+)?"
-    rf"|{_NUM}\s*(?:unidad(?:es)?|kilogramos?|kg|metros?(?:\s+lineales?|\s+cuadrados?)?|m2|pares?)\b",
+    rf"|{_NUM}\s*(?:unidad(?:es)?|kilogramos?|kg|metros?(?:\s+lineales?|\s+cuadrados?)?|m2|pares?)\b"
+    r"|\b(?:responsable\s+)?(?:no\s+)?inscripto\b"
+    r"|\bmonotributista\b"
+    r"|\b(?:uso|consumo)\s+particular\b"
+    r"|\bconsumidor\s+final\b"
+    r"|\bcvdi\b"
+    r"|\biva\s*[:=]?\s*\d+(?:[.,]\d+)?\s*%?"
+    r"|\bexento\s+(?:de\s+)?iva\b"
+    r"|\bcertificado\s+de\s+exclusi[oó]n\b",
+    re.I,
+)
+INSCRIPTO_NO_RE = re.compile(
+    r"\bno\s*inscripto\b|\bmonotribut|\bconsumidor\s+final\b"
+    r"|\b(?:uso|consumo)\s+particular\b",
+    re.I,
+)
+INSCRIPTO_YES_RE = re.compile(
+    r"(?:responsable|resp\.?)\s+inscripto|\binscripto\b",
+    re.I,
+)
+IVA_RATE_RE = re.compile(rf"\biva\s*[:=]?\s*{_NUM}\s*%?", re.I)
+IVA_EXENTO_RE = re.compile(r"\bexento\s+(?:de\s+)?iva\b|\biva\s+exento\b", re.I)
+IVA_REDUCED_RE = re.compile(r"\biva\s+reducido\b|\bal[ií]cuota\s+reducida\b", re.I)
+CVDI_RE = re.compile(r"\bcvdi\b|certificado\s+de\s+validaci[oó]n", re.I)
+EXCLUSION_RE = re.compile(
+    r"exclusi[oó]n\s+(?:de\s+)?ganancias|certificado\s+de\s+exclusi[oó]n"
+    r"|no\s+retenci[oó]n\s+ganancias",
     re.I,
 )
 
@@ -51,6 +88,26 @@ def parse_cantidad(question: str) -> tuple[float, str] | None:
     if not unit:
         return None
     return float(match.group(1).replace(",", ".")), unit
+
+
+def parse_inscripto(question: str) -> bool:
+    """Default False: monotributista. True only if the question says inscripto."""
+    text = question or ""
+    if INSCRIPTO_NO_RE.search(text):
+        return False
+    return bool(INSCRIPTO_YES_RE.search(text))
+
+
+def parse_iva_rate(question: str) -> float:
+    text = question or ""
+    if IVA_EXENTO_RE.search(text):
+        return 0.0
+    match = IVA_RATE_RE.search(text)
+    if match:
+        return float(match.group(1).replace(",", "."))
+    if IVA_REDUCED_RE.search(text):
+        return IVA_REDUCED_RATE
+    return IVA_RATE
 
 
 def strip_cif_clause(question: str) -> str:
@@ -91,6 +148,80 @@ def calc_estadistica(cif: float, origen: str | None) -> tuple[float, str]:
     return amount, note
 
 
+def iva_base(cif: float, die: float, te: float, extra: float) -> float:
+    return cif + die + te + extra
+
+
+def perc_iva_rate(iva_rate: float) -> float:
+    if iva_rate <= 0:
+        return 0.0
+    if iva_rate <= IVA_REDUCED_RATE:
+        return IVA_PERC_REDUCED
+    return IVA_PERC_GENERAL
+
+
+def ganancias_rate(question: str, inscripto: bool) -> tuple[float, str]:
+    """RG 2281: 11% monotributista (default), 6% inscripto, 3% C.V.D.I."""
+    text = question or ""
+    if EXCLUSION_RE.search(text):
+        return 0.0, "exclusión RG 830"
+    if re.search(r"consumo\s+particular|uso\s+particular|consumidor\s+final", text, re.I):
+        return (
+            GANANCIAS_PERC_PARTICULAR,
+            "uso o consumo particular",
+        )
+    if not inscripto:
+        return GANANCIAS_PERC_PARTICULAR, "monotributista"
+    if CVDI_RE.search(text):
+        return GANANCIAS_PERC_CVDI, "C.V.D.I."
+    return GANANCIAS_PERC_INSCRIPTO, "inscripto sin C.V.D.I."
+
+
+def calc_iva(
+    cif: float, die: float, te: float, extra: float, rate: float | None = None
+) -> tuple[float, str]:
+    """IVA on CIF + DIE + estadística + dumping extras (Ley IVA art. 25)."""
+    rate = IVA_RATE if rate is None else rate
+    base = iva_base(cif, die, te, extra)
+    amount = base * (rate / 100)
+    source = "default" if rate == IVA_RATE else "pregunta"
+    note = (
+        f"IVA {rate:g}% sobre CIF+DIE+estadística+medidas ({base:g} USD) "
+        f"= {amount:g} USD ({source}; no es tabla 10,5% por NCM)"
+    )
+    return amount, note
+
+
+def calc_iva_percepcion(
+    cif: float, die: float, te: float, extra: float, iva_rate: float
+) -> tuple[float, str]:
+    """RG 2937/4461: 20% if IVA 21%, 10% if IVA 10.5%, same art. 25 base."""
+    base = iva_base(cif, die, te, extra)
+    rate = perc_iva_rate(iva_rate)
+    amount = base * (rate / 100)
+    note = (
+        f"Percepción IVA {rate:g}% (RG 2937) sobre la misma base ({base:g} USD) "
+        f"= {amount:g} USD"
+    )
+    if iva_rate <= 0:
+        note = "Percepción IVA 0 USD (IVA exento)"
+    return amount, note
+
+
+def calc_ganancias(
+    cif: float, die: float, te: float, extra: float, question: str, inscripto: bool
+) -> tuple[float, str]:
+    """RG 2281 on CIF + DIE + estadística + medidas (IVA deducted, art. 6)."""
+    rate, kind = ganancias_rate(question, inscripto)
+    base = iva_base(cif, die, te, extra)
+    amount = base * (rate / 100)
+    note = (
+        f"Percepción Ganancias {rate:g}% (RG 2281, {kind}) sobre "
+        f"CIF+DIE+estadística+medidas ({base:g} USD) = {amount:g} USD"
+    )
+    return amount, note
+
+
 def calc_duty(state: GraphState) -> dict:
     question = state.get("question") or ""
     cif = parse_cif(question)
@@ -101,6 +232,8 @@ def calc_duty(state: GraphState) -> dict:
     die = cif * (aec / 100)
     origen = parse_origen(question)
     qty = parse_cantidad(question)
+    inscripto = parse_inscripto(question)
+    iva_rate = parse_iva_rate(question)
     te, te_line = calc_estadistica(cif, origen)
     extra = 0.0
     lines = [
@@ -112,6 +245,12 @@ def calc_duty(state: GraphState) -> dict:
         lines.append(f"Origen {origen}")
     if qty:
         lines.append(f"Cantidad {qty[0]:g} {qty[1]}")
+    if inscripto:
+        lines.append("Importador responsable inscripto")
+    elif re.search(r"consumo\s+particular|uso\s+particular|consumidor\s+final", question, re.I):
+        lines.append("Importador uso o consumo particular")
+    else:
+        lines.append("Importador monotributista (default; si es responsable inscripto, aclararlo)")
     for medida in state.get("ncm_medidas") or []:
         text = medida.get("medida") or ""
         kind = medida.get("kind") or ""
@@ -163,8 +302,22 @@ def calc_duty(state: GraphState) -> dict:
             )
         elif not applied:
             lines.append("La medida no se liquidó.")
-    total = die + extra + te
-    print("DUTY", total, "USD", f"(DIE {die} + TE {te} + extra {extra} of CIF {cif})")
+    iva, iva_line = calc_iva(cif, die, te, extra, iva_rate)
+    perc_iva, perc_iva_line = calc_iva_percepcion(cif, die, te, extra, iva_rate)
+    gcias, gcias_line = calc_ganancias(cif, die, te, extra, question, inscripto)
+    lines.append(iva_line)
+    lines.append(perc_iva_line)
+    if inscripto and perc_iva:
+        lines.append("La percepción IVA es crédito fiscal para el inscripto.")
+    lines.append(gcias_line)
+    total = die + extra + te + iva + perc_iva + gcias
+    print(
+        "DUTY",
+        total,
+        "USD",
+        f"(DIE {die} + TE {te} + extra {extra} + IVA {iva} "
+        f"+ percIVA {perc_iva} + Gcias {gcias} of CIF {cif})",
+    )
     print("LANDED", cif + total, "USD")
     return {
         "impuestos_estimados": total,
@@ -172,5 +325,9 @@ def calc_duty(state: GraphState) -> dict:
         "origen": origen or "",
         "cantidad": qty[0] if qty else 0.0,
         "unidad": qty[1] if qty else "",
+        "inscripto": inscripto,
+        "iva": iva,
+        "iva_percepcion": perc_iva,
+        "ganancias": gcias,
         "costos_asociados": "\n".join(lines),
     }
