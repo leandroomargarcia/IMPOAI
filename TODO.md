@@ -1,6 +1,6 @@
 # TODO — IMPOAI
 
-Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de café/caballo/yerba sigue como regresión.
+Hecho: catálogo NCM de 97 capítulos (JSON, no RAG). Office: NCM ∥ hab → join → precio → `calc_duty` → reporte. DIE del dump AIA; CIF y origen en la pregunta; medidas CNCE (antidumping ad valorem).
 
 ## Catálogo completo
 
@@ -24,40 +24,41 @@ Hecho: catálogo NCM de 97 capítulos parseado del PDF (JSON, no RAG). POC de ca
 - [x] Si `get_ncm` falla, no llamar al grader
 - [x] Si se acaba el presupuesto sin groundear, `ncm_info` debe decir que no clasificó
 - [x] Cablear el office: NCM ∥ hab → join → precio → AEC → orquestador
-- [ ] Probar 3 productos fuera de los capítulos 1 y 9
+- [ ] Probar 3 productos fuera de los capítulos 1 y 9 (hubo corridas live de ibuprofeno / triciclo; no hay test fijo)
 
 
 
 ## Lo que usa un despachante y todavía no tenemos
 
 - [ ] **Ficha técnica** — pedir/armar composición, uso, presentación, si va armado. No clasificar solo con el nombre comercial
-- [ ] **NESH** — cerrado: el libro de la OMA no es gratuito; no hay índice NESH en el repo
-- [ ] **Criterios de clasificación AFIP/ARCA** — precedentes por posición NCM (RG + anexos; Arancel Integrado para consultar). Van después de `get_ncm`
+- [x] **NESH** — cerrado: el libro de la OMA no es gratuito; no hay índice NESH en el repo
+- [ ] **Criterios de clasificación AFIP/ARCA** — precedentes por posición NCM (RG + anexos; Biblioteca ARCA). Van después de `get_ncm`. Hace falta el dump (PDF/JSON); el nomenclador AIA no es esto
 - [ ] Si el producto puede ir a dos capítulos, comparar partidas con RGI 3 (más específica / carácter esencial / último número) en vez de casarse con el primer capítulo
 
 
 
 ## Liquidación al estilo despachante (simular, no reemplazar AFIP)
 
-Hoy `calc_duty` hace `CIF × DIE%`. El usuario ingresa el **CIF** en la pregunta (no FOB + flete + seguro). Todavía no es un despacho. El objetivo es **simular la hoja del despachante** (presupuesto), no liquidar en el sistema aduanero.
+Hoy `calc_duty` hace `CIF × DIE%` + tasa de estadística (3 % con tope, 0 si origen Mercosur) + antidumping **ad valorem** si hay origen y el xlsx CNCE matchea. Específico / FOB mínimo se informan, no se liquidan. Todavía no es un despacho.
 
 ### Modificar lo que ya está
 
 - [x] Base = **CIF** ingresado por el usuario (el chat lo pedirá después)
-- [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada**, no solo el AEC
-- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE)
-- [ ] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
-- [ ] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
+- [ ] `impuestos_estimados` pasa a ser un **total de liquidación estimada** (hoy: DIE + estadística + AD ad valorem; faltan IVA, percepciones, IIBB)
+- [x] Llenar `costos_asociados` con **desglose renglón a renglón** (CIF, DIE, estadística, medidas)
+- [x] Dejar explícito en el reporte que es una **estimación**, no una declaración SIM / María
+- [x] El nodo de impuestos sigue siendo **cuentas + tablas**, no un LLM ni un agente ReAct
 
 
 
 ### Derechos y tasas (sobre CIF)
 
 - [x] Parsear dump Arancel Integrado (`docs/nomenclador_*.txt`) y usar DIE vigente como AEC en `get_ncm`
-- [x] **AEC / derechos de importación** — aplicar la alícuota sobre CIF, no sobre FOB
-- [ ] Derechos **específicos**, antidumping o salvaguardias si la posición los tiene (el POC no los parsea)
-- [ ] **Tasa de estadística** — % sobre CIF, con exenciones, orígenes y topes (no un 3 % fijo eterno)
-- [ ] Flags AEC `BK` / `BIT` y demás del PDF cuando el catálogo los traiga
+- [x] **AEC / derechos de importación** — aplicar la alícuota sobre CIF
+- [x] Derechos **específicos**, antidumping o salvaguardias: lookup del xlsx CNCE por NCM; se suma ad valorem si hay origen; específico / FOB mínimo se informan, no se liquidan. Este dump no trae salvaguardias
+- [ ] Liquidar **específico** cuando el usuario dé cantidad/unidad (hoy solo se avisa)
+- [x] **Tasa de estadística** — 3 % sobre CIF (Decreto 1140/2024), con topes en USD y 0 si el origen es Mercosur. No se usa la columna RE del nomenclador (no es esta tasa)
+- [ ] Usar flags `BK` / `BIT` del catálogo en la liquidación (hoy se parsean y se guardan, `calc_duty` no los mira)
 
 
 
@@ -81,11 +82,11 @@ Hoy `calc_duty` hace `CIF × DIE%`. El usuario ingresa el **CIF** en la pregunta
 
 - [ ] Honorarios de despachante (estimado; % de CIF o fijo)
 - [ ] Depósito fiscal / terminal / flete interno / seguro local
-- [ ] **Habilitaciones (SENASA/ANMAT, etc.)** — el nodo hab lista trámites, no montos. No costearlos como % del FOB. Opciones: el usuario carga el fee; tabla organismo → arancel; Tavily + extract (después)
+- [ ] **Habilitaciones (SENASA/ANMAT, etc.)** — el nodo hab lista trámites, no montos. No costearlos como % del CIF. Opciones: el usuario carga el fee; tabla organismo → arancel; Tavily + extract (después)
 
 
 
 ### Precio local / FX (ya empezado)
 
-- [ ] **Scrapear el tipo de cambio USD/ARS** (oficial o el que definamos para el negocio) en vez del fijo `USD_ARS_RATE` en `graph/consts.py`. Hoy el precio de venta en Argentina se extrae en pesos y se divide por esa constante para compararlo con el FOB en USD.
-- [ ] Comparar **CIF + liquidación estimada** contra `precio_ref` (venta local en USD), no FOB solo
+- [ ] **Scrapear el tipo de cambio USD/ARS** (oficial o el que definamos para el negocio) en vez del fijo `USD_ARS_RATE` en `graph/consts.py`. Hoy el precio de venta en Argentina se extrae en pesos y se divide por esa constante para compararlo con el CIF en USD.
+- [ ] Comparar **CIF + liquidación estimada** contra `precio_ref` (venta local en USD)

@@ -24,10 +24,12 @@ class GraphState(TypedDict):
         attempts: Number of attempts to classify the product.
         es_valido: groundedness del NCM (grade_generation)
         cif: CIF entered in the question (duty base; not derived from FOB)
+        origen: country of origin parsed from the question (antidumping)
+        ncm_medidas: CNCE trade-defense rows for this NCM
         precio_ref: Argentine selling price converted to USD
         precio_info: human message (found price, or not found in Argentina)
-        costos_asociados: line-by-line estimate (CIF, DIE)
-        impuestos_estimados: DIE on CIF (calcular_costos)
+        costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas)
+        impuestos_estimados: DIE + estadística + matching ad valorem extra (calcular_costos)
         reporte_final: final report (orquestador)
     """
 
@@ -48,6 +50,8 @@ class GraphState(TypedDict):
     attempts: int
     es_valido: bool
     cif: float
+    origen: str
+    ncm_medidas: list
     precio_ref: float
     precio_info: str
     costos_asociados: str

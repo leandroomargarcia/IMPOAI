@@ -27,6 +27,7 @@ def pick_chapter(state: GraphState) -> dict:
         "ncm_subheading": "",
         "ncm_descripcion": "",
         "ncm_aec": 0.0,
+        "ncm_medidas": [],
         "es_valido": False,
     }
 
@@ -114,14 +115,18 @@ def fetch_ncm(state: GraphState) -> dict:
             "ncm": "",
             "ncm_aec": 0.0,
             "ncm_descripcion": "",
+            "ncm_medidas": [],
         }
+    medidas = card.get("medidas") or []
     print("card OK", card["codigo"], "AEC", card["aec"],
-          "AIA" if catalog.aia and catalog.aia.die(card["codigo"]) is not None else "NCM")
+          "AIA" if catalog.aia and catalog.aia.die(card["codigo"]) is not None else "NCM",
+          "medidas", len(medidas))
     print(card["descripcion_completa"])
     return {
         "ncm": card["codigo"],
         "ncm_aec": card["aec"],
         "ncm_descripcion": card["descripcion_completa"],
+        "ncm_medidas": medidas,
     }
 
 

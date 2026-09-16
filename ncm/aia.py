@@ -1,7 +1,7 @@
 """Arancel Integrado Aduanero (AIA) dumps from AFIP/ARCA.
 
 Parses `docs/nomenclador_*.txt` and `docs/capitulo_*.txt`. Does not hit the web.
-Rates on SIM 12-digit rows: DEX, RE, DIE (import duty / AEC), II.
+Rates on SIM 12-digit rows: DEX, RE (not the import statistical fee), DIE (import duty / AEC), II.
 """
 
 from __future__ import annotations

@@ -38,6 +38,7 @@ htmlcov/
 docs/nomenclador_*.txt
 docs/capitulo_*.txt
 docs/sufijos_*.txt
+docs/*medidas*.xlsx
 
 # Output
 data/output/

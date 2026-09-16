@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ncm.aia import AiaIndex, load_aia
+from ncm.medidas import MedidasIndex, load_medidas
 from ncm.parser import CATALOG_PATH, CATALOG_POC_PATH, parse_ncm, save_catalog
 
 def _norm(code: str) -> str:
@@ -16,17 +17,23 @@ def _norm(code: str) -> str:
 
 
 class NcmCatalog:
-    def __init__(self, data: dict[str, Any], aia: AiaIndex | None = None):
+    def __init__(
+        self,
+        data: dict[str, Any],
+        aia: AiaIndex | None = None,
+        medidas: MedidasIndex | None = None,
+    ):
         self.data = data
         self._chapter = {c["codigo"]: c for c in data["chapters"]}
         self._by_code = {_norm(n["codigo"]): n for n in data["nodes"]}
         self.aia = aia
+        self.medidas = medidas
 
     @classmethod
     def from_pdf(cls) -> "NcmCatalog":
         catalog = parse_ncm()
         save_catalog(catalog, CATALOG_PATH)
-        return cls(catalog, aia=load_aia())
+        return cls(catalog, aia=load_aia(), medidas=load_medidas())
 
     @classmethod
     def from_json(cls, path: Path | None = None) -> "NcmCatalog":
@@ -34,7 +41,11 @@ class NcmCatalog:
             path = CATALOG_PATH if CATALOG_PATH.exists() else CATALOG_POC_PATH
         if not path.exists():
             return cls.from_pdf()
-        return cls(json.loads(path.read_text(encoding="utf-8")), aia=load_aia())
+        return cls(
+            json.loads(path.read_text(encoding="utf-8")),
+            aia=load_aia(),
+            medidas=load_medidas(),
+        )
 
     @property
     def rgi(self) -> str:
@@ -141,4 +152,5 @@ class NcmCatalog:
         card["description"] = node["descripcion"]
         card["full_description"] = node["descripcion_completa"]
         card["aec_flag"] = node.get("aec_flag")
+        card["medidas"] = self.medidas.for_ncm(node["codigo"]) if self.medidas else []
         return card
