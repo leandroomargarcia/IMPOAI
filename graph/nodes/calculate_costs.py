@@ -11,6 +11,7 @@ from graph.consts import (
     IVA_PERC_GENERAL,
     IVA_PERC_REDUCED,
     IVA_RATE,
+    IVA_REDUCED_FLAGS,
     IVA_REDUCED_RATE,
     MERCOSUR_ORIGINS,
 )
@@ -107,16 +108,24 @@ def parse_inscripto(question: str) -> bool:
     return bool(INSCRIPTO_YES_RE.search(text))
 
 
-def parse_iva_rate(question: str) -> float:
+def parse_iva_rate(question: str, aec_flag: str | None = None) -> float:
+    return iva_rate_for(question, aec_flag)[0]
+
+
+def iva_rate_for(question: str, aec_flag: str | None = None) -> tuple[float, str]:
+    """Question override wins. Else BK/BIT → 10.5 %. Else 21 %."""
     text = question or ""
     if IVA_EXENTO_RE.search(text):
-        return 0.0
+        return 0.0, "pregunta"
     match = IVA_RATE_RE.search(text)
     if match:
-        return float(match.group(1).replace(",", "."))
+        return float(match.group(1).replace(",", ".")), "pregunta"
     if IVA_REDUCED_RE.search(text):
-        return IVA_REDUCED_RATE
-    return IVA_RATE
+        return IVA_REDUCED_RATE, "pregunta"
+    flag = (aec_flag or "").strip().upper()
+    if flag in IVA_REDUCED_FLAGS:
+        return IVA_REDUCED_RATE, f"NCM {flag}"
+    return IVA_RATE, "default"
 
 
 def parse_provincia(question: str) -> str | None:
@@ -208,16 +217,28 @@ def ganancias_rate(question: str, inscripto: bool) -> tuple[float, str]:
 
 
 def calc_iva(
-    cif: float, die: float, te: float, extra: float, rate: float | None = None
+    cif: float,
+    die: float,
+    te: float,
+    extra: float,
+    rate: float | None = None,
+    source: str | None = None,
 ) -> tuple[float, str]:
     """IVA on CIF + DIE + estadística + dumping extras (Ley IVA art. 25)."""
     rate = IVA_RATE if rate is None else rate
+    if source is None:
+        source = "default" if rate == IVA_RATE else "pregunta"
     base = iva_base(cif, die, te, extra)
     amount = base * (rate / 100)
-    source = "default" if rate == IVA_RATE else "pregunta"
+    if source.startswith("NCM "):
+        hint = "asume uso productivo; no es tabla 10,5% de alimentos"
+    elif source == "pregunta":
+        hint = "override en la pregunta"
+    else:
+        hint = "no es tabla 10,5% por NCM de alimentos"
     note = (
         f"IVA {rate:g}% sobre CIF+DIE+estadística+medidas ({base:g} USD) "
-        f"= {amount:g} USD ({source}; no es tabla 10,5% por NCM)"
+        f"= {amount:g} USD ({source}; {hint})"
     )
     return amount, note
 
@@ -295,7 +316,8 @@ def calc_duty(state: GraphState) -> dict:
     origen = parse_origen(question)
     qty = parse_cantidad(question)
     inscripto = parse_inscripto(question)
-    iva_rate = parse_iva_rate(question)
+    aec_flag = (state.get("ncm_aec_flag") or "").strip().upper()
+    iva_rate, iva_source = iva_rate_for(question, aec_flag)
     provincia = parse_provincia(question)
     iibb_override = parse_iibb_rate(question)
     te, te_line = calc_estadistica(cif, origen)
@@ -368,7 +390,13 @@ def calc_duty(state: GraphState) -> dict:
             )
         elif not applied:
             lines.append("La medida no se liquidó.")
-    iva, iva_line = calc_iva(cif, die, te, extra, iva_rate)
+    if aec_flag == "BK":
+        lines.append("NCM BK (bien de capital; no es un derecho extra)")
+    elif aec_flag == "BIT":
+        lines.append(
+            "NCM BIT (bien de informática/telecomunicaciones; no es un derecho extra)"
+        )
+    iva, iva_line = calc_iva(cif, die, te, extra, iva_rate, iva_source)
     perc_iva, perc_iva_line = calc_iva_percepcion(cif, die, te, extra, iva_rate)
     gcias, gcias_line = calc_ganancias(cif, die, te, extra, question, inscripto)
     iibb, iibb_line = calc_iibb(cif, die, te, extra, provincia, iibb_override)

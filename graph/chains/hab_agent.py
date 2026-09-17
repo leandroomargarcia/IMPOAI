@@ -35,7 +35,9 @@ No escribas URLs: solo los números de fuente.
 Ignorá tiendas, marketplaces y catálogos (Mercado Libre, Accio, Amazon, etc.).
 No tomes certificaciones comerciales (EEC, CE, ISO de un vendedor) como trámite argentino.
 No atribuyas un organismo salvo que las fuentes lo vinculen a esta clase de mercadería (no a otra).
-Las fuentes ya están acotadas al organismo probable; si describen un trámite de importación de esa clase, listalo. No lo descartes solo porque no nombren la marca o el miligramaje.
+Las fuentes pueden estar ruteadas a un organismo; igual descartá el trámite si es de otra mercadería o de un régimen de bienes usados (C.I.B.U.I.H., hidrocarburífero, etc.) cuando la consulta es un bien nuevo.
+No copies trámites de bienes usados salvo que la consulta pida un bien usado.
+Si describen un trámite de importación de ESTA clase de mercadería, listalo. No lo descartes solo porque no nombren la marca o el miligramaje.
 Si las fuentes no aplican, devolvés requisitos vacío y en el resumen lo decís."""
 
 prompt = ChatPromptTemplate.from_messages(

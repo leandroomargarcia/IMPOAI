@@ -32,7 +32,9 @@ GRADE_SYSTEM = (
     "False only if a note actually excludes THIS product, "
     "or the item/card clearly describes something else.\n"
     "Do not reject because the product name is absent from the notes "
-    "or is not spelled out in the item text.\n\n"
+    "or is not spelled out in the item text.\n"
+    "If the product states a capacity/size and the item has a numeric limit "
+    "that excludes it (e.g. 20 t/h vs superior a 45 t/h), False.\n\n"
     "RGI:\n{rgi}"
 )
 

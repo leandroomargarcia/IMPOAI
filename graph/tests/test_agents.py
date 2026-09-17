@@ -161,6 +161,8 @@ def test_parse_cif_from_question():
     assert parse_iva_rate("coffee CIF 100") == pytest.approx(21)
     assert parse_iva_rate("coffee CIF 100 IVA 10.5") == pytest.approx(10.5)
     assert parse_iva_rate("coffee CIF 100 IVA exento") == pytest.approx(0)
+    assert parse_iva_rate("caldera CIF 100", "BK") == pytest.approx(10.5)
+    assert parse_iva_rate("caldera CIF 100 IVA 21", "BK") == pytest.approx(21)
     assert parse_provincia("coffee CIF 100") is None
     assert parse_provincia("coffee CIF 100 provincia CABA") == "CABA"
     assert parse_provincia("coffee CIF 100 provincia Buenos Aires origen China") == "Buenos Aires"
@@ -325,6 +327,36 @@ def test_iva_reducido_halves_percepcion():
     )
 
 
+def test_iva_bk_bit_flag_without_question_override():
+    bk = calc_duty(
+        {"question": "reactor nuclear CIF 100", "ncm_aec": 14, "ncm_aec_flag": "BK"}
+    )
+    die = 14.0
+    te = 3.0
+    base = 100 + die + te
+    assert bk["iva"] == pytest.approx(base * 0.105)
+    assert bk["iva_percepcion"] == pytest.approx(base * 0.10)
+    assert "NCM BK" in bk["costos_asociados"]
+    assert "bien de capital" in bk["costos_asociados"]
+    assert bk["impuestos_estimados"] == pytest.approx(
+        _taxes(100, die, te, iva_rate=10.5)
+    )
+    bit = calc_duty(
+        {"question": "router CIF 100", "ncm_aec": 0, "ncm_aec_flag": "BIT"}
+    )
+    assert bit["iva"] == pytest.approx(103 * 0.105)
+    assert "NCM BIT" in bit["costos_asociados"]
+    override = calc_duty(
+        {
+            "question": "reactor nuclear CIF 100 IVA 21",
+            "ncm_aec": 14,
+            "ncm_aec_flag": "BK",
+        }
+    )
+    assert override["iva"] == pytest.approx((100 + 14 + 3) * 0.21)
+    assert "pregunta" in override["costos_asociados"]
+
+
 def test_ganancias_particular_and_cvdi():
     particular = calc_duty(
         {"question": "coffee CIF 100 consumo particular", "ncm_aec": 0}
@@ -415,7 +447,41 @@ def test_official_hab_url():
     assert not is_official_hab_url("")
     assert hab_domains("ibuprofeno 400 mg comprimidos CIF 12") == ["anmat.gob.ar"]
     assert hab_domains("purebred breeding horse CIF 1000") == ["senasa.gob.ar"]
-    assert hab_domains("triciclo plegable CIF 223") == ["argentina.gob.ar"]
+    assert hab_domains("triciclo plegable CIF 223") == []
+    assert hab_domains("caldera CIF 80000", "84") == []
+    assert hab_domains("caldera CIF 80000", "01") == ["senasa.gob.ar"]
+    assert hab_domains("widget CIF 1", "30") == ["anmat.gob.ar"]
+    from graph.nodes.web_search_hab import (
+        asks_used_goods,
+        is_used_regime_hit,
+        is_wrong_organism_hit,
+    )
+
+    assert asks_used_goods("caldera usada CIF 100") is True
+    assert asks_used_goods("Caldera acuotubular CIF 80000") is False
+    assert is_used_regime_hit({
+        "url": "https://www.argentina.gob.ar/servicio/importar-bienes-usados-para-la-industria-hidrocarburifera",
+        "title": "C.I.B.U.I.H.",
+    })
+    assert not is_used_regime_hit({
+        "url": "https://www.argentina.gob.ar/servicio/autorizacion-de-importacion",
+        "title": "Autorización de importación",
+    })
+    senasa = {
+        "url": "https://www.argentina.gob.ar/senasa/relaciones-internacionales",
+        "title": "SENASA",
+    }
+    anmac = {
+        "url": "https://www.argentina.gob.ar/servicio/autorizacion-de-importacion",
+        "title": "ANMaC",
+    }
+    assert is_wrong_organism_hit("Caldera acuotubular CIF 80000", senasa)
+    assert is_wrong_organism_hit("Caldera acuotubular CIF 80000", anmac)
+    assert not is_wrong_organism_hit("purebred breeding horse CIF 1000", senasa)
+    assert not is_wrong_organism_hit("ibuprofeno 400 mg CIF 12", {
+        "url": "https://www.anmat.gob.ar/tramites",
+        "title": "ANMAT",
+    })
 
 
 def test_hab_drops_shop_hits(monkeypatch):
@@ -431,17 +497,75 @@ def test_hab_drops_shop_hits(monkeypatch):
                         "content": "Certificación EEC para facilitar la importación.",
                     },
                     {
-                        "title": "SENASA",
-                        "url": "https://www.argentina.gob.ar/senasa",
-                        "content": "Importación de equinos requiere certificado zoosanitario SENASA.",
+                        "title": "AFIP",
+                        "url": "https://www.argentina.gob.ar/afip/importacion",
+                        "content": "Trámites aduaneros de importación.",
                     },
                 ]
             })
         })(),
     )
-    out = web_search_hab({"question": "triciclo plegable CIF 223 USD"})
+    out = web_search_hab({"question": "purebred breeding horse CIF 223 USD"})
     urls = [doc.metadata["url"] for doc in out["hab_docs"]]
-    assert urls == ["https://www.argentina.gob.ar/senasa"]
+    assert urls == ["https://www.argentina.gob.ar/afip/importacion"]
+
+
+def test_hab_drops_used_regime_unless_question_says_used(monkeypatch):
+    used = {
+        "title": "C.I.B.U.I.H.",
+        "url": "https://www.argentina.gob.ar/servicio/importar-bienes-usados-para-la-industria-hidrocarburifera",
+        "content": "Certificado de Importación de Bienes Usados para la Industria Hidrocarburífera.",
+    }
+    generic = {
+        "title": "Autorización de importación",
+        "url": "https://www.argentina.gob.ar/servicio/autorizacion-de-importacion",
+        "content": "Informar la Aduana de ingreso.",
+    }
+    monkeypatch.setattr(
+        web_search_mod,
+        "tavily",
+        type("T", (), {"invoke": staticmethod(lambda _: {"results": [used, generic]})})(),
+    )
+    out = web_search_hab(
+        {"question": "Caldera acuotubular de vapor 20 toneladas por hora CIF 80000"}
+    )
+    urls = [doc.metadata["url"] for doc in out["hab_docs"]]
+    assert urls == []
+    kept = web_search_hab(
+        {"question": "purebred breeding horse usado CIF 80000"}
+    )
+    kept_urls = [doc.metadata["url"] for doc in kept["hab_docs"]]
+    assert used["url"] in kept_urls
+
+
+def test_hab_drops_mismatched_organism(monkeypatch):
+    senasa = {
+        "title": "SENASA",
+        "url": "https://www.argentina.gob.ar/senasa/relaciones-internacionales/solicitud-de-apertura-de-un-nuevo-mercado-de-importacion",
+        "content": "Apertura de un nuevo mercado de importación.",
+    }
+    anmac = {
+        "title": "ANMaC",
+        "url": "https://www.argentina.gob.ar/servicio/autorizacion-de-importacion",
+        "content": "Autorización de importación de materiales controlados.",
+    }
+    afip = {
+        "title": "AFIP",
+        "url": "https://www.argentina.gob.ar/afip/importacion",
+        "content": "Trámites aduaneros.",
+    }
+    monkeypatch.setattr(
+        web_search_mod,
+        "tavily",
+        type("T", (), {"invoke": staticmethod(lambda _: {"results": [senasa, anmac, afip]})})(),
+    )
+    boiler = web_search_hab(
+        {"question": "Caldera acuotubular de vapor 20 toneladas por hora CIF 80000"}
+    )
+    assert boiler["hab_docs"] == []
+    horse = web_search_hab({"question": "purebred breeding horse CIF 1000"})
+    assert senasa["url"] in [d.metadata["url"] for d in horse["hab_docs"]]
+    assert anmac["url"] not in [d.metadata["url"] for d in horse["hab_docs"]]
 
 
 def test_hab_retries_official_domains_when_first_search_is_shops(monkeypatch):
@@ -475,6 +599,7 @@ def test_hab_retries_official_domains_when_first_search_is_shops(monkeypatch):
     domains = ["anmat.gob.ar"]
     assert calls[0].get("include_domains") == domains
     assert "site:.gob.ar" not in (calls[0].get("query") or "")
+    assert "bien nuevo" in (calls[0].get("query") or "").lower()
     assert calls[1].get("include_domains") == domains
     assert "comprimidos" not in (calls[1].get("query") or "").lower()
     urls = [doc.metadata["url"] for doc in out["hab_docs"]]
@@ -746,7 +871,81 @@ def test_grade_prompt_treats_notes_as_exclusions():
     text = GRADE_SYSTEM.lower()
     assert "exclusion" in text
     assert "do not reject because the product name is absent" in text
+    assert "numeric limit" in text
     assert "false if the notes exclude it or the description does not match" not in text
+
+
+def test_hab_prompt_drops_used_regime_for_new_goods():
+    from graph.chains.hab_agent import system
+
+    text = system.lower()
+    assert "bienes usados" in text
+    assert "c.i.b.u.i.h" in text or "cibuih" in text
+
+
+def test_choose_item_drops_threshold_mismatch(monkeypatch):
+    captured = {}
+
+    def fake_invoke(payload):
+        captured["items"] = payload["items"]
+        return type("R", (), {"item": "8402.12.00", "motive": "x"})()
+
+    monkeypatch.setattr(
+        ncm_node,
+        "item_chain",
+        type("C", (), {"invoke": staticmethod(fake_invoke)})(),
+    )
+    monkeypatch.setattr(
+        ncm_node.catalog,
+        "list_items",
+        lambda _: [
+            {
+                "ncm": "8402.11.00",
+                "aec": 14,
+                "full_description": "superior a 45 t por hora",
+            },
+            {
+                "ncm": "8402.12.00",
+                "aec": 14,
+                "full_description": "inferior o igual a 45 t por hora",
+            },
+        ],
+    )
+    out = choose_item(
+        {
+            "question": "Caldera 20 toneladas por hora CIF 80000",
+            "ncm_heading": "84.02",
+            "ncm_notes": "",
+        }
+    )
+    assert out["ncm_item"] == "8402.12.00"
+    assert captured == {}
+
+
+def test_grade_rejects_threshold_without_llm(monkeypatch):
+    called = []
+
+    def _grade(_):
+        called.append(1)
+        return _fake_choice(is_valid=True, motive="ok")
+
+    monkeypatch.setattr(
+        ncm_node, "grade_chain", type("C", (), {"invoke": staticmethod(_grade)})()
+    )
+    out = grade_ncm(
+        {
+            "question": "Caldera 20 toneladas por hora CIF 80000",
+            "ncm": "8402.11.00",
+            "ncm_item": "8402.11.00",
+            "ncm_descripcion": (
+                "Calderas acuotubulares con una producción de vapor superior a 45 t por hora"
+            ),
+            "ncm_notes": "",
+        }
+    )
+    assert out["es_valido"] is False
+    assert "umbral" in out["ncm_feedback"]
+    assert called == []
 
 
 

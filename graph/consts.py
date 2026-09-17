@@ -17,9 +17,11 @@ MERCOSUR_ORIGINS = frozenset(
     {"argentina", "brasil", "brazil", "paraguay", "uruguay", "mercosur"}
 )
 
-# Import VAT default. 10.5 % by NCM is a later table; the question may override.
+# Import VAT default 21 %. BK/BIT catalog flags use 10.5 % (productive-use assumption).
+# A full NCM→IVA table is still missing; the question may override (IVA 10.5 / exento).
 IVA_RATE = 21.0
 IVA_REDUCED_RATE = 10.5
+IVA_REDUCED_FLAGS = frozenset({"BK", "BIT"})
 
 # RG 2937 / 4461: percepción IVA on the same art. 25 base as IVA.
 IVA_PERC_GENERAL = 20.0

@@ -8,6 +8,7 @@ from graph.chains.ncm_agent import (
     grade_chain,
 )
 from graph.consts import ITEM_LIST_LIMIT, MAX_ATTEMPTS
+from ncm.thresholds import filter_items, item_conflicts
 
 catalog = NcmCatalog.from_json()
 
@@ -27,6 +28,7 @@ def pick_chapter(state: GraphState) -> dict:
         "ncm_subheading": "",
         "ncm_descripcion": "",
         "ncm_aec": 0.0,
+        "ncm_aec_flag": "",
         "ncm_medidas": [],
         "es_valido": False,
     }
@@ -91,6 +93,20 @@ def choose_subheading(state: GraphState) -> dict:
 def choose_item(state: GraphState) -> dict:
     key = state.get("ncm_subheading") or state["ncm_heading"]
     items = catalog.list_items(key)
+    filtered = filter_items(state.get("question") or "", items)
+    if len(filtered) < len(items):
+        print(
+            "NCM umbral",
+            len(items),
+            "->",
+            len(filtered),
+            [i.get("ncm") for i in filtered],
+        )
+    items = filtered
+    if len(items) == 1 and items[0].get("ncm"):
+        code = items[0]["ncm"]
+        print("item", code, "- único candidato tras umbral")
+        return {"ncm_item": code}
     list_items = "\n".join(
         f"- {i['ncm']} | AEC {i['aec']} | {i['full_description']}" for i in items
     )
@@ -114,17 +130,20 @@ def fetch_ncm(state: GraphState) -> dict:
             "es_valido": False,
             "ncm": "",
             "ncm_aec": 0.0,
+            "ncm_aec_flag": "",
             "ncm_descripcion": "",
             "ncm_medidas": [],
         }
     medidas = card.get("medidas") or []
-    print("card OK", card["codigo"], "AEC", card["aec"],
+    flag = card.get("aec_flag") or ""
+    print("card OK", card["codigo"], "AEC", card["aec"], flag or "-",
           "AIA" if catalog.aia and catalog.aia.die(card["codigo"]) is not None else "NCM",
           "medidas", len(medidas))
     print(card["descripcion_completa"])
     return {
         "ncm": card["codigo"],
         "ncm_aec": card["aec"],
+        "ncm_aec_flag": flag,
         "ncm_descripcion": card["descripcion_completa"],
         "ncm_medidas": medidas,
     }
@@ -140,6 +159,12 @@ def grade_ncm(state: GraphState) -> dict:
     if not state.get("ncm"):
         print("no card, skip grade")
         return {"es_valido": False, "ncm_feedback": "code not in catalog"}
+    if item_conflicts(state.get("question") or "", state.get("ncm_descripcion") or ""):
+        print("rejected: umbral numérico")
+        return {
+            "es_valido": False,
+            "ncm_feedback": "el ítem no cubre el umbral numérico de la pregunta",
+        }
     grade = grade_chain.invoke(
         {
             "rgi": catalog.rgi,
@@ -171,6 +196,7 @@ def ncm_done(state: GraphState) -> dict:
         info = (
             f"{state['ncm']} | {state.get('ncm_descripcion')} | "
             f"AEC {state.get('ncm_aec')}"
+            + (f" {state['ncm_aec_flag']}" if state.get("ncm_aec_flag") else "")
         )
         print("NCM done", info)
         return {"ncm_info": info}

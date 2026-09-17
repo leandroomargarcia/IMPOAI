@@ -16,6 +16,7 @@ class GraphState(TypedDict):
         ncm_item: NCM item (choose_item).
         ncm: NCM code (fetch_ncm).
         ncm_aec: NCM AEC (grade_ncm).
+        ncm_aec_flag: Mercosur BK / BIT label from the catalog (empty if none).
         ncm_descripcion: NCM description (grade_ncm).
         ncm_info: NCM classification (or why it failed).
         ncm_feedback: grader motive / miss reason.
@@ -48,6 +49,7 @@ class GraphState(TypedDict):
     ncm_item: str
     ncm: str
     ncm_aec: float
+    ncm_aec_flag: str
     ncm_descripcion: str
     ncm_info: str
     ncm_feedback: str

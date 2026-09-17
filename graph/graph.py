@@ -45,7 +45,6 @@ def build_graph():
     builder.add_node("orchestrator", orchestrator)
 
     builder.add_edge(START, "pick_chapter")
-    builder.add_edge(START, "web_search_hab")
     builder.add_edge("web_search_hab", "hab_agent")
 
     builder.add_edge("pick_chapter", "load_notes")
@@ -68,10 +67,11 @@ def build_graph():
         {"ok": "ncm_done", "retry": "pick_chapter", "fail": "ncm_done"},
     )
 
-    builder.add_edge(["ncm_done", "hab_agent"], "join")
-    builder.add_edge("join", "search_price")
-    builder.add_edge("search_price", "calc_duty")
-    builder.add_edge("calc_duty", "orchestrator")
+    builder.add_edge("ncm_done", "web_search_hab")
+    builder.add_edge("ncm_done", "search_price")
+    builder.add_edge("ncm_done", "calc_duty")
+    builder.add_edge(["hab_agent", "search_price", "calc_duty"], "join")
+    builder.add_edge("join", "orchestrator")
     builder.add_edge("orchestrator", END)
     return builder.compile()
 
@@ -80,12 +80,15 @@ app = build_graph()
 
 if __name__ == "__main__":
     out = app.invoke(
-        {"question": "Ibuprofeno 400 mg comprimidos recubiertos CIF 12 USD", "attempts": 0}
+        {
+            "question": "Caldera acuotubular de vapor 20 toneladas por hora CIF 80000 USD origen China",
+            "attempts": 0,
+        }
     )
     print("STATE chapter", out.get("ncm_chapter"), "attempts", out.get("attempts"))
     print("STATE heading", out.get("ncm_heading"))
     print("STATE item", out.get("ncm_item"))
-    print("STATE ncm", out.get("ncm"), "AEC", out.get("ncm_aec"))
+    print("STATE ncm", out.get("ncm"), "AEC", out.get("ncm_aec"), "flag", out.get("ncm_aec_flag"))
     print("STATE grade", out.get("es_valido"))
     print("STATE cif", out.get("cif"))
     print("STATE duty", out.get("impuestos_estimados"))

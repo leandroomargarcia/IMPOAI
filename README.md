@@ -1,38 +1,94 @@
 # IMPOAI
 
-LangGraph assistant for Mercosur NCM classification, a first-pass import cost estimate, Argentine selling-price hints, and Argentina import-permit research.
+LangGraph assistant for Mercosur NCM classification, a first-pass Argentina import-cost estimate, local shelf-price hints, and official import-permit research.
 
-This is a **budgeting tool**, not a customs filing. It does not replace a *despachante* or AFIP.
+This is a **budgeting tool**, not a customs filing. It does not replace a *despachante* or AFIP / SIM / María.
 
 ## Architecture
 
-Target graph: NCM walk and habilitation search run **in parallel**, join, then Argentine selling price, DIE + statistical fee + VAT + perceptions + IIBB on user-entered CIF, and a written report.
+The NCM walk is serial (chapter → notes → heading → 6-digit subheading if needed → item → card → grade, up to 3 retries). If the grade is grounded, or the attempt budget is spent, habilitation search, Argentine selling price, and CIF liquidation run **in parallel**. One join builds the report.
 
-![Target LangGraph: parallel NCM walk and habilitation search, join, then price, costs, and report](docs/architecture.png)
+If it is not grounded and retries remain, it returns to the chapter. Hab, price, and DIE do not wait on each other: none of them reads the others' output.
+
+![LangGraph: NCM first, then hab, price, and duty in parallel, join, and report](docs/architecture.png)
+
+The `ncm_done` node (not drawn in the Studio export) merges “classified” and “failed” before the fan-out.
 
 ## What it does today
 
-Given a product description, **CIF**, optionally **origen**, **cantidad**, tax status and **provincia** (e.g. `pelotas de tenis CIF 100 origen China 200 unidades provincia CABA`):
+The question carries the product and the **CIF**. Optional: origin, quantity, VAT status, and province.
 
-1. Walk the NCM catalog (chapter → notes → heading → 6-digit subheading if the heading is long → item → code exists → grade), with up to 3 retries, **in parallel** with habilitation search
-2. Estimate **DIE** as `CIF × DIE%`, plus **tasa de estadística** (3 % of CIF with USD caps; 0 if origin is Mercosur), plus **IVA 21%** on `CIF + DIE + estadística + medidas`, plus **percepción IVA** (RG 2937: 20 % / 10 % on the same base), **percepción Ganancias** (RG 2281: 11 % default monotributista, 6 % `responsable inscripto`, 3 % `responsable inscripto CVDI`) and **IIBB** if the question has **provincia** (general-rate estimate; 0 if omitted; `IIBB 3.5` overrides). If `docs/*medidas*.xlsx` is present and the question has **origen**, add matching **antidumping ad valorem**. If it also has **cantidad** and the CNCE row has a single specific rate, add `cantidad × USD/unidad`. Min FOB and ambiguous rates are reported, not liquidated.
-3. Search an Argentine **selling price** (Spanish NCM text), convert ARS→USD with the BCRA **A 3500** wholesale rate (fallback `USD_ARS_RATE` in `graph/consts.py`)
-5. Assemble a **report** (`reporte_final`) that labels the output as an estimate, not an AFIP filing
+Example:
 
-Classification uses a **parsed JSON catalog**, not PDF RAG. The catalog covers **all 97 NCM chapters** (`ncm/data/catalog.json`). Rebuild it offline with `python -m ncm` (needs the Mercosur PDF next to the repo root).
+```
+Caldera acuotubular de vapor 20 toneladas por hora CIF 80000 USD origen China provincia CABA
+```
 
-If `docs/nomenclador_*.txt` and `docs/capitulo_*.txt` (Arancel Integrado dumps) are present, **current Argentine DIE** overlays the catalog AEC at lookup time. If `docs/*medidas*.xlsx` (CNCE measures) is present, those rows hang off the NCM. Those files are local (gitignored).
+`responsable inscripto` must be stated; otherwise the importer is assumed **monotributista**.
+
+### 1. NCM
+
+Walks the JSON catalog (`ncm/data/catalog.json`, 97 chapters), not PDF RAG. Up to 3 retries.
+
+- If the heading is long, it picks a 6-digit subheading first.
+- Drops items whose numeric threshold contradicts the question (e.g. 20 t/h vs “superior a 45 t/h”) without calling the LLM.
+- Current DIE comes from the AIA dump (`docs/nomenclador_*.txt`) when present; otherwise the catalog AEC.
+- `BK` / `BIT` flags travel in state (legend + 10.5 % VAT).
+
+### 2. Habilitations (parallel)
+
+Tavily runs only if an organism is known: product keywords or NCM chapter (01–05 SENASA, 30 ANMAT). No generic `argentina.gob.ar` search.
+
+Drops shops, used-goods / C.I.B.U.I.H. hits (unless the question asks for used), and URLs from the wrong organism. Lists procedures, not fees.
+
+### 3. Argentine price (parallel)
+
+Looks up a local selling price from the Spanish NCM text. ARS quotes convert to USD with the BCRA **A 3500** wholesale rate. If the API is down, it uses `USD_ARS_RATE` (1535) and the report says so. That figure is a shelf price, not 1:1 comparable to CIF.
+
+### 4. Liquidation (parallel, arithmetic + tables, no LLM)
+
+Duty base = **CIF** from the question (not derived from FOB).
+
+| Line | How |
+|---|---|
+| DIE | `CIF × DIE%` |
+| Statistical fee | 3 % of CIF (Decreto 1140/2024), with USD caps; 0 if origin is Mercosur |
+| CNCE measures | Antidumping ad valorem if origin is given; specific × quantity if there is a single rate |
+| VAT (IVA) | 21 % default on CIF + DIE + statistical fee + measures. **10.5 %** if the NCM is BK/BIT (productive-use assumption). Override: `IVA 10.5` / `IVA 21` / `IVA exento` |
+| VAT perception | RG 2937/4461: 20 % or 10 %, same base. 0 if VAT-exempt |
+| Income-tax perception | RG 2281: **11 %** monotributista, 6 % `responsable inscripto`, 3 % `responsable inscripto CVDI` |
+| IIBB | 0 if no province. With `provincia CABA` (etc.) uses an estimated general SIRPEI rate. Override: `IIBB 3.5` |
+
+The line-by-line breakdown is `costos_asociados`; the total is `impuestos_estimados`. Min FOB and ambiguous CNCE rates are reported, not liquidated.
+
+### 5. Report
+
+`reporte_final` joins NCM, CIF, origin, province, tax status, duties, reference price, and habilitations. It labels the output as an estimate.
 
 ## Setup
+
+Python ≥ 3.11.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\activate
-pip install -e ".[dev]"
+pip install -e .
+pip install pytest
 copy .env.example .env
 ```
 
 Fill `OPENAI_API_KEY` and `TAVILY_API_KEY` in `.env`. Never commit `.env`.
+
+The catalog is already generated. To rebuild it (Mercosur PDF next to the repo root):
+
+```powershell
+.\.venv\Scripts\python.exe -m ncm
+```
+
+Local dumps (gitignored) used at lookup time if present:
+
+- `docs/nomenclador_*.txt` and `docs/capitulo_*.txt` — Arancel Integrado (DIE)
+- `docs/*medidas*.xlsx` — CNCE measures
 
 ## Run
 
@@ -40,28 +96,29 @@ Fill `OPENAI_API_KEY` and `TAVILY_API_KEY` in `.env`. Never commit `.env`.
 .\.venv\Scripts\python.exe -m graph.graph
 ```
 
-Edit the play button in `graph/graph.py`: put the product and the CIF in `question` (e.g. `green coffee beans CIF 4.50`). Later this will come from a chat turn.
+The play-button question lives in `graph/graph.py` (`if __name__ == "__main__"`). Later this will come from a chat turn.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest graph\tests ncm\tests -q
 ```
 
-Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs.
+Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (OpenAI, Tavily, BCRA).
 
 ## Layout
 
 | Path | Role |
 |---|---|
-| `ncm/` | PDF parser (offline) + catalog lookup + AIA overlay |
-| `ncm/data/catalog.json` | Full 97-chapter NCM (rebuild: `python -m ncm`) |
-| `docs/nomenclador_*.txt` | Local Arancel Integrado dump (gitignored; DIE overlay) |
-| `docs/*medidas*.xlsx` | Local CNCE dumping measures (gitignored) |
+| `ncm/` | Offline PDF parser, catalog, AIA overlay, numeric thresholds |
+| `ncm/data/catalog.json` | Full 97-chapter NCM (`python -m ncm`) |
+| `ncm/thresholds.py` | Filter 20 t/h vs “superior a 45 t/h” (no LLM) |
 | `graph/graph.py` | LangGraph wiring |
+| `graph/state.py` | Shared state |
+| `graph/consts.py` | Retry budget, VAT, perceptions, IIBB, FX fallback |
 | `graph/chains/` | LLM forms (NCM, price, hab) |
-| `graph/nodes/` | State in / state out |
-| `docs/architecture.png` | Target graph (LangGraph Studio export) |
-| `TODO.md` | Full catalog, broker-style liquidation, FX scrape |
+| `graph/nodes/` | Nodes: NCM, hab, price, `calc_duty`, join, report |
+| `docs/architecture.png` | LangGraph Studio export |
+| `TODO.md` | Remaining work |
 
 ## Status
 
-POC graph matches the office diagram (parallel NCM + hab → join → price → DIE on CIF → report). Next: rest of the tax stack, live USD/ARS, conversational input for CIF / province, then observability.
+Still missing: technical spec sheet before classification; broker fees, bonded warehouse, inland freight; habilitation fees (procedures only today); food/medicine 10.5 % VAT table (BK/BIT + override only); CIF + liquidation vs shelf price; AFIP rulings and RGI 3 (post-MVP / after the spec sheet); chat to collect CIF and province (they live in `question` today); fixed tests for 3 products outside chapters 1 and 9.

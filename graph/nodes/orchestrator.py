@@ -2,7 +2,16 @@ from graph.state import GraphState
 
 
 def join_branches(state: GraphState) -> dict:
-    print("JOIN ncm", state.get("ncm") or "(none)", "hab", bool(state.get("hab_info")))
+    print(
+        "JOIN ncm",
+        state.get("ncm") or "(none)",
+        "hab",
+        bool(state.get("hab_info")),
+        "price",
+        state.get("precio_info") or "-",
+        "duty",
+        state.get("impuestos_estimados"),
+    )
     return {}
 
 
