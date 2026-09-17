@@ -1,6 +1,6 @@
 # TODO — IMPOAI
 
-Done: 97-chapter NCM catalog (JSON, not RAG). Office: NCM first, then hab ∥ price ∥ duty → join → report. DIE from the AIA dump; CIF and origin in the question; CNCE measures (antidumping ad valorem).
+Done: 97-chapter NCM catalog (JSON, not RAG). Office: price from START ∥ NCM; then hab ∥ duty → join → report.
 
 ## Full catalog
 
@@ -23,11 +23,11 @@ Done: 97-chapter NCM catalog (JSON, not RAG). Office: NCM first, then hab ∥ pr
 - [x] Split `clasificar_ncm` into nodes: router → notes → heading → item → `get_ncm` → grade
 - [x] If `get_ncm` fails, do not call the grader
 - [x] If the budget is spent without grounding, `ncm_info` must say it did not classify
-- [x] Wire the office: NCM → then hab ∥ price ∥ duty → join → report. Hab does not search generic `.gob.ar`: needs a keyword or chapter organism (01–05 SENASA, 30 ANMAT).
+- [x] Wire the office: price from START ∥ NCM walk; then hab ∥ duty → join → report. Hab does not search generic `.gob.ar`: needs a keyword or chapter organism (01–05 SENASA, 30 ANMAT).
 - [x] Filter items whose numeric threshold (e.g. 20 t/h vs over 45 t/h) contradicts the question; the grader also rejects without an LLM
 - [x] Hab: drop used-goods / C.I.B.U.I.H. hits unless the question asks for used
 - [x] Hab: drop SENASA / ANMAT / ANMaC if the product is not that organism
-- [ ] Test 3 products outside chapters 1 and 9 (live ibuprofen / tricycle runs happened; no fixed test)
+- [x] Test 3 products outside chapters 1 and 9 (live ibuprofen / tricycle runs happened; no fixed test)
 
 
 
@@ -83,9 +83,10 @@ Today `calc_duty` does `CIF × DIE%` + statistical fee + CNCE measures + **VAT**
 
 ### Operating costs (after the customs liquidation)
 
-- [ ] Customs-broker fees (estimate; % of CIF or flat)
-- [ ] Bonded warehouse / terminal / inland freight / local insurance
-- [ ] **Habilitations (SENASA/ANMAT, etc.)** — the hab node lists procedures, not amounts. Do not cost them as a % of CIF. Options: user-entered fee; organism → tariff table; Tavily + extract (later)
+Closed: IMPOAI does not estimate these. The report warns that CIF + fiscal duties is not a landed cost.
+
+- [x] Customs-broker fees, bonded warehouse / terminal, inland freight, local insurance — out of scope (despachante / terminal / forwarder quote them)
+- [x] **Habilitations (SENASA/ANMAT, etc.)** — list procedures, not amounts; the same report note covers permit tariffs
 
 
 
@@ -93,3 +94,20 @@ Today `calc_duty` does `CIF × DIE%` + statistical fee + CNCE measures + **VAT**
 
 - [x] **USD/ARS rate** — BCRA Comunicación A 3500 (`api.bcra.gob.ar/estadisticascambiarias`, `tipoCotizacion` USD). Only converts shelf ARS→USD. If the API fails, `USD_ARS_RATE` 1535 and the report says so.
 - [ ] Compare **CIF + estimated liquidation** against `precio_ref` (local sale in USD)
+
+
+
+## Observability
+
+How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + traces are a separate live job. Measure the graph first; HTTP API and OpenTelemetry come after.
+
+- [ ] **Gold set (50)** — `question` + verified 8-digit NCM. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed goods). Not AFIP criterios as the main set (those stay post-MVP stress).
+- [ ] **Hierarchical accuracy** — exact 8-digit % (overall); also 2 (chapter), 4 (heading), 6 (subheading); optional mean digits correct (0–8).
+- [ ] **Latency** — wall clock for the full invoke; ms per node (bottleneck). Price overlaps the NCM walk; after `ncm_done`, wall time is max(hab, duty) vs remaining price.
+- [ ] **Retries per node** — NCM `attempts` (back to `pick_chapter`, max 3); hab Tavily retry 0/1; price/duty 0 unless we add loops.
+- [ ] **Full text per turn** — prompt + raw LLM/Tavily output for every NCM attempt (not only the final code); `reporte_final` at the end.
+- [ ] **Cost** — OpenAI tokens (USD) per invoke, same 50 runs. Mock pytest does not record this.
+- [ ] **Consistency** — 10 gold rows × 3 runs; same `question` should keep the same NCM.
+- [ ] **LangSmith** — `LANGSMITH_TRACING=true` on live gold runs (spans already match nodes). Do not add Langfuse in parallel.
+- [ ] **HTTP API** — later. Wrap the same `invoke`; not a prerequisite for the 50 calls.
+- [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into LangSmith. Do not instrument OTel on in-process gold invokes.

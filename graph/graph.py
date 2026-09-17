@@ -23,6 +23,8 @@ from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.web_search_hab import web_search_hab
 from graph.nodes.hab_agent import hab_agent
 from graph.nodes.orchestrator import join_branches, orchestrator
+from langfuse.langchain import CallbackHandler
+from langfuse import get_client
 
 load_dotenv()
 
@@ -45,6 +47,7 @@ def build_graph():
     builder.add_node("orchestrator", orchestrator)
 
     builder.add_edge(START, "pick_chapter")
+    builder.add_edge(START, "search_price")
     builder.add_edge("web_search_hab", "hab_agent")
 
     builder.add_edge("pick_chapter", "load_notes")
@@ -68,7 +71,6 @@ def build_graph():
     )
 
     builder.add_edge("ncm_done", "web_search_hab")
-    builder.add_edge("ncm_done", "search_price")
     builder.add_edge("ncm_done", "calc_duty")
     builder.add_edge(["hab_agent", "search_price", "calc_duty"], "join")
     builder.add_edge("join", "orchestrator")
@@ -79,11 +81,13 @@ def build_graph():
 app = build_graph()
 
 if __name__ == "__main__":
+    langfuse_handler = CallbackHandler()
     out = app.invoke(
         {
             "question": "Caldera acuotubular de vapor 20 toneladas por hora CIF 80000 USD origen China",
             "attempts": 0,
-        }
+        },
+        config={"callbacks": [langfuse_handler]},
     )
     print("STATE chapter", out.get("ncm_chapter"), "attempts", out.get("attempts"))
     print("STATE heading", out.get("ncm_heading"))
@@ -96,3 +100,4 @@ if __name__ == "__main__":
     print("STATE hab", (out.get("hab_info") or "")[:200])
     print("REPORT")
     print(out.get("reporte_final"))
+    get_client().flush()

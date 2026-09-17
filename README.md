@@ -6,13 +6,13 @@ This is a **budgeting tool**, not a customs filing. It does not replace a *despa
 
 ## Architecture
 
-The NCM walk is serial (chapter → notes → heading → 6-digit subheading if needed → item → card → grade, up to 3 retries). If the grade is grounded, or the attempt budget is spent, habilitation search, Argentine selling price, and CIF liquidation run **in parallel**. One join builds the report.
+The NCM walk is serial (chapter → notes → heading → 6-digit subheading if needed → item → card → grade, up to 3 retries). **Selling-price search starts at `START`** (only the `question`; it does not wait for the NCM). After `ncm_done`, habilitation search and CIF liquidation run in parallel. One join waits for price + hab + duty, then the report.
 
-If it is not grounded and retries remain, it returns to the chapter. Hab, price, and DIE do not wait on each other: none of them reads the others' output.
+If the grade is not grounded and retries remain, NCM returns to the chapter. Hab and DIE still wait for `ncm_done` (chapter / AEC). Price does not read hab or duty.
 
 ![LangGraph: NCM first, then hab, price, and duty in parallel, join, and report](docs/architecture.png)
 
-The `ncm_done` node (not drawn in the Studio export) merges “classified” and “failed” before the fan-out.
+The `ncm_done` node (not drawn in the Studio export) merges “classified” and “failed” before hab and duty. Price is already running from `START`.
 
 ## What it does today
 
@@ -117,8 +117,9 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (O
 | `graph/chains/` | LLM forms (NCM, price, hab) |
 | `graph/nodes/` | Nodes: NCM, hab, price, `calc_duty`, join, report |
 | `docs/architecture.png` | LangGraph Studio export |
+| `docs/observability.md` | Gold set, hierarchical accuracy, traces; HTTP OTel after the API |
 | `TODO.md` | Remaining work |
 
 ## Status
 
-Still missing: technical spec sheet before classification; broker fees, bonded warehouse, inland freight; habilitation fees (procedures only today); food/medicine 10.5 % VAT table (BK/BIT + override only); CIF + liquidation vs shelf price; AFIP rulings and RGI 3 (post-MVP / after the spec sheet); chat to collect CIF and province (they live in `question` today); fixed tests for 3 products outside chapters 1 and 9.
+Still missing: technical spec sheet before classification; food/medicine 10.5 % VAT table (BK/BIT + override only); CIF + liquidation vs shelf price; AFIP rulings and RGI 3 (post-MVP / after the spec sheet); chat to collect CIF and province (they live in `question` today); fixed tests for 3 products outside chapters 1 and 9.
