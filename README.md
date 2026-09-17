@@ -63,7 +63,7 @@ The line-by-line breakdown is `costos_asociados`; the total is `impuestos_estima
 
 ### 5. Report
 
-`reporte_final` joins NCM, CIF, origin, province, tax status, duties, reference price, and habilitations. It labels the output as an estimate.
+`reporte_final` joins NCM, CIF, origin, province, tax status, duties, reference price, and habilitations. It labels the output as an estimate and warns that broker fees, warehouse/terminal, inland freight, local insurance, and permit tariffs are not included.
 
 ## Setup
 

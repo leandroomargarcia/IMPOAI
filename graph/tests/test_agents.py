@@ -814,6 +814,8 @@ def test_office_parallel_join_writes_report(monkeypatch):
     assert "No se encontró este producto" not in out["reporte_final"]
     assert "estimación" in out["reporte_final"].lower()
     assert "no es un despacho" in out["reporte_final"].lower()
+    assert "solo la liquidación fiscal" in out["reporte_final"]
+    assert "honorarios de despachante" in out["reporte_final"]
 
 
 def test_ncm_fail_still_joins_hab_and_report(monkeypatch):

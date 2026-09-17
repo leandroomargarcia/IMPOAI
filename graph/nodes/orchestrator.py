@@ -32,6 +32,7 @@ def orchestrator(state: GraphState) -> dict:
             f"Inscripto: {'sí' if state.get('inscripto') else 'no' if state.get('inscripto') is False else '-'}",
             f"Derechos estimados: {duty if duty is not None else '-'} USD (DIE + estadística + medidas + IVA + percepciones + IIBB; no es un despacho).",
             f"CIF + derechos: {landed if landed is not None else '-'} USD",
+            "Nota: ese subtotal es solo la liquidación fiscal. IMPOAI no calcula honorarios de despachante, depósito fiscal, gastos de terminal, flete interno, seguro local ni aranceles de habilitaciones; hay que sumarlos aparte (los cotiza el despachante, la terminal o el transportista).",
             f"Desglose: {state.get('costos_asociados') or '-'}",
             f"Precio de referencia venta Argentina: {state.get('precio_info') or 'sin datos'}",
             "Habilitaciones (trámites, no aranceles):",
