@@ -15,10 +15,7 @@ catalog = NcmCatalog.from_json()
 
 def pick_chapter(state: GraphState) -> dict:
     question = state["question"]
-    caps = catalog.search_chapters(question)
-    list_caps = "\n".join(f"- {c['chapter']}: {c['title']}" for c in caps)
-    cap = router.invoke({"rgi": catalog.rgi, "question": question, "chapters": list_caps})
-    print("chapter", cap.chapter, "-", cap.motive)
+    cap = router.invoke({"question": question, "chapters": catalog.chapter_labels()})
     return {
         "ncm_chapter": cap.chapter.zfill(2),
         "attempts": state.get("attempts", 0) + 1,

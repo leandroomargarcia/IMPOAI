@@ -39,6 +39,7 @@ class GraphState(TypedDict):
         costos_asociados: line-by-line estimate (CIF, DIE, estadística, medidas, IVA, percepciones, IIBB)
         impuestos_estimados: DIE + estadística + medidas + IVA + percepciones + IIBB (calcular_costos)
         reporte_final: final report (orquestador)
+        price_job_id: background Tavily job started at START (search_price_wait)
     """
 
     question: str
@@ -74,3 +75,4 @@ class GraphState(TypedDict):
     costos_asociados: str
     impuestos_estimados: float
     reporte_final: str
+    price_job_id: str

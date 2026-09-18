@@ -6,13 +6,13 @@ This is a **budgeting tool**, not a customs filing. It does not replace a *despa
 
 ## Architecture
 
-The NCM walk is serial (chapter → notes → heading → 6-digit subheading if needed → item → card → grade, up to 3 retries). **Selling-price search starts at `START`** (only the `question`; it does not wait for the NCM). After `ncm_done`, habilitation search and CIF liquidation run in parallel. One join waits for price + hab + duty, then the report.
+The NCM walk is serial (chapter → notes → heading → 6-digit subheading if needed → item → card → grade, up to 3 retries). **Selling-price search is kicked off at `START` in a thread** (`search_price_start` returns immediately) so LangGraph does not wait on Tavily before `load_notes`. After `ncm_done`, habilitation search, CIF liquidation, and `search_price_wait` run in parallel. One join waits for all three, then the report.
 
 If the grade is not grounded and retries remain, NCM returns to the chapter. Hab and DIE still wait for `ncm_done` (chapter / AEC). Price does not read hab or duty.
 
 ![LangGraph: NCM first, then hab, price, and duty in parallel, join, and report](docs/architecture.png)
 
-The `ncm_done` node (not drawn in the Studio export) merges “classified” and “failed” before hab and duty. Price is already running from `START`.
+The `ncm_done` node merges “classified” and “failed” before hab, duty, and `search_price_wait`. Tavily is already running in a thread from `search_price_start`.
 
 ## What it does today
 

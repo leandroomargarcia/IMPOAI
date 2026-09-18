@@ -1,6 +1,8 @@
 import json
+import uuid
 import urllib.error
 import urllib.request
+from concurrent.futures import Future, ThreadPoolExecutor
 
 from langchain_tavily import TavilySearch
 
@@ -13,6 +15,8 @@ from graph.state import GraphState
 _ARS = {"ARS", "PESO", "PESOS", "AR$"}
 
 tavily = None
+_jobs: dict[str, Future] = {}
+_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="impoai-price")
 
 
 def _tavily():
@@ -69,6 +73,33 @@ def search_price(state: GraphState) -> dict:
     else:
         info = f"{usd:g} {currency}"
     return {"precio_ref": usd, "ncm_currency": currency, "precio_info": info}
+
+
+def search_price_start(state: GraphState) -> dict:
+    """Kick Tavily in a thread so LangGraph does not wait before load_notes."""
+    job_id = str(uuid.uuid4())
+    snapshot = {
+        "question": state.get("question") or "",
+        "ncm": state.get("ncm") or "",
+        "ncm_descripcion": state.get("ncm_descripcion") or "",
+    }
+    _jobs[job_id] = _pool.submit(search_price, snapshot)
+    print("PRICE start", job_id)
+    return {"price_job_id": job_id}
+
+
+def search_price_wait(state: GraphState) -> dict:
+    job_id = state.get("price_job_id") or ""
+    fut = _jobs.pop(job_id, None)
+    if fut is None:
+        print("PRICE wait missing job")
+        return {
+            "precio_ref": 0.0,
+            "ncm_currency": "USD",
+            "precio_info": "No se encontró este producto a la venta en Argentina.",
+        }
+    print("PRICE wait", job_id)
+    return fut.result()
 
 
 def parse_bcra_usd(payload: dict) -> tuple[float, str] | None:

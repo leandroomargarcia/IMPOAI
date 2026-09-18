@@ -18,7 +18,7 @@ from graph.nodes.ncm_node import (
     after_grade,
     ncm_done,
 )
-from graph.nodes.search_price import search_price
+from graph.nodes.search_price import search_price_start, search_price_wait
 from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.web_search_hab import web_search_hab
 from graph.nodes.hab_agent import hab_agent
@@ -42,12 +42,13 @@ def build_graph():
     builder.add_node("web_search_hab", web_search_hab)
     builder.add_node("hab_agent", hab_agent)
     builder.add_node("join", join_branches)
-    builder.add_node("search_price", search_price)
+    builder.add_node("search_price_start", search_price_start)
+    builder.add_node("search_price_wait", search_price_wait)
     builder.add_node("calc_duty", calc_duty)
     builder.add_node("orchestrator", orchestrator)
 
     builder.add_edge(START, "pick_chapter")
-    builder.add_edge(START, "search_price")
+    builder.add_edge(START, "search_price_start")
     builder.add_edge("web_search_hab", "hab_agent")
 
     builder.add_edge("pick_chapter", "load_notes")
@@ -72,7 +73,8 @@ def build_graph():
 
     builder.add_edge("ncm_done", "web_search_hab")
     builder.add_edge("ncm_done", "calc_duty")
-    builder.add_edge(["hab_agent", "search_price", "calc_duty"], "join")
+    builder.add_edge("ncm_done", "search_price_wait")
+    builder.add_edge(["hab_agent", "search_price_wait", "calc_duty"], "join")
     builder.add_edge("join", "orchestrator")
     builder.add_edge("orchestrator", END)
     return builder.compile()

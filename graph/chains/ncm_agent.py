@@ -40,8 +40,13 @@ GRADE_SYSTEM = (
 
 router = ChatPromptTemplate.from_messages(
     [
-        ("system", "Pick ONE chapter from the list. Titles are indicative. \n\nRGI:\n{rgi}"),
-        ("human",  "Product:\n{question}\n\nChapter:\n{chapters}"),
+        (
+            "system",
+            "Pick ONE chapter from the list. Titles are indicative (RGI 1); "
+            "heading texts and notes come later.\n\n"
+            "Chapters:\n{chapters}",
+        ),
+        ("human", "Product:\n{question}"),
     ]
 ) | llm.with_structured_output(ChapterChoice, method="function_calling")
 

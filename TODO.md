@@ -1,6 +1,6 @@
 # TODO — IMPOAI
 
-Done: 97-chapter NCM catalog (JSON, not RAG). Office: price from START ∥ NCM; then hab ∥ duty → join → report.
+Done: 97-chapter NCM catalog (JSON, not RAG). Office: `search_price_start` at START (thread); NCM walk; then hab ∥ duty ∥ `search_price_wait` → join → report.
 
 ## Full catalog
 
@@ -23,7 +23,7 @@ Done: 97-chapter NCM catalog (JSON, not RAG). Office: price from START ∥ NCM; 
 - [x] Split `clasificar_ncm` into nodes: router → notes → heading → item → `get_ncm` → grade
 - [x] If `get_ncm` fails, do not call the grader
 - [x] If the budget is spent without grounding, `ncm_info` must say it did not classify
-- [x] Wire the office: price from START ∥ NCM walk; then hab ∥ duty → join → report. Hab does not search generic `.gob.ar`: needs a keyword or chapter organism (01–05 SENASA, 30 ANMAT).
+- [x] Wire the office: `search_price_start` at START (background Tavily); NCM walk; then hab ∥ duty ∥ `search_price_wait` → join → report. Hab does not search generic `.gob.ar`: needs a keyword or chapter organism (01–05 SENASA, 30 ANMAT).
 - [x] Filter items whose numeric threshold (e.g. 20 t/h vs over 45 t/h) contradicts the question; the grader also rejects without an LLM
 - [x] Hab: drop used-goods / C.I.B.U.I.H. hits unless the question asks for used
 - [x] Hab: drop SENASA / ANMAT / ANMaC if the product is not that organism
@@ -33,10 +33,25 @@ Done: 97-chapter NCM catalog (JSON, not RAG). Office: price from START ∥ NCM; 
 
 ## What a broker uses and we still lack
 
-- [ ] **Technical spec sheet** — ask for / build composition, use, presentation, assembled or not. Do not classify from the trade name alone
 - [x] **NESH** — closed: the WCO book is not free; no NESH index in the repo
 - [ ] **AFIP/ARCA classification rulings** — **very low priority (post-MVP)**. They cover edge cases, not the general flow. If done, they go after `get_ncm` as validation (not as the classifier). Needs a dump of RG annexes (ARCA library); the AIA nomenclator is not this.
-- [ ] If the product could go to two chapters, compare headings with RGI 3 (more specific / essential character / last number) instead of locking the first chapter. **After the spec sheet** (without composition/use, grader retry is enough). Not the next box.
+
+Spec sheet and RGI 3 across headings are **NCM v2** (`docs/ncm-retrieval.md`). Do not start them until v1 is gold-tested and in production.
+
+
+## NCM classifier versions
+
+**v1 (now) — baseline.** Chapter-first walk: `pick_chapter` → notes → heading → optional 6-digit → item → card → grade (max 3 retries). This is what we measure and ship.
+
+- [ ] **Baseline gold: 50 product runs** on this architecture. One row = `question` (with CIF) + verified 8-digit NCM from the catalog. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed / chapter-boundary goods). Same job as Observability below; those metrics are the v1 score. Not AFIP criterios as the main set.
+- [ ] **Ship v1** after that gold (hierarchical accuracy, latency, consistency) is recorded. Production stays on this walk.
+
+**v2 (after v1 is in production).** Do not mix this into the 50 baseline runs. Method: `docs/ncm-retrieval.md`.
+
+- [ ] Spec sheet (composition, use, presentation) then BM25 over **headings** (level 4), not 97 chapter titles
+- [ ] LLM picks among k heading candidates using notes + RGI 3 (more specific / essential character / last number); then the existing 6/8 descent + grade
+- [ ] Retry drops the failed heading from the shortlist (does not re-roll `pick_chapter` from titles)
+- [ ] Re-run the same 50 gold rows vs v1 (plus recall@8 of the gold heading in the BM25 list)
 
 
 
@@ -99,15 +114,15 @@ Closed: IMPOAI does not estimate these. The report warns that CIF + fiscal dutie
 
 ## Observability
 
-How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + traces are a separate live job. Measure the graph first; HTTP API and OpenTelemetry come after.
+How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + traces are a separate live job. **These 50 runs score NCM v1 (chapter-first walk).** HTTP API and OpenTelemetry come after. Heading retrieval (v2) is `docs/ncm-retrieval.md` and waits until v1 is in production.
 
-- [ ] **Gold set (50)** — `question` + verified 8-digit NCM. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed goods). Not AFIP criterios as the main set (those stay post-MVP stress).
+- [ ] **Gold set (50 product runs)** — v1 baseline. `question` + verified 8-digit NCM. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed goods, chapter boundaries e.g. tyres 40.11 vs 87.08). Not AFIP criterios as the main set (those stay post-MVP stress).
 - [ ] **Hierarchical accuracy** — exact 8-digit % (overall); also 2 (chapter), 4 (heading), 6 (subheading); optional mean digits correct (0–8).
-- [ ] **Latency** — wall clock for the full invoke; ms per node (bottleneck). Price overlaps the NCM walk; after `ncm_done`, wall time is max(hab, duty) vs remaining price.
+- [ ] **Latency** — wall clock for the full invoke; ms per node (bottleneck). Tavily runs in a thread from `search_price_start`; `load_notes` must not wait on price. After `ncm_done`, wall is max(hab, duty, leftover price).
 - [ ] **Retries per node** — NCM `attempts` (back to `pick_chapter`, max 3); hab Tavily retry 0/1; price/duty 0 unless we add loops.
 - [ ] **Full text per turn** — prompt + raw LLM/Tavily output for every NCM attempt (not only the final code); `reporte_final` at the end.
 - [ ] **Cost** — OpenAI tokens (USD) per invoke, same 50 runs. Mock pytest does not record this.
 - [ ] **Consistency** — 10 gold rows × 3 runs; same `question` should keep the same NCM.
-- [ ] **LangSmith** — `LANGSMITH_TRACING=true` on live gold runs (spans already match nodes). Do not add Langfuse in parallel.
+- [ ] **Langfuse** — live gold runs (callback already on `invoke`). Do not add LangSmith in parallel.
 - [ ] **HTTP API** — later. Wrap the same `invoke`; not a prerequisite for the 50 calls.
-- [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into LangSmith. Do not instrument OTel on in-process gold invokes.
+- [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into Langfuse. Do not instrument OTel on in-process gold invokes.

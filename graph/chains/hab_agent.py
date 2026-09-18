@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
@@ -24,7 +26,10 @@ class HabAnalisis(BaseModel):
     requisitos: list[Requisito]
     resumen: str = Field(description="Resumen de los requisitos corto; sin URLs")
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(
+    model=os.getenv("IMPOAI_MODEL", "gpt-4.1-mini"),
+    temperature=0,
+)
 structured = llm.with_structured_output(HabAnalisis, method="function_calling")
 
 system = """Sos analista de habilitaciones de importación en Argentina.

@@ -31,6 +31,15 @@ def test_full_catalog_poc_regression(full_catalog):
     assert "té" not in path and "te," not in path
 
 
+def test_short_chapter_title_strips_leaked_notes(full_catalog):
+    from ncm.catalog import short_chapter_title
+
+    by_code = {c["codigo"]: c["titulo"] for c in full_catalog["chapters"]}
+    assert len(by_code["52"]) > 1000
+    assert short_chapter_title(by_code["52"]).lower() == "algodón"
+    assert "52.01" not in short_chapter_title(by_code["53"])
+
+
 def test_full_catalog_spot_check_27_39_84(full_catalog):
     titles = {c["codigo"]: c["titulo"].lower() for c in full_catalog["chapters"]}
     assert "combustible" in titles["27"]

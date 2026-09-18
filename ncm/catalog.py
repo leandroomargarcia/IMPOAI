@@ -16,6 +16,18 @@ def _norm(code: str) -> str:
     return code.replace(" ", "")
 
 
+# Parser sometimes dumps notes or the duty table into `titulo`.
+_TITLE_LEAK_RE = re.compile(
+    r"\s+Notas?(?:\s+de\s+subpartida)?\.|\s+\d{2}\.\d{2}\b|\s+\d{4}\.\d{2}",
+    re.I,
+)
+
+
+def short_chapter_title(titulo: str) -> str:
+    """HS chapter name only (no leaked notes or 52.01 / 5201.00 rows)."""
+    return _TITLE_LEAK_RE.split(titulo or "", maxsplit=1)[0].strip(" ;,")
+
+
 class NcmCatalog:
     def __init__(
         self,
@@ -54,6 +66,12 @@ class NcmCatalog:
     @cached_property
     def chapters(self) -> list[dict[str, Any]]:
         return list(self.data["chapters"])
+
+    def chapter_labels(self) -> str:
+        """Stable list for the chapter router prompt."""
+        return "\n".join(
+            f"- {c['codigo']}: {short_chapter_title(c['titulo'])}" for c in self.chapters
+        )
 
     def search_chapters(self, query: str) -> list[dict[str, str]]:
         """Returns catalog chapters; LLM chooses, not the score."""
