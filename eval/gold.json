@@ -1,0 +1,313 @@
+[
+  {
+    "id": "horse-purebred",
+    "question": "Caballo reproductor de raza pura vivo CIF 1000 USD origen Uruguay",
+    "ncm_gold": "0101.21.00",
+    "tag": "typical"
+  },
+  {
+    "id": "beef-boneless",
+    "question": "Carne bovina deshuesada fresca CIF 12 USD origen Paraguay",
+    "ncm_gold": "0201.30.00",
+    "tag": "typical"
+  },
+  {
+    "id": "shrimp-frozen",
+    "question": "Camarones congelados enteros CIF 18 USD origen Ecuador",
+    "ncm_gold": "0306.17.10",
+    "tag": "typical"
+  },
+  {
+    "id": "milk-powder",
+    "question": "Leche en polvo descremada CIF 4 USD origen Nueva Zelanda",
+    "ncm_gold": "0402.10.10",
+    "tag": "typical"
+  },
+  {
+    "id": "mozzarella",
+    "question": "Queso mozzarella fresco CIF 6 USD origen Italia",
+    "ncm_gold": "0406.10.10",
+    "tag": "typical"
+  },
+  {
+    "id": "garlic",
+    "question": "Ajos frescos para consumo CIF 2 USD origen China",
+    "ncm_gold": "0703.20.90",
+    "tag": "typical"
+  },
+  {
+    "id": "bananas",
+    "question": "Bananas frescas CIF 1 USD origen Ecuador",
+    "ncm_gold": "0803.90.00",
+    "tag": "typical"
+  },
+  {
+    "id": "apples",
+    "question": "Manzanas frescas CIF 1.5 USD origen Chile",
+    "ncm_gold": "0808.10.00",
+    "tag": "typical"
+  },
+  {
+    "id": "coffee-green",
+    "question": "Café en grano sin tostar sin descafeinar CIF 4.50 USD origen Brasil",
+    "ncm_gold": "0901.11.10",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "coffee-roasted",
+    "question": "Café tostado en grano sin descafeinar CIF 8 USD origen Colombia",
+    "ncm_gold": "0901.21.00",
+    "tag": "typical"
+  },
+  {
+    "id": "yerba-canchada",
+    "question": "Yerba mate simplemente canchada CIF 3 USD origen Paraguay",
+    "ncm_gold": "0903.00.10",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "wheat-durum",
+    "question": "Trigo duro para molienda CIF 300 USD origen Canadá",
+    "ncm_gold": "1001.19.00",
+    "tag": "typical"
+  },
+  {
+    "id": "maize-grain",
+    "question": "Maíz en grano CIF 200 USD origen Estados Unidos",
+    "ncm_gold": "1005.90.10",
+    "tag": "typical"
+  },
+  {
+    "id": "rice-paddy",
+    "question": "Arroz con cáscara no parboilizado CIF 400 USD origen Brasil",
+    "ncm_gold": "1006.10.92",
+    "tag": "typical"
+  },
+  {
+    "id": "soybeans",
+    "question": "Habas de soja para crushing CIF 450 USD origen Paraguay",
+    "ncm_gold": "1201.90.00",
+    "tag": "typical"
+  },
+  {
+    "id": "olive-virgin",
+    "question": "Aceite de oliva virgen extra 1 litro CIF 8 USD origen España",
+    "ncm_gold": "1509.10.00",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "soy-oil-crude",
+    "question": "Aceite de soja en bruto desgomado CIF 900 USD origen Brasil",
+    "ncm_gold": "1507.10.00",
+    "tag": "typical"
+  },
+  {
+    "id": "tuna-canned",
+    "question": "Atún en conserva en trozos CIF 5 USD origen Ecuador",
+    "ncm_gold": "1604.14.10",
+    "tag": "typical"
+  },
+  {
+    "id": "cane-sugar",
+    "question": "Azúcar de caña en bruto CIF 400 USD origen Brasil",
+    "ncm_gold": "1701.14.00",
+    "tag": "typical"
+  },
+  {
+    "id": "beer",
+    "question": "Cerveza de malta en botella CIF 12 USD origen Alemania",
+    "ncm_gold": "2203.00.00",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "wine-bottle",
+    "question": "Vino tinto en botella de 750 ml CIF 10 USD origen Chile",
+    "ncm_gold": "2204.21.00",
+    "tag": "typical"
+  },
+  {
+    "id": "whisky-bottle",
+    "question": "Whisky escocés 12 años botella 750 ml CIF 25 USD origen Reino Unido",
+    "ncm_gold": "2208.30.20",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "cement-portland",
+    "question": "Cemento Portland normal CIF 80 USD origen Turquía",
+    "ncm_gold": "2523.29.10",
+    "tag": "typical"
+  },
+  {
+    "id": "crude-oil",
+    "question": "Petróleo crudo CIF 70 USD origen Nigeria",
+    "ncm_gold": "2709.00.10",
+    "tag": "typical"
+  },
+  {
+    "id": "pe-linear",
+    "question": "Polietileno lineal densidad inferior a 0,94 en formas primarias CIF 1200 USD origen Estados Unidos",
+    "ncm_gold": "3901.10.10",
+    "tag": "typical"
+  },
+  {
+    "id": "tires-car-new",
+    "question": "Neumáticos radiales nuevos para automóvil de turismo CIF 80 USD origen China",
+    "ncm_gold": "4011.10.00",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "sawn-pine",
+    "question": "Madera aserrada de pino espesor superior a 6 mm CIF 400 USD origen Brasil",
+    "ncm_gold": "4407.11.00",
+    "tag": "typical"
+  },
+  {
+    "id": "newsprint",
+    "question": "Papel prensa en bobinas CIF 600 USD origen Canadá",
+    "ncm_gold": "4801.00.90",
+    "tag": "typical"
+  },
+  {
+    "id": "books",
+    "question": "Libros impresos CIF 15 USD origen España",
+    "ncm_gold": "4901.99.00",
+    "tag": "typical"
+  },
+  {
+    "id": "soap-bar",
+    "question": "Jabón de tocador en barra CIF 3 USD origen Brasil",
+    "ncm_gold": "3401.11.90",
+    "tag": "typical"
+  },
+  {
+    "id": "shampoo",
+    "question": "Champú capilar CIF 4 USD origen Francia",
+    "ncm_gold": "3305.10.00",
+    "tag": "typical"
+  },
+  {
+    "id": "sneakers",
+    "question": "Calzado de deporte con suela de caucho y parte superior textil CIF 40 USD origen Vietnam",
+    "ncm_gold": "6404.11.00",
+    "tag": "typical"
+  },
+  {
+    "id": "bicycle",
+    "question": "Bicicleta sin motor CIF 120 USD origen China",
+    "ncm_gold": "8712.00.10",
+    "tag": "typical",
+    "consistency": true
+  },
+  {
+    "id": "motorcycle-125",
+    "question": "Motocicleta 125 cm3 CIF 1800 USD origen India",
+    "ncm_gold": "8711.20.10",
+    "tag": "typical"
+  },
+  {
+    "id": "bedroom-wood",
+    "question": "Muebles de madera para dormitorio CIF 200 USD origen Brasil",
+    "ncm_gold": "9403.50.00",
+    "tag": "typical"
+  },
+  {
+    "id": "caldera-20th",
+    "question": "Caldera acuotubular de vapor 20 toneladas por hora CIF 80000 USD origen China",
+    "ncm_gold": "8402.12.00",
+    "tag": "umbral",
+    "consistency": true
+  },
+  {
+    "id": "caldera-60th",
+    "question": "Caldera acuotubular de vapor 60 toneladas por hora CIF 120000 USD origen China",
+    "ncm_gold": "8402.11.00",
+    "tag": "umbral"
+  },
+  {
+    "id": "yerba-demas",
+    "question": "Yerba mate elaborada (no canchada) CIF 4 USD origen Brasil",
+    "ncm_gold": "0903.00.90",
+    "tag": "residual"
+  },
+  {
+    "id": "ibuprofen-400",
+    "question": "Ibuprofeno 400 mg comprimidos recubiertos CIF 12 USD origen India",
+    "ncm_gold": "3004.90.69",
+    "tag": "residual",
+    "consistency": true,
+    "note": "Ibuprofen is not a named 3004.90 INN; residual 3004.90.69 matches existing graph tests (other 'los demás' buckets exist)."
+  },
+  {
+    "id": "tires-used-car",
+    "question": "Neumáticos recauchutados para automóvil de turismo CIF 40 USD origen China",
+    "ncm_gold": "4012.11.00",
+    "tag": "used"
+  },
+  {
+    "id": "alloy-wheels",
+    "question": "Llantas de aleación para automóvil CIF 150 USD origen China",
+    "ncm_gold": "8708.70.90",
+    "tag": "frontera"
+  },
+  {
+    "id": "toy-tricycle",
+    "question": "Triciclo de juguete con ruedas para niño CIF 25 USD origen China",
+    "ncm_gold": "9503.00.10",
+    "tag": "frontera"
+  },
+  {
+    "id": "nuclear-reactor",
+    "question": "Reactor nuclear CIF 5000000 USD origen Francia",
+    "ncm_gold": "8401.10.00",
+    "tag": "bk"
+  },
+  {
+    "id": "transformer-650",
+    "question": "Transformador eléctrico de dieléctrico líquido 500 kVA CIF 25000 USD origen China",
+    "ncm_gold": "8504.21.00",
+    "tag": "bk"
+  },
+  {
+    "id": "laptop",
+    "question": "Computadora portátil notebook 1.8 kg teclado alfanumérico CIF 600 USD origen China",
+    "ncm_gold": "8471.30.19",
+    "tag": "bit"
+  },
+  {
+    "id": "cellphone",
+    "question": "Teléfono celular móvil portátil CIF 250 USD origen China",
+    "ncm_gold": "8517.12.31",
+    "tag": "bit",
+    "consistency": true
+  },
+  {
+    "id": "flu-vaccine",
+    "question": "Vacuna contra la gripe CIF 20 USD origen Estados Unidos",
+    "ncm_gold": "3002.20.11",
+    "tag": "hab"
+  },
+  {
+    "id": "whisky-cask",
+    "question": "Whisky en recipientes de 20 litros CIF 80 USD origen Reino Unido",
+    "ncm_gold": "2208.30.90",
+    "tag": "residual"
+  },
+  {
+    "id": "horse-other",
+    "question": "Caballo vivo no reproductor de raza pura CIF 800 USD origen Brasil",
+    "ncm_gold": "0101.29.00",
+    "tag": "residual"
+  },
+  {
+    "id": "garlic-seed",
+    "question": "Ajos frescos para siembra CIF 5 USD origen China",
+    "ncm_gold": "0703.20.10",
+    "tag": "residual"
+  }
+]

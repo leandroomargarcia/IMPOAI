@@ -43,8 +43,8 @@ Spec sheet and RGI 3 across headings are **NCM v2** (`docs/ncm-retrieval.md`). D
 
 **v1 (now) — baseline.** Chapter-first walk: `pick_chapter` → notes → heading → optional 6-digit → item → card → grade (max 3 retries). This is what we measure and ship.
 
-- [ ] **Baseline gold: 50 product runs** on this architecture. One row = `question` (with CIF) + verified 8-digit NCM from the catalog. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed / chapter-boundary goods). Same job as Observability below; those metrics are the v1 score. Not AFIP criterios as the main set.
-- [ ] **Ship v1** after that gold (hierarchical accuracy, latency, consistency) is recorded. Production stays on this walk.
+- [x] **Baseline gold: 50 product runs** on this architecture. Sheet `eval/gold.json`. Live job: `eval/run_gold.py --limit 50 --out eval/results/v1-langfuse.jsonl`. v1 score: **hit8 72 %** (hit2/4 94 %, hit6 80 %, p50 5.2 s). 14 misses (yerba empty, BIT 8th digit, milk-powder, …). Not AFIP criterios.
+- [ ] **Ship v1** after consistency (10×3) if we still want it; production stays on this walk.
 
 **v2 (after v1 is in production).** Do not mix this into the 50 baseline runs. Method: `docs/ncm-retrieval.md`.
 
@@ -116,13 +116,14 @@ Closed: IMPOAI does not estimate these. The report warns that CIF + fiscal dutie
 
 How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + traces are a separate live job. **These 50 runs score NCM v1 (chapter-first walk).** HTTP API and OpenTelemetry come after. Heading retrieval (v2) is `docs/ncm-retrieval.md` and waits until v1 is in production.
 
-- [ ] **Gold set (50 product runs)** — v1 baseline. `question` + verified 8-digit NCM. ~35 typical, ~15 edge (numeric threshold, “las demás”, BK/BIT, mixed goods, chapter boundaries e.g. tyres 40.11 vs 87.08). Not AFIP criterios as the main set (those stay post-MVP stress).
-- [ ] **Hierarchical accuracy** — exact 8-digit % (overall); also 2 (chapter), 4 (heading), 6 (subheading); optional mean digits correct (0–8).
-- [ ] **Latency** — wall clock for the full invoke; ms per node (bottleneck). Tavily runs in a thread from `search_price_start`; `load_notes` must not wait on price. After `ncm_done`, wall is max(hab, duty, leftover price).
-- [ ] **Retries per node** — NCM `attempts` (back to `pick_chapter`, max 3); hab Tavily retry 0/1; price/duty 0 unless we add loops.
-- [ ] **Full text per turn** — prompt + raw LLM/Tavily output for every NCM attempt (not only the final code); `reporte_final` at the end.
-- [ ] **Cost** — OpenAI tokens (USD) per invoke, same 50 runs. Mock pytest does not record this.
+- [x] **Gold set (50 product runs)** — v1 baseline recorded (`eval/gold.json`, `eval/results/v1-langfuse.jsonl`). ~35 typical, ~15 edge. Not AFIP criterios.
+- [x] **Hierarchical accuracy** — `eval/run_gold.py` writes `*.summary.json` (`accuracy.hit2/4/6/8`, `by_tag`, `precision8`/`recall8`, p50/p95). Protocol: `eval/README.md`. Recorded: hit8 **72 %**.
+- [x] **Latency** — `wall_s` on each gold row + Langfuse span ms. Price thread from `search_price_start`; `load_notes` does not wait on Tavily.
+- [x] **Retries per node** — in the jsonl (`attempts`) and summary (`retries` / `fail_grade`: 4 / 4 on this run).
+- [x] **Full text per turn** — Langfuse trace per invoke (prompts, Tavily, `reporte_final`).
+- [x] **Cost** — OpenAI tokens/USD on those traces in Langfuse. Not in the local summary.
 - [ ] **Consistency** — 10 gold rows × 3 runs; same `question` should keep the same NCM.
-- [ ] **Langfuse** — live gold runs (callback already on `invoke`). Do not add LangSmith in parallel.
-- [ ] **HTTP API** — later. Wrap the same `invoke`; not a prerequisite for the 50 calls.
+- [x] **Langfuse** — `CallbackHandler` on gold `invoke`; `create_score` for `hit2/4/6/8` + `wall_s`; tags `gold` / `v1` / `{tag}`. Custom dashboard **NCM v1 gold** (avg hit8, hierarchy, wall). Do not add LangSmith.
+- [x] **HTTP API** — v0: FastAPI `GET /health` + `POST /run` wraps the same `invoke` (`api/main.py`). Curl body: `api/examples/caldera.json`. Auth, CORS, chat, and queue are later.
+
 - [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into Langfuse. Do not instrument OTel on in-process gold invokes.

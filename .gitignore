@@ -42,6 +42,7 @@ docs/*medidas*.xlsx
 
 # Output
 data/output/
+eval/results/
 
 # IDE / OS
 .vscode/

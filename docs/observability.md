@@ -12,20 +12,20 @@ One gold row = one `app.invoke({question, attempts: 0})` = one trace.
 - About **35 typical** products across chapters we care about; about **15 edge** (numeric threshold, residual “las demás”, BK/BIT, mixed/used, chapter boundaries such as tyres 40.11 vs 87.08).
 - AFIP/ARCA classification rulings are **not** the v1 gold (they are an edge-case dump, post-MVP). Human corrections later (`question`, predicted NCM, correct NCM) grow the set.
 
-The job is opt-in (a marked pytest or a script). Not on every commit.
+The job is opt-in: `eval/run_gold.py` (not on every commit). Sheet: `eval/gold.json`. How to run and how to read `*.summary.json`: `eval/README.md`.
 
 ## What each run records
 
 | Signal | What it answers |
 |---|---|
-| **Accuracy @ 8 digits** | Overall share of cases where the full NCM matches gold. This is the number that matters for DIE. |
+| **Accuracy @ 8 digits** (`accuracy.hit8`) | Exact NCM match = correctness. This is the v1 number that matters for DIE. |
 | **Accuracy @ 2 / 4 / 6** | Chapter / heading / subheading. A 90% chapter hit and 40% 8-digit hit means the router is fine and `choose_item` / grade is not. |
-| **Mean digits correct (0–8)** | Softer trend between prompt/model versions. |
-| **Latency, total** | Wall clock start → report. |
-| **Latency, per node** | Bottleneck. Price overlaps the NCM walk. After `ncm_done`, wall time is max(hab, duty) versus leftover price. |
-| **Retries per node** | NCM: `attempts` (how many times we returned to `pick_chapter`, max 3). Hab: Tavily shop retry 0 or 1. Price and duty: 0 unless we add loops. |
-| **Full text per turn** | Every LLM/Tavily call: input + raw output. If NCM retries, **one snapshot per attempt** (heading, item, `ncm_feedback`), not only the final code. Store `reporte_final` too. |
-| **Cost** | OpenAI token USD (Tavily optional) for that invoke. |
+| **hit8 by `tag`** | typical vs umbral / residual / frontera / BK / BIT. Global hit8 can hide a 0% on boundaries. |
+| **precision8 / recall8** | Same as hit8 unless `ncm_pred` is empty (abstain). Not per-class F1. |
+| **Latency p50 / p95** | Wall clock of `invoke` in the summary. Per-node ms still come from Langfuse. |
+| **fail_grade / retries** | `grade` false; `attempts` > 1. |
+| **Full text per turn** | Every LLM/Tavily call in Langfuse. Store `reporte_final` there, not in the jsonl. |
+| **Cost** | OpenAI token USD in Langfuse for that invoke. |
 
 ## Consistency (subset)
 
@@ -36,7 +36,7 @@ Do not run 50 × 3 by default (cost).
 ## Where it lives
 
 - **Langfuse** (`CallbackHandler` on live `invoke`, keys in `.env`): one trace per invoke, one span per node, prompt/completion, span duration, tokens. On for gold; off for mocked pytest.
-- **Gold JSON / table** (repo or artifacts): one object per case with gold NCM, predicted NCM, hierarchical hits, `attempts`, ms total and per node, retries, token USD, and the text dumps. Use this to read failures without the UI.
+- **Gold JSON / table**: `eval/gold.json` + append-only `eval/results/*.jsonl` (gitignored) and `*.summary.json`. Each jsonl line: gold/pred NCM, `hit2/4/6/8`, `attempts`, `wall_s`. Per-node ms, tokens, and full text stay in Langfuse.
 - **Prints** in nodes stay local debug, not the source of truth.
 
 Do not add LangSmith next to Langfuse.

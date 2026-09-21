@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "LangGraph assistant for Mercosur NCM classification, reference pricing, AEC duty estimates, and Argentina import permits."
 readme = "README.md"
 authors = [
-    { name = "Leandro Garcia", email = "leandro.garcia@fiadoapp.com" }
+    { name = "Leandro Garcia", email = "leomniga@gmail.com" }
 ]
 requires-python = ">=3.11"
 dependencies = [
@@ -15,6 +15,8 @@ dependencies = [
     "langfuse>=3.0.0",
     "pypdf>=5.0.0",
     "python-dotenv>=1.2.2",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0"
 ]
 
 [tool.uv]

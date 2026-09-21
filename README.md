@@ -104,6 +104,8 @@ The play-button question lives in `graph/graph.py` (`if __name__ == "__main__"`)
 
 Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (OpenAI, Tavily, BCRA).
 
+The NCM v1 gold job is separate (`eval/gold.json`, `eval/run_gold.py`). It calls OpenAI + Tavily. How to run and how to read `accuracy.hit8`: `eval/README.md` and `docs/observability.md`.
+
 ## Layout
 
 | Path | Role |
@@ -117,6 +119,8 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (O
 | `graph/chains/` | LLM forms (NCM, price, hab) |
 | `graph/nodes/` | Nodes: NCM, hab, price, `calc_duty`, join, report |
 | `docs/architecture.png` | LangGraph Studio export |
+| `eval/gold.json` | 50-row NCM v1 gold set |
+| `eval/run_gold.py` | Live gold job + `--from-jsonl` summary |
 | `docs/observability.md` | Gold set, hierarchical accuracy, traces; HTTP OTel after the API |
 | `TODO.md` | Remaining work |
 
