@@ -125,6 +125,7 @@ How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + tra
 - [ ] **Consistency** — 10 gold rows × 3 runs; same `question` should keep the same NCM.
 - [x] **Langfuse** — `CallbackHandler` on gold `invoke`; `create_score` for `hit2/4/6/8` + `wall_s`; tags `gold` / `v1` / `{tag}`. Custom dashboard **NCM v1 gold** (avg hit8, hierarchy, wall). Do not add LangSmith.
 - [x] **HTTP API** — v0: FastAPI `GET /health` + `POST /run` wraps the same `invoke` (`api/main.py`). Curl body: `api/examples/caldera.json`. Auth, CORS, chat, and queue are later.
+- [ ] **Deploy the office** — Railway (Docker + GitHub). Image: `Dockerfile`. Do not put `.env` in the image; set `OPENAI_API_KEY`, `TAVILY_API_KEY`, Langfuse keys on the host. AIA dumps stay local (gitignored); prod uses catalog AEC until those dumps are mounted.
 
 - [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into Langfuse. Do not instrument OTel on in-process gold invokes.
 

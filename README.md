@@ -106,6 +106,17 @@ Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (O
 
 The NCM v1 gold job is separate (`eval/gold.json`, `eval/run_gold.py`). It calls OpenAI + Tavily. How to run and how to read `accuracy.hit8`: `eval/README.md` and `docs/observability.md`.
 
+## Deploy (office API)
+
+The graph runs as `uvicorn` inside Docker. Host: **Railway** (a long-lived process; not Vercel).
+
+1. Commit and push `Dockerfile` (never `.env`).
+2. [railway.app](https://railway.app) → New project → Deploy from GitHub → `leandroomargarcia/IMPOAI`.
+3. Variables (same as local `.env`): `OPENAI_API_KEY`, `TAVILY_API_KEY`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_BASE_URL`, `LANGSMITH_TRACING=false`.
+4. Generate a public URL. Health: `GET https://<host>/health`. Run: `POST /run` (timeout ≥ 60 s).
+
+AIA nomenclator dumps are gitignored; production uses catalog AEC until those files are mounted.
+
 ## Layout
 
 | Path | Role |
@@ -121,6 +132,7 @@ The NCM v1 gold job is separate (`eval/gold.json`, `eval/run_gold.py`). It calls
 | `docs/architecture.png` | LangGraph Studio export |
 | `eval/gold.json` | 50-row NCM v1 gold set |
 | `eval/run_gold.py` | Live gold job + `--from-jsonl` summary |
+| `chat/mock.html` | Static chat mock (Claude layout + office result card) |
 | `docs/observability.md` | Gold set, hierarchical accuracy, traces; HTTP OTel after the API |
 | `TODO.md` | Remaining work |
 
