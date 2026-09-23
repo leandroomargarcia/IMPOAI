@@ -7,6 +7,7 @@ from langfuse.langchain import CallbackHandler
 from pydantic import BaseModel, Field
 
 from graph.graph import app as office
+import asyncio
 
 load_dotenv()
 
@@ -35,18 +36,22 @@ class RunOut(BaseModel):
 def health() -> dict:
     return {"ok": True}
 
-
-@api.post("/run", response_model=RunOut)
-def run(body: RunIn) -> RunOut:
+def _invoke_office(question: str) -> dict:
     handler = CallbackHandler()
     out = office.invoke(
-        {"question": body.question, "attempts": 0},
+        {"question": question, "attempts": 0},
         config={
             "callbacks": [handler],
             "metadata": {"langfuse_tags": ["api"]},
         },
     )
     get_client().flush()
+    return out
+
+
+@api.post("/run", response_model=RunOut)
+async def run(body: RunIn) -> RunOut:
+    out = await asyncio.to_thread(_invoke_office, body.question)
     return RunOut(
         ncm=out.get("ncm") or None,
         ncm_descripcion=out.get("ncm_descripcion") or None,

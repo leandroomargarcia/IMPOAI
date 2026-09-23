@@ -127,3 +127,12 @@ How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + tra
 - [x] **HTTP API** — v0: FastAPI `GET /health` + `POST /run` wraps the same `invoke` (`api/main.py`). Curl body: `api/examples/caldera.json`. Auth, CORS, chat, and queue are later.
 
 - [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into Langfuse. Do not instrument OTel on in-process gold invokes.
+
+
+
+## Chat and product API
+
+The office (`POST /run`) stays one-shot. These belong to the conversational layer, not the NCM walk.
+
+- [ ] **Guardrails** — constrain what the chat and `/run` accept and emit (scope: import-cost / NCM only; refuse jailbreaks and off-topic; do not treat the report as a filing; validate CIF / slots before calling the office).
+- [ ] **Memory and context** — keep turn history and collected slots (product, CIF, origin, province, tax status) across the conversation so a follow-up does not start from zero; decide what is session memory vs what is re-sent into `question` for `/run`.
