@@ -96,10 +96,16 @@ Local dumps (gitignored) used at lookup time if present:
 .\.venv\Scripts\python.exe -m graph.graph
 ```
 
-The play-button question lives in `graph/graph.py` (`if __name__ == "__main__"`). Later this will come from a chat turn.
+The play-button question lives in `graph/graph.py` (`if __name__ == "__main__"`). The chat packs the same `question` after it has product + CIF.
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest graph\tests ncm\tests -q
+.\.venv\Scripts\python.exe -m uvicorn api.main:api --reload --port 8000
+```
+
+Open `http://127.0.0.1:8000/`. `POST /chat` streams tokens (LangChain `chat_llm`). The office is a tool (`classify_ncm`); the model decides when to call it. The graph itself is still `to_thread(invoke)` without a token stream.
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest graph\tests ncm\tests api\tests -q
 ```
 
 Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (OpenAI, Tavily, BCRA).
@@ -113,7 +119,7 @@ The graph runs as `uvicorn` inside Docker. Host: **Railway** (a long-lived proce
 1. Commit and push `Dockerfile` (never `.env`).
 2. [railway.app](https://railway.app) → New project → Deploy from GitHub → `leandroomargarcia/IMPOAI`.
 3. Variables (same as local `.env`): `OPENAI_API_KEY`, `TAVILY_API_KEY`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_BASE_URL`, `LANGSMITH_TRACING=false`.
-4. Generate a public URL. Health: `GET https://<host>/health`. Run: `POST /run` (timeout ≥ 60 s).
+4. Generate a public URL. Chat: `GET https://<host>/`. Health: `GET /health`. Run: `POST /run` (timeout ≥ 60 s). Chat turns: `POST /chat` (SSE).
 
 AIA nomenclator dumps are gitignored; production uses catalog AEC until those files are mounted.
 
@@ -132,10 +138,14 @@ AIA nomenclator dumps are gitignored; production uses catalog AEC until those fi
 | `docs/architecture.png` | LangGraph Studio export |
 | `eval/gold.json` | 50-row NCM v1 gold set |
 | `eval/run_gold.py` | Live gold job + `--from-jsonl` summary |
-| `chat/mock.html` | Static chat mock (Claude layout + office result card) |
+| `chat/index.html` | Chat UI (`GET /`); streams `POST /chat`, card from the office |
+| `chat/mock.html` | Static scene mock (not served) |
+| `api/main.py` | FastAPI: `/`, `/health`, `/run` |
+| `api/chat.py` | `POST /chat` SSE + in-process session memory |
+| `api/guardrails.py` | CIF required; slot pack; off-topic |
 | `docs/observability.md` | Gold set, hierarchical accuracy, traces; HTTP OTel after the API |
 | `TODO.md` | Remaining work |
 
 ## Status
 
-Still missing: technical spec sheet before classification; food/medicine 10.5 % VAT table (BK/BIT + override only); CIF + liquidation vs shelf price; AFIP rulings and RGI 3 (post-MVP / after the spec sheet); chat to collect CIF and province (they live in `question` today); fixed tests for 3 products outside chapters 1 and 9.
+Still missing: technical spec sheet before classification; food/medicine 10.5 % VAT table (BK/BIT + override only); CIF + liquidation vs shelf price; AFIP rulings and RGI 3 (post-MVP / after the spec sheet); fixed tests for 3 products outside chapters 1 and 9. The chat collects CIF / province and packs them into `question`.

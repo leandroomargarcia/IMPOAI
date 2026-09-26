@@ -124,7 +124,7 @@ How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + tra
 - [x] **Cost** — OpenAI tokens/USD on those traces in Langfuse. Not in the local summary.
 - [ ] **Consistency** — 10 gold rows × 3 runs; same `question` should keep the same NCM.
 - [x] **Langfuse** — `CallbackHandler` on gold `invoke`; `create_score` for `hit2/4/6/8` + `wall_s`; tags `gold` / `v1` / `{tag}`. Custom dashboard **NCM v1 gold** (avg hit8, hierarchy, wall). Do not add LangSmith.
-- [x] **HTTP API** — v0: FastAPI `GET /health` + `POST /run` wraps the same `invoke` (`api/main.py`). Curl body: `api/examples/caldera.json`. Auth, CORS, chat, and queue are later.
+- [x] **HTTP API** — v0: FastAPI `GET /health` + `POST /run` wraps the same `invoke` (`api/main.py`). Curl body: `api/examples/caldera.json`. Chat is `GET /` + `POST /chat`. Auth, CORS, and queue are later.
 - [ ] **Deploy the office** — Railway (Docker + GitHub). Image: `Dockerfile`. Do not put `.env` in the image; set `OPENAI_API_KEY`, `TAVILY_API_KEY`, Langfuse keys on the host. AIA dumps stay local (gitignored); prod uses catalog AEC until those dumps are mounted.
 
 - [ ] **OpenTelemetry** — on that API edge (request rate / errors / duration). Propagate `trace_id` into Langfuse. Do not instrument OTel on in-process gold invokes.
@@ -135,5 +135,5 @@ How we measure: `docs/observability.md`. Default pytest stays mocked. Gold + tra
 
 The office (`POST /run`) stays one-shot. These belong to the conversational layer, not the NCM walk.
 
-- [ ] **Guardrails** — constrain what the chat and `/run` accept and emit (scope: import-cost / NCM only; refuse jailbreaks and off-topic; do not treat the report as a filing; validate CIF / slots before calling the office).
-- [ ] **Memory and context** — keep turn history and collected slots (product, CIF, origin, province, tax status) across the conversation so a follow-up does not start from zero; decide what is session memory vs what is re-sent into `question` for `/run`.
+- [x] **Guardrails** — `/run` refuses a missing CIF. `/chat` is LangChain + `classify_ncm` tool (`bind_tools`); the office runs only if the chat model calls that tool and slots are ready. Jailbreaks do not call the office. The card says estimate, not a filing.
+- [x] **Memory and context** — in-process `SESSIONS` dict: slots persist per `session_id`; a follow-up CIF is packed into one `question` for the office. Lost on redeploy.

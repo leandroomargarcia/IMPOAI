@@ -7,6 +7,7 @@ COPY llm.py ./
 COPY api/ api/
 COPY graph/ graph/
 COPY ncm/ ncm/
+COPY chat/ chat/
 
 RUN pip install --no-cache-dir \
     "langchain>=1.3.14" \
