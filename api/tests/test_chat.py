@@ -45,6 +45,37 @@ def test_health_and_home():
     assert home.status_code == 200
     assert "IMPOAI" in home.text
     assert "/chat" in home.text
+    assert "ncm_path" in home.text
+
+
+def test_public_result_includes_ncm_path():
+    from api.office import public_result
+
+    pub = public_result({"ncm": "0901.11.10", "ncm_descripcion": "x"})
+    by_level = {row["level"]: row["text"] for row in pub["ncm_path"]}
+    assert "Café" in by_level["Capítulo"]
+    assert "Café" in by_level["Partida"]
+    assert by_level["Ítem"]
+
+
+def test_wrap_names_partida():
+    from api.chat import _wrap
+
+    text = _wrap(
+        {
+            "ncm": "0901.11.10",
+            "ncm_path": [
+                {"level": "Partida", "text": "Café, incluso tostado o descafeinado"},
+                {"level": "Ítem", "text": "En grano"},
+            ],
+            "impuestos_estimados": 10,
+            "cif": 100,
+        }
+    )
+    assert "0901.11.10" in text
+    assert "En grano" in text
+    assert "Café" in text
+    assert "partida:" in text
 
 
 def test_run_rejects_without_cif():
@@ -80,7 +111,7 @@ def test_run_with_cif_calls_office(monkeypatch):
 
 
 def test_chat_general_question_skips_office(monkeypatch):
-    async def fake_agent(_messages):
+    async def fake_agent(_messages, _force_tool=False):
         yield ("token", "El NCM es la nomenclatura del Mercosur.")
         yield ("final", SimpleNamespace(tool_calls=[]))
 
@@ -103,7 +134,7 @@ def test_chat_general_question_skips_office(monkeypatch):
 
 
 def test_product_and_cif_without_tool_skips_office(monkeypatch):
-    async def fake_agent(_messages):
+    async def fake_agent(_messages, _force_tool=False):
         yield ("token", "Anoté la caldera. Pedime clasificar si querés el NCM.")
         yield ("final", SimpleNamespace(tool_calls=[]))
 
@@ -128,7 +159,7 @@ def test_product_and_cif_without_tool_skips_office(monkeypatch):
 def test_chat_memory_then_tool_classify(monkeypatch):
     seen = {}
 
-    async def fake_agent(messages):
+    async def fake_agent(messages, _force_tool=False):
         last = _last_human(messages).lower()
         if "posición" in last or "clasific" in last:
             yield (
@@ -183,7 +214,7 @@ def test_chat_memory_then_tool_classify(monkeypatch):
 
 
 def test_tool_without_cif_skips_office(monkeypatch):
-    async def fake_agent(_messages):
+    async def fake_agent(_messages, _force_tool=False):
         yield (
             "final",
             SimpleNamespace(
@@ -215,6 +246,55 @@ def test_tool_without_cif_skips_office(monkeypatch):
     tokens = "".join(data for ev, data in events if ev == "token")
     assert "CIF" in tokens
     assert not any(ev == "card" for ev, _ in events)
+
+
+def test_new_product_does_not_reuse_old_cif(monkeypatch):
+    async def fake_agent(messages, _force_tool=False):
+        last = _last_human(messages).lower()
+        if "aspiradora" in last:
+            yield (
+                "final",
+                SimpleNamespace(
+                    tool_calls=[
+                        {
+                            "name": "classify_ncm",
+                            "args": {
+                                "product": "aspiradoras",
+                                "cif_usd": 1000,
+                            },
+                            "id": "1",
+                        }
+                    ]
+                ),
+            )
+            return
+        yield ("token", "Anotado.")
+        yield ("final", SimpleNamespace(tool_calls=[]))
+
+    monkeypatch.setattr("api.chat.stream_agent", fake_agent)
+    monkeypatch.setattr(
+        "api.office_tool.invoke_office",
+        lambda *_a, **_k: (_ for _ in ()).throw(AssertionError("office")),
+    )
+    client = TestClient(api)
+    client.post(
+        "/chat",
+        json={
+            "session_id": "seq",
+            "message": "Caldera acuotubular CIF 80000 USD origen China",
+        },
+    )
+    res = client.post(
+        "/chat",
+        json={
+            "session_id": "seq",
+            "message": "clasificá aspiradoras desde China",
+        },
+    )
+    events = _events(res.text)
+    assert not any(ev == "card" for ev, _ in events)
+    tokens = "".join(data for ev, data in events if ev == "token")
+    assert "CIF" in tokens
 
 
 def test_chat_jailbreak_skips_office(monkeypatch):

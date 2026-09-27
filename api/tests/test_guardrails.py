@@ -4,6 +4,8 @@ from api.guardrails import (
     is_jailbreak,
     is_ready,
     pack_question,
+    parse_user_cif,
+    products_differ,
     require_cif,
     update_slots,
     wants_classify,
@@ -57,3 +59,39 @@ def test_questions_do_not_overwrite_product():
     update_slots(slots, "Caldera acuotubular 20 t/h")
     update_slots(slots, "qué es el NCM?")
     assert slots.product and "Caldera" in slots.product
+
+
+def test_new_product_clears_previous_cif():
+    slots = Slots()
+    update_slots(slots, "Caldera acuotubular 20 t/h origen China CIF 80000")
+    assert slots.cif == 80000
+    update_slots(slots, "aspiradoras desde China")
+    assert slots.product and "aspiradora" in slots.product.lower()
+    assert slots.cif is None
+    assert not is_ready(slots)
+
+
+def test_parse_user_cif_phrases():
+    assert parse_user_cif("CIF 80.000 USD") == 80000
+    assert parse_user_cif("el cif es 5000") == 5000
+    assert parse_user_cif("12000 USD") == 12000
+    assert parse_user_cif("cif de 4,50") == 4.5
+
+
+def test_same_turn_new_product_keeps_typed_cif():
+    slots = Slots()
+    update_slots(slots, "Caldera acuotubular CIF 80000")
+    update_slots(slots, "aspiradoras robot CIF 250")
+    assert "aspiradora" in (slots.product or "").lower()
+    assert slots.cif == 250
+
+
+def test_same_product_elaboration_keeps_cif():
+    slots = Slots()
+    update_slots(slots, "Caldera acuotubular CIF 80000")
+    update_slots(slots, "Caldera acuotubular de vapor 20 t/h")
+    assert slots.cif == 80000
+    assert not products_differ(
+        "Caldera acuotubular",
+        "Caldera acuotubular de vapor 20 t/h",
+    )

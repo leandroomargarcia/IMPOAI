@@ -72,6 +72,28 @@ class Slots:
     extras: str = ""
 
 
+_CIF_NUM = r"(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)"
+_CIF_USER = re.compile(rf"\bcif\s*(?:es|de|por|:|=)?\s*{_CIF_NUM}", re.I)
+_CIF_BARE = re.compile(rf"^\s*(?:usd\s*)?{_CIF_NUM}(?:\s*usd)?\s*$", re.I)
+
+
+def _cif_to_float(raw: str) -> float:
+    if re.fullmatch(r"\d{1,3}(?:\.\d{3})+", raw):
+        return float(raw.replace(".", ""))
+    return float(raw.replace(",", "."))
+
+
+def parse_user_cif(text: str) -> float | None:
+    """Chat CIF: 'CIF 80.000', 'cif es 5000', or a bare '80000 USD'."""
+    match = _CIF_USER.search(text or "")
+    if match:
+        return _cif_to_float(match.group(1))
+    bare = _CIF_BARE.fullmatch((text or "").strip())
+    if bare:
+        return _cif_to_float(bare.group(1))
+    return parse_cif(text)
+
+
 def require_cif(question: str) -> str | None:
     if parse_cif(question) is None:
         return CIF_REQUIRED
@@ -93,6 +115,20 @@ def is_general_question(text: str) -> bool:
     return bool(_QUESTION.search((text or "").strip()))
 
 
+def _norm_product(text: str) -> str:
+    return re.sub(r"\s+", " ", (text or "").lower()).strip()
+
+
+def products_differ(old: str | None, new: str | None) -> bool:
+    """True if new looks like another good, not an elaboration of the old one."""
+    a, b = _norm_product(old or ""), _norm_product(new or "")
+    if not a or not b or a == b:
+        return False
+    if a in b or b in a:
+        return False
+    return True
+
+
 def extra_clauses(text: str) -> str:
     bits: list[str] = []
     qty = parse_cantidad(text)
@@ -111,9 +147,9 @@ def extra_clauses(text: str) -> str:
 
 
 def update_slots(slots: Slots, text: str) -> Slots:
-    cif = parse_cif(text)
-    if cif is not None:
-        slots.cif = cif
+    incoming_cif = parse_user_cif(text)
+    if incoming_cif is not None:
+        slots.cif = incoming_cif
     origen = parse_origen(text)
     if origen:
         slots.origen = origen
@@ -127,6 +163,10 @@ def update_slots(slots: Slots, text: str) -> Slots:
     if len(product) >= 3 and (
         wants_classify(text) or not is_general_question(cleaned)
     ):
+        if slots.product and products_differ(slots.product, product):
+            if incoming_cif is None:
+                slots.cif = None
+            slots.extras = ""
         slots.product = product
     extra = extra_clauses(text)
     if extra:
@@ -179,8 +219,9 @@ def slots_hint(slots: Slots) -> str:
     extra = ""
     if slots.cif is None:
         extra = (
-            " No hay CIF. Si piden clasificar NCM / posición, "
-            "pedí el CIF en USD ahora; no llames classify_ncm."
+            " Este producto no tiene CIF propio. Si piden clasificar NCM / "
+            "posición, pedí el CIF en USD de ESTA mercadería; no llames "
+            "classify_ncm y no reutilices el CIF de un producto anterior."
         )
     return (
         f"Slots en memoria: {memory}. "

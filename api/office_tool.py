@@ -31,9 +31,8 @@ class ClassifyArgs(BaseModel):
 
 def merge_slots(args: dict, slots: Slots) -> Slots:
     product = (args.get("product") or slots.product or "").strip()
-    cif = args.get("cif_usd")
-    if cif is None:
-        cif = slots.cif
+    # CIF only from user turns (parse_cif → slots). Never trust tool-invented cif_usd.
+    cif = slots.cif
     origen = (args.get("origen") or slots.origen or "").strip()
     provincia = (args.get("provincia") or slots.provincia or "").strip()
     inscripto = bool(args.get("inscripto") or slots.inscripto)
@@ -77,7 +76,9 @@ CLASSIFY_TOOL = StructuredTool.from_function(
         "Llamá esta herramienta cuando el usuario pida clasificar, la posición, "
         "la partida, el NCM o liquidar / estimar derechos. "
         "No la uses para explicar qué es el NCM o una posición arancelaria. "
-        "Hace falta producto y CIF en USD; si falta alguno, preguntá, no inventes."
+        "Hace falta producto y el CIF en USD que el usuario escribió para "
+        "ESE producto. Si cambió de mercadería, el CIF anterior no vale. "
+        "No inventes cif_usd."
     ),
     args_schema=ClassifyArgs,
 )

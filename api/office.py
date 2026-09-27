@@ -22,7 +22,13 @@ PUBLIC_KEYS = (
 
 
 def public_result(out: dict) -> dict:
-    return {key: out.get(key) for key in PUBLIC_KEYS}
+    pub = {key: out.get(key) for key in PUBLIC_KEYS}
+    ncm = pub.get("ncm")
+    if ncm:
+        from graph.nodes.ncm_node import catalog
+
+        pub["ncm_path"] = catalog.path_labels(ncm)
+    return pub
 
 
 def invoke_office(question: str, tags: list[str] | None = None) -> dict:

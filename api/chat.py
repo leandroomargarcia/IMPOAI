@@ -15,6 +15,7 @@ from api.guardrails import (
     Slots,
     is_jailbreak,
     is_ready,
+    parse_user_cif,
     slots_hint,
     update_slots,
     wants_classify,
@@ -32,11 +33,14 @@ SYSTEM = (
     "tenés la herramienta classify_ncm: usala cuando el usuario lo pida "
     "(clasificar, posición, partida, NCM, liquidar, estimar derechos). "
     "No inventes un NCM de 8 dígitos ni montos: eso sale de classify_ncm. "
-    "Si el usuario pide clasificar NCM (o la posición / partida) y todavía "
-    "no dio el CIF, pedile el CIF en USD en ese turno. No asumas un CIF "
-    "ni llames classify_ncm hasta tenerlo. "
-    "Si ya hay producto y CIF y pidió posición/clasificar/liquidar, "
-    "llamá classify_ncm en este turno: no pidas confirmación. "
+    "Cada producto necesita su propio CIF. No clasifiques ni llames "
+    "classify_ncm hasta que el usuario escriba CIF y un número en USD "
+    "para ESA mercadería. No reutilices el CIF de un producto anterior "
+    "ni inventes un cif_usd en la tool. "
+    "Si pide clasificar y falta el CIF de este producto, pedilo. "
+    "Si este producto ya tiene CIF escrito por el usuario y pidió "
+    "posición/clasificar/liquidar, llamá classify_ncm en este turno: "
+    "no pidas confirmación. "
     "No trates el resultado como un despacho AFIP / SIM / María."
 )
 
@@ -63,8 +67,25 @@ def _wrap(out: dict) -> str:
     cif = out.get("cif")
     tax_s = f"{tax:g}" if isinstance(tax, (int, float)) else "—"
     cif_s = f"{cif:g}" if isinstance(cif, (int, float)) else "—"
+    item = ""
+    partida = ""
+    for row in out.get("ncm_path") or []:
+        text = (row.get("text") or "").strip()
+        if row.get("level") == "Ítem" and text:
+            item = text
+        elif row.get("level") == "Partida" and text:
+            partida = text
+    desc = out.get("ncm_descripcion") or ""
+    if not item:
+        item = desc.split(" / ")[-1].strip() if desc else ""
+    if not partida:
+        partida = desc.split(" / ")[0].strip() if desc else ""
+    head = f"NCM {ncm}"
+    bits = [bit for bit in (item, f"partida: {partida}" if partida and partida != item else "") if bit]
+    if bits:
+        head = f"NCM {ncm}: {'; '.join(bits)}"
     return (
-        f"Listo. El office devolvió NCM {ncm}. "
+        f"Listo. {head}. "
         f"Liquidación estimada {tax_s} USD sobre CIF {cif_s}. "
         "Esto es una estimación, no un despacho AFIP / SIM / María."
     )
@@ -137,13 +158,17 @@ async def _events(body: ChatIn) -> AsyncIterator[str]:
         yield _sse("status", "done")
         return
 
+    had_product = bool(slots.product)
+    incoming_cif = parse_user_cif(text)
     update_slots(slots, text)
     yield _sse("status", "chatting")
 
     collected: list[str] = []
     acc = None
     try:
-        force_tool = wants_classify(text) and is_ready(slots)
+        force_tool = is_ready(slots) and (
+            wants_classify(text) or (had_product and incoming_cif is not None)
+        )
         async for kind, payload in stream_agent(_history(session), force_tool):
             if kind == "token":
                 collected.append(payload)

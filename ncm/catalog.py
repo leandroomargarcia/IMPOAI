@@ -150,6 +150,70 @@ class NcmCatalog:
             items = [node for node in self.data["items"] if node["partida"] == raw]
         return [self._item_card(node) for node in items]
 
+    def path_labels(self, code: str) -> list[dict[str, str]]:
+        """Chapter → heading → subheading → item texts for the chat ladder."""
+        digits = "".join(c for c in (code or "") if c.isdigit())
+        rows: list[dict[str, str]] = []
+        if len(digits) < 2:
+            return rows
+        cap = digits[:2].zfill(2)
+        chapter = self._chapter.get(cap)
+        if chapter:
+            rows.append(
+                {
+                    "code": cap,
+                    "level": "Capítulo",
+                    "text": short_chapter_title(chapter.get("titulo") or ""),
+                }
+            )
+        card = self.get_ncm(code) if len(digits) >= 8 else None
+        parts = [
+            p.strip()
+            for p in ((card or {}).get("full_description") or "").split(" / ")
+            if p.strip()
+        ]
+        heading = f"{cap}.{digits[2:4]}" if len(digits) >= 4 else cap
+        if len(digits) >= 4:
+            text = ""
+            for row in self.list_headings(cap):
+                if row["heading"].replace(".", "") == digits[:4]:
+                    text = (row["description"] or "").split(" / ")[0].strip()
+                    break
+            if not text and parts:
+                text = parts[0]
+            rows.append({"code": digits[:4], "level": "Partida", "text": text})
+        if len(digits) >= 6:
+            text = ""
+            for row in self.list_subheadings(heading):
+                key = row["subheading"].replace(".", "")
+                if key == digits[:6] or row["subheading"] == f"{digits[:4]}.{digits[4:6]}":
+                    text = row["description"] or ""
+                    break
+            if not text and len(parts) >= 2:
+                text = parts[1] if len(parts) > 2 else parts[1]
+            text = re.sub(r"^[\-\s]+", "", text)
+            rows.append(
+                {
+                    "code": f"{digits[:4]}.{digits[4:6]}",
+                    "level": "Subpartida",
+                    "text": text,
+                }
+            )
+        if len(digits) >= 8:
+            text = ""
+            if card:
+                text = re.sub(r"^[\-\s]+", "", card.get("description") or "")
+            if not text and parts:
+                text = parts[-1]
+            rows.append(
+                {
+                    "code": f"{digits[:4]}.{digits[4:6]}.{digits[6:8]}",
+                    "level": "Ítem",
+                    "text": text,
+                }
+            )
+        return rows
+
     def get_ncm(self, code: str) -> dict[str, Any] | None:
         node = self._by_code.get(_norm(code))
         if not node or node["nivel"] != 8 or node["aec"] is None:

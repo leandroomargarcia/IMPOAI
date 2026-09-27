@@ -23,3 +23,9 @@ def test_tools_lookup(catalog_data):
     ficha = cat.get_ncm("0901.11.10")
     assert ficha["aec"] == 10
     assert cat.get_ncm("9999.99.99") is None
+
+    path = cat.path_labels("0901.11.10")
+    by_level = {row["level"]: row["text"] for row in path}
+    assert "Café" in by_level["Capítulo"]
+    assert "Café" in by_level["Partida"]
+    assert by_level["Ítem"]
