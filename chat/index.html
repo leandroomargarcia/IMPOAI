@@ -391,13 +391,13 @@
       <div class="brand">IMPOAI</div>
       <button class="new" type="button" data-new>Nueva consulta</button>
       <div class="side-list">
-        <p class="side-h">Clasificados en esta sesión</p>
+        <p class="side-h">NCM de esta sesión</p>
         <ul class="hist" id="hist">
-          <li class="empty">Todavía no clasificaste nada. Los NCM que obtengas van a quedar acá.</li>
+          <li class="empty">Si clasificás un producto, el NCM queda acá.</li>
         </ul>
       </div>
       <div class="side-foot">
-        <p class="side-note">Podés preguntar lo que quieras sobre importaciones. Para obtener NCM y tributos, describí el producto e indicá el valor CIF.</p>
+        <p class="side-note">Preguntá lo que necesites sobre importar. Clasificar NCM es una función: hace falta el producto y el CIF.</p>
         <button class="theme-btn" type="button" data-theme-btn>Tema: sistema</button>
       </div>
     </aside>
@@ -413,7 +413,7 @@
       <div class="composer-wrap">
         <button class="jump" id="jump" type="button" hidden>Ver respuesta nueva</button>
         <form class="composer" id="form">
-          <textarea id="input" rows="1" placeholder="Describí el producto, su origen y el valor CIF" aria-label="Mensaje"></textarea>
+          <textarea id="input" rows="1" placeholder="Preguntá sobre importar, o pedí clasificar con producto y CIF" aria-label="Mensaje"></textarea>
           <button class="send" id="send" type="submit" disabled>Enviar</button>
         </form>
       </div>
@@ -422,9 +422,9 @@
 
   <script>
     const EXAMPLES = [
-      { title: "Caldera acuotubular 20 t/h", meta: "China, CIF 80.000 USD", text: "Clasificá caldera acuotubular 20 t/h, origen China, CIF 80.000 USD" },
-      { title: "Termotanque eléctrico 80 L", meta: "China, CIF 12.000 USD", text: "Clasificá termotanque eléctrico de 80 litros, origen China, CIF 12.000 USD" },
       { title: "¿Qué es la tasa de estadística?", meta: "Pregunta general", text: "¿Qué es la tasa de estadística y cuándo no se paga?" },
+      { title: "Te ayudo con la clasificación arancelaria", meta: "Producto y CIF", text: "Ayudame con la clasificación arancelaria de un producto." },
+      { title: "Te ayudo a calcular costos e impuestos", meta: "Liquidación estimada", text: "Ayudame a calcular los costos e impuestos de una importación." },
     ];
     const LEVELS = ["Capítulo", "Partida", "Subpartida", "Ítem"];
     const TAX_NAMES = {
@@ -493,8 +493,8 @@
     function welcome() {
       col.innerHTML = `
         <div class="welcome">
-          <h1>Clasificá una importación</h1>
-          <p>Describí el producto, de dónde viene y su valor CIF. Te devuelvo el NCM y una estimación de tributos. También podés hacer preguntas generales sobre importar.</p>
+          <h1>Ayuda para tu importación</h1>
+          <p>Preguntá lo que necesites: tributos, IVA, habilitación, despacho. Si querés la posición NCM y una liquidación estimada, describí el producto y el CIF.</p>
           <div class="examples">
             ${EXAMPLES.map((ex, i) => `
               <button type="button" data-ex="${i}">

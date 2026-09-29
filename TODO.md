@@ -137,3 +137,4 @@ The office (`POST /run`) stays one-shot. These belong to the conversational laye
 
 - [x] **Guardrails** — `/run` refuses a missing CIF. `/chat` is LangChain + `classify_ncm` tool (`bind_tools`); the office runs only if the chat model calls that tool and slots are ready. Jailbreaks do not call the office. The card says estimate, not a filing.
 - [x] **Memory and context** — in-process `SESSIONS` dict: slots persist per `session_id`; a follow-up CIF is packed into one `question` for the office. Lost on redeploy.
+- [x] **Chat eval** — `eval/chat_gold.json` (25 dialogues). Runner `eval/run_chat.py` writes Langfuse scores `chat_tool_ok` / `chat_cif_gate` / `chat_turn_ok` (and `hit8` only on `--live` integrate). Dataset **chat-v1**, dashboard **Chat gold v1**. Default mocks the office. Not an LLM judge.

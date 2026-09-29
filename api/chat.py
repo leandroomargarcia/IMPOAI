@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import AsyncIterator
+from contextvars import ContextVar
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -26,6 +27,7 @@ from llm import chat_llm
 router = APIRouter()
 
 SESSIONS: dict[str, dict] = {}
+CHAT_CALLBACKS: ContextVar[list | None] = ContextVar("chat_callbacks", default=None)
 
 SYSTEM = (
     "Sos IMPOAI. Respondés preguntas generales en español, claro y breve. "
@@ -135,7 +137,9 @@ async def stream_agent(messages: list, force_tool: bool = False):
     else:
         bound = chat_llm.bind_tools([CLASSIFY_TOOL])
     acc = None
-    async for chunk in bound.astream(messages):
+    cbs = CHAT_CALLBACKS.get()
+    stream = bound.astream(messages, config={"callbacks": cbs}) if cbs else bound.astream(messages)
+    async for chunk in stream:
         acc = chunk if acc is None else acc + chunk
         text = _chunk_text(chunk)
         if text:

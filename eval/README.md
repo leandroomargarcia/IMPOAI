@@ -37,3 +37,29 @@ Writes `eval/results/v1.summary.json` (same stem as the jsonl). `eval/results/` 
 Consistency (10 gold ids × 3) is a later pass; do not run 50 × 3.
 
 How this job fits Langfuse and the 50-row protocol: `docs/observability.md`.
+
+# Chat eval (routing / CIF)
+
+Live job, not default `pytest`. Sheet: `eval/chat_gold.json` (25 dialogues). Runner: `eval/run_chat.py`.
+
+This scores the **chat layer**, not the office. The number to report is **`routing.turn_ok`**. `tool_precision` / `tool_recall` say whether `classify_ncm` fired on the right turns. `cif_gate` is “no card until this product has a user-typed CIF”. `hit8` is only on `tag: integrate` and only with `--live`.
+
+Default mocks the office (chat LLM only). `--live` runs the 4 integrate rows against the real graph.
+
+```powershell
+.\.venv\Scripts\python.exe eval\run_chat.py --limit 2 --id jail-ignore
+.\.venv\Scripts\python.exe eval\run_chat.py --limit 21 --out eval\results\chat-v1.jsonl
+.\.venv\Scripts\python.exe eval\run_chat.py --live --out eval\results\chat-live.jsonl
+.\.venv\Scripts\python.exe eval\run_chat.py --from-jsonl eval\results\chat-v1.jsonl
+```
+
+Each dialogue is one Langfuse trace (`tags`: `chat`, `gold`, `{tag}`) with boolean scores `chat_tool_ok`, `chat_ask_cif`, `chat_cif_gate`, `chat_no_invented_ncm`, `chat_faithful_wrap`, `chat_turn_ok`. Dataset **chat-v1**. Dashboard [Chat gold v1](https://hipaa.cloud.langfuse.com/project/cmu5nn5wc00xtad0ffdc44vgk/dashboards/cmujowne600j8ad0dch8oi5gb).
+
+| Field | Meaning |
+|---|---|
+| `routing.turn_ok` | All checks on that turn passed |
+| `routing.tool_precision` / `tool_recall` | `classify_ncm` only / always when expected |
+| `routing.cif_gate` | Turns that must ask CIF did not emit a card |
+| `routing.no_invented_ncm` | FAQ / jail replies have no 8-digit NCM |
+| `routing.faithful_wrap` | Wrap text names the card NCM |
+| `by_tag.integrate.hit8` | Office correctness through the chat (`--live` only) |

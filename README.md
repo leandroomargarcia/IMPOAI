@@ -110,7 +110,7 @@ Open `http://127.0.0.1:8000/`. `POST /chat` streams tokens (LangChain `chat_llm`
 
 Branch tests mock Tavily and the LLM. A full `graph.graph` run hits live APIs (OpenAI, Tavily, BCRA).
 
-The NCM v1 gold job is separate (`eval/gold.json`, `eval/run_gold.py`). It calls OpenAI + Tavily. How to run and how to read `accuracy.hit8`: `eval/README.md` and `docs/observability.md`.
+The NCM v1 gold job is separate (`eval/gold.json`, `eval/run_gold.py`). It calls OpenAI + Tavily. How to run and how to read `accuracy.hit8`: `eval/README.md` and `docs/observability.md`. Chat routing / CIF is a second job (`eval/chat_gold.json`, `eval/run_chat.py`); Langfuse dataset `chat-v1`, scores `chat_*`.
 
 ## Deploy (office API)
 
@@ -138,6 +138,8 @@ AIA nomenclator dumps are gitignored; production uses catalog AEC until those fi
 | `docs/architecture.png` | LangGraph Studio export |
 | `eval/gold.json` | 50-row NCM v1 gold set |
 | `eval/run_gold.py` | Live gold job + `--from-jsonl` summary |
+| `eval/chat_gold.json` | 25 chat dialogues (FAQ / CIF gate / seq / jail / integrate) |
+| `eval/run_chat.py` | Chat gold → Langfuse scores + dataset `chat-v1` |
 | `chat/index.html` | Chat UI (`GET /`); streams `POST /chat`, card from the office |
 | `chat/mock.html` | Static scene mock (not served) |
 | `api/main.py` | FastAPI: `/`, `/health`, `/run` |

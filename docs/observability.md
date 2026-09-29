@@ -41,6 +41,16 @@ Do not run 50 × 3 by default (cost).
 
 Do not add LangSmith next to Langfuse.
 
+## Chat gold (separate job)
+
+The 50-row NCM job does **not** score the chatbot. Chat eval is `eval/chat_gold.json` + `eval/run_chat.py`.
+
+One dialogue = one Langfuse trace (`tags`: `chat` / `gold` / `{tag}`). Each turn writes boolean scores (`chat_tool_ok`, `chat_cif_gate`, `chat_no_invented_ncm`, `chat_faithful_wrap`, `chat_turn_ok`). Dataset **chat-v1**. Dashboard **Chat gold v1**.
+
+Do not use an LLM-as-judge. Routing and CIF are deterministic. `hit8` on chat traces is only the 4 `integrate` rows, and only with `--live` (office + Tavily). Default run mocks the office so FAQ / gate / seq do not pay the graph.
+
+How to run: `eval/README.md` (Chat eval).
+
 ## HTTP API and OpenTelemetry (later)
 
 The 50 gold calls are in-process `graph.invoke`. There is no HTTP server, so they **cannot** measure API latency (queue, auth, JSON, network).
