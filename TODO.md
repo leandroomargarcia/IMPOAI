@@ -46,7 +46,7 @@ Spec sheet and RGI 3 across headings are **NCM v2** (`docs/ncm-retrieval.md`). D
 - [x] **Baseline gold: 50 product runs** on this architecture. Sheet `eval/gold.json`. Live job: `eval/run_gold.py --limit 50 --out eval/results/v1-langfuse.jsonl`. v1 score: **hit8 72 %** (hit2/4 94 %, hit6 80 %, p50 5.2 s). 14 misses (yerba empty, BIT 8th digit, milk-powder, …). Not AFIP criterios.
 - [ ] **Ship v1** after consistency (10×3) if we still want it; production stays on this walk.
 
-**v2 (after v1 is in production).** Do not mix this into the 50 baseline runs. Method: `docs/ncm-retrieval.md`.
+**v2 (after v1 is in production).** Do not mix this into the 50 baseline runs. Method: `docs/ncm-retrieval.md`. Other walk changes to try (bottom-up items, beam, HS6 first, ask for missing attributes): `docs/ncm-search-methods.md`. Tag each run with `eval/run_gold.py --method`.
 
 - [ ] Spec sheet (composition, use, presentation) then BM25 over **headings** (level 4), not 97 chapter titles
 - [ ] LLM picks among k heading candidates using notes + RGI 3 (more specific / essential character / last number); then the existing 6/8 descent + grade
@@ -137,4 +137,4 @@ The office (`POST /run`) stays one-shot. These belong to the conversational laye
 
 - [x] **Guardrails** — `/run` refuses a missing CIF. `/chat` is LangChain + `classify_ncm` tool (`bind_tools`); the office runs only if the chat model calls that tool and slots are ready. Jailbreaks do not call the office. The card says estimate, not a filing.
 - [x] **Memory and context** — in-process `SESSIONS` dict: slots persist per `session_id`; a follow-up CIF is packed into one `question` for the office. Lost on redeploy.
-- [x] **Chat eval** — `eval/chat_gold.json` (25 dialogues). Runner `eval/run_chat.py` writes Langfuse scores `chat_tool_ok` / `chat_cif_gate` / `chat_turn_ok` (and `hit8` only on `--live` integrate). Dataset **chat-v1**, dashboard **Chat gold v1**. Default mocks the office. Not an LLM judge.
+- [x] **Chat eval** — `eval/chat_gold.json` (42 dialogues, 50 chat-LLM turns on the default run). Runner `eval/run_chat.py` writes Langfuse scores `chat_tool_ok` / `chat_cif_gate` / `chat_turn_ok` (and `hit8` only on `--live` integrate). Dataset **chat-v1**, dashboard **Chat gold v1**. Default mocks the office. Not an LLM judge.

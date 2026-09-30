@@ -1,9 +1,13 @@
-"""Live gold job for NCM v1. Not part of default pytest (calls OpenAI + Tavily)."""
+"""Live NCM gold job. Not part of default pytest (calls OpenAI + Tavily).
+
+Each run is tagged with `--method` so classifier experiments stay apart in Langfuse.
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -16,6 +20,7 @@ from eval.metrics import hits, summarize
 
 GOLD_PATH = ROOT / "eval" / "gold.json"
 RESULTS_DIR = ROOT / "eval" / "results"
+DEFAULT_METHOD = "v1-chapter-first"
 
 
 def parse_args() -> argparse.Namespace:
@@ -23,7 +28,24 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--limit", type=int, default=1)
     p.add_argument("--id", dest="row_id", default="")
     p.add_argument("--gold", type=Path, default=GOLD_PATH)
-    p.add_argument("--out", type=Path, default=RESULTS_DIR / "v1.jsonl")
+    p.add_argument(
+        "--method",
+        default=DEFAULT_METHOD,
+        help="Classifier under test, e.g. v1-chapter-first, items-beam, hs6-first.",
+    )
+    p.add_argument(
+        "--param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Method parameter recorded in metadata (repeatable), e.g. beam=3.",
+    )
+    p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Default: eval/results/<method>.jsonl",
+    )
     p.add_argument(
         "--from-jsonl",
         type=Path,
@@ -33,8 +55,39 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def parse_params(pairs: list[str]) -> dict[str, str]:
+    params = {}
+    for pair in pairs:
+        key, sep, value = pair.partition("=")
+        if not sep or not key.strip():
+            raise SystemExit(f"--param must be KEY=VALUE, got: {pair}")
+        params[key.strip()] = value.strip()
+    return params
+
+
+def git_info() -> dict[str, str]:
+    def run(*cmd: str) -> str:
+        try:
+            return subprocess.run(
+                ["git", *cmd],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+        except (OSError, subprocess.CalledProcessError):
+            return ""
+
+    dirty = bool(run("status", "--porcelain"))
+    return {
+        "branch": run("rev-parse", "--abbrev-ref", "HEAD"),
+        "commit": run("rev-parse", "--short", "HEAD") + ("-dirty" if dirty else ""),
+    }
+
+
 def write_summary(recs: list[dict], jsonl_path: Path) -> dict:
     summary = summarize(recs)
+    summary["methods"] = sorted({r.get("method") or DEFAULT_METHOD for r in recs})
     text = json.dumps(summary, ensure_ascii=False, indent=2)
     print(text)
     dest = jsonl_path.with_suffix(".summary.json")
@@ -52,7 +105,12 @@ def load_jsonl(path: Path) -> list[dict]:
     return recs
 
 
-def run_graph(rows: list[dict], out_path: Path) -> list[dict]:
+def run_graph(
+    rows: list[dict],
+    out_path: Path,
+    method: str,
+    params: dict[str, str],
+) -> list[dict]:
     from dotenv import load_dotenv
     from langfuse import get_client
     from langfuse.langchain import CallbackHandler
@@ -61,6 +119,8 @@ def run_graph(rows: list[dict], out_path: Path) -> list[dict]:
 
     load_dotenv()
     lf = get_client()
+    git = git_info()
+    run_meta = {"method": method, "params": params, **git}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     recs: list[dict] = []
     with out_path.open("a", encoding="utf-8") as fh:
@@ -75,9 +135,10 @@ def run_graph(rows: list[dict], out_path: Path) -> list[dict]:
                     "callbacks": [handler],
                     "metadata": {
                         "langfuse_trace_name": row["id"],
-                        "langfuse_tags": ["gold", "v1", tag],
+                        "langfuse_tags": ["gold", method, tag],
                         "gold_id": row["id"],
                         "ncm_gold": row["ncm_gold"],
+                        **run_meta,
                     },
                 },
             )
@@ -92,18 +153,22 @@ def run_graph(rows: list[dict], out_path: Path) -> list[dict]:
                     trace_id=trace_id,
                     data_type="BOOLEAN",
                     comment=f"gold={row['ncm_gold']} pred={pred or '-'}",
-                    metadata={"gold_id": row["id"], "tag": tag},
+                    metadata={"gold_id": row["id"], "tag": tag, **run_meta},
                 )
             lf.create_score(
                 name="wall_s",
                 value=wall,
                 trace_id=trace_id,
                 data_type="NUMERIC",
+                metadata={"gold_id": row["id"], "tag": tag, **run_meta},
             )
             lf.flush()
             rec = {
                 "id": row["id"],
                 "tag": row.get("tag"),
+                "method": method,
+                "params": params,
+                "commit": git["commit"],
                 "ncm_gold": row["ncm_gold"],
                 "ncm_pred": pred,
                 "chapter": out.get("ncm_chapter"),
@@ -144,8 +209,9 @@ def main() -> None:
         if not rows:
             raise SystemExit(f"unknown id: {args.row_id}")
     rows = rows[: args.limit]
-    run_graph(rows, args.out)
-    write_summary(load_jsonl(args.out), args.out)
+    out = args.out or RESULTS_DIR / f"{args.method}.jsonl"
+    run_graph(rows, out, args.method, parse_params(args.param))
+    write_summary(load_jsonl(out), out)
 
 
 if __name__ == "__main__":

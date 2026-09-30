@@ -265,7 +265,7 @@ def run_chat(rows: list[dict], out_path: Path, *, live: bool, run_name: str) -> 
                         print("langfuse item skip", row["id"], exc, flush=True)
                 finally:
                     CHAT_CALLBACKS.reset(token)
-                lf.flush()
+        lf.flush()
     finally:
         office.invoke_office = real_office
         office_tool.invoke_office = real_tool_office

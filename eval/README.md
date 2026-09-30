@@ -10,7 +10,10 @@ The v1 number to report is **`accuracy.hit8`** (exact 8-digit match = correctnes
 .\.venv\Scripts\python.exe eval\run_gold.py --limit 1 --id olive-virgin
 .\.venv\Scripts\python.exe eval\run_gold.py --limit 5
 .\.venv\Scripts\python.exe eval\run_gold.py --limit 50 --out eval\results\v1-full.jsonl
+.\.venv\Scripts\python.exe eval\run_gold.py --limit 50 --method items-beam --param beam=3 --param top_items=20
 ```
+
+`--method` names the classifier under test (default `v1-chapter-first`). It becomes a Langfuse tag and goes into trace and score metadata with `--param` values, git branch, and commit (`-dirty` if the tree has uncommitted changes). Without `--out`, results go to `eval/results/<method>.jsonl`, so methods do not share a file. In Langfuse, filter traces by the method tag, or scores by `metadata.method`, to compare experiments. Candidate methods: `docs/ncm-search-methods.md`.
 
 The jsonl is **appended**. After a live batch the summary is computed from the **whole** `--out` file, not only the new rows. Use a new `--out` (or delete the file) for a clean 50-row file.
 
@@ -40,7 +43,7 @@ How this job fits Langfuse and the 50-row protocol: `docs/observability.md`.
 
 # Chat eval (routing / CIF)
 
-Live job, not default `pytest`. Sheet: `eval/chat_gold.json` (25 dialogues). Runner: `eval/run_chat.py`.
+Live job, not default `pytest`. Sheet: `eval/chat_gold.json` (42 dialogues; **50 chat-LLM turns** on the default mock-office run, plus 2 jail turns with no LLM). Runner: `eval/run_chat.py`.
 
 This scores the **chat layer**, not the office. The number to report is **`routing.turn_ok`**. `tool_precision` / `tool_recall` say whether `classify_ncm` fired on the right turns. `cif_gate` is “no card until this product has a user-typed CIF”. `hit8` is only on `tag: integrate` and only with `--live`.
 
@@ -48,7 +51,7 @@ Default mocks the office (chat LLM only). `--live` runs the 4 integrate rows aga
 
 ```powershell
 .\.venv\Scripts\python.exe eval\run_chat.py --limit 2 --id jail-ignore
-.\.venv\Scripts\python.exe eval\run_chat.py --limit 21 --out eval\results\chat-v1.jsonl
+.\.venv\Scripts\python.exe eval\run_chat.py --limit 50 --out eval\results\chat-v1-50.jsonl
 .\.venv\Scripts\python.exe eval\run_chat.py --live --out eval\results\chat-live.jsonl
 .\.venv\Scripts\python.exe eval\run_chat.py --from-jsonl eval\results\chat-v1.jsonl
 ```
