@@ -12,15 +12,19 @@ NCM_GOLD = Path(__file__).resolve().parents[2] / "eval" / "gold.json"
 def test_chat_gold_sheet():
     rows = json.loads(GOLD.read_text(encoding="utf-8"))
     ids = [r["id"] for r in rows]
-    assert len(ids) == 25
+    assert len(ids) == 42
     assert len(ids) == len(set(ids))
     tags = Counter(r["tag"] for r in rows)
-    assert tags["faq"] == 6
-    assert tags["gate"] == 5
-    assert tags["ready"] == 4
-    assert tags["seq"] == 4
+    assert tags["faq"] == 14
+    assert tags["gate"] == 8
+    assert tags["ready"] == 8
+    assert tags["seq"] == 6
     assert tags["jail"] == 2
     assert tags["integrate"] == 4
+    llm_turns = sum(
+        len(r["turns"]) for r in rows if not r.get("live") and r.get("tag") != "jail"
+    )
+    assert llm_turns == 50
     office = {r["id"]: r["ncm_gold"] for r in json.loads(NCM_GOLD.read_text(encoding="utf-8"))}
     for row in rows:
         assert row["turns"]

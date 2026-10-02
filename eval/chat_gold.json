@@ -226,6 +226,196 @@
     ]
   },
   {
+    "id": "faq-die",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Qué es el derecho de importación (DIE) y sobre qué base se calcula?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-cif",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Qué incluye el valor CIF en una importación?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-percepcion-iva",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Qué es la percepción de IVA RG 2937 al importar?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-bk",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Qué significa que un bien sea BK o BIT en el nomenclador?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-origen",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Para qué sirve el país de origen en la liquidación?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-habilitacion",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Cuándo un producto importado necesita habilitación de ANMAT o SENASA?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-despachante",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿La estimación de tributos incluye el honorario del despachante?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "faq-aec",
+    "tag": "faq",
+    "turns": [
+      {
+        "user": "¿Qué es el AEC del Mercosur?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      }
+    ]
+  },
+  {
+    "id": "gate-mozzarella",
+    "tag": "gate",
+    "turns": [
+      {
+        "user": "clasificá queso mozzarella fresco origen Italia",
+        "expect": { "tool": false, "ask_cif": true }
+      },
+      {
+        "user": "CIF 6000 USD",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "gate-bananas",
+    "tag": "gate",
+    "turns": [
+      {
+        "user": "dame el NCM de bananas frescas desde Ecuador",
+        "expect": { "tool": false, "ask_cif": true }
+      },
+      {
+        "user": "el cif es 1000",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "gate-ibuprofen",
+    "tag": "gate",
+    "turns": [
+      {
+        "user": "liquidá impuestos de ibuprofeno 400 mg origen India",
+        "expect": { "tool": false, "ask_cif": true }
+      },
+      {
+        "user": "CIF 3.000",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "ready-bananas",
+    "tag": "ready",
+    "turns": [
+      {
+        "user": "Clasificá bananas frescas CIF 1 USD origen Ecuador",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "ready-mozzarella",
+    "tag": "ready",
+    "turns": [
+      {
+        "user": "Clasificá queso mozzarella fresco CIF 6 USD origen Italia",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "ready-apples",
+    "tag": "ready",
+    "turns": [
+      {
+        "user": "pasame la posición de manzanas frescas CIF 1.5 USD origen Chile",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "ready-shrimp",
+    "tag": "ready",
+    "turns": [
+      {
+        "user": "dame el NCM de camarones congelados enteros CIF 18 USD origen Ecuador",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "seq-faq-iva-then-classify",
+    "tag": "seq",
+    "turns": [
+      {
+        "user": "¿Cómo se liquida el IVA en una importación a consumo?",
+        "expect": { "tool": false, "forbid_ncm": true }
+      },
+      {
+        "user": "clasificá manzanas frescas origen Chile CIF 1500 USD",
+        "expect": { "tool": true }
+      }
+    ]
+  },
+  {
+    "id": "seq-second-needs-own-cif",
+    "tag": "seq",
+    "turns": [
+      {
+        "user": "Clasificá café tostado en grano CIF 8 USD origen Colombia",
+        "expect": { "tool": true }
+      },
+      {
+        "user": "ahora clasificá yerba mate canchada origen Paraguay",
+        "expect": { "tool": false, "ask_cif": true }
+      }
+    ]
+  },
+  {
     "id": "jail-ignore",
     "tag": "jail",
     "turns": [
