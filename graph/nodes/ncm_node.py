@@ -31,14 +31,18 @@ def pick_chapter(state: GraphState) -> dict:
     }
 
 
-def load_notes(state: GraphState) -> dict:
-    notes = catalog.get_notes(state["ncm_chapter"])
-    notes_text = (
+def chapter_notes_text(chapter: str) -> str:
+    notes = catalog.get_notes(chapter)
+    return (
         f"{notes['title']}\n"
         f"{notes['chapter_notes']}\n"
         f"{notes['section_notes']}\n"
         f"{notes.get('subheading_notes') or ''}"
     )
+
+
+def load_notes(state: GraphState) -> dict:
+    notes_text = chapter_notes_text(state["ncm_chapter"])
     print("notes loaded")
     print(notes_text)
     return {"ncm_notes": notes_text}

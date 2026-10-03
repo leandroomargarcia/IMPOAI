@@ -20,6 +20,8 @@ class GraphState(TypedDict):
         ncm_descripcion: NCM description (grade_ncm).
         ncm_info: NCM classification (or why it failed).
         ncm_feedback: grader motive / miss reason.
+        ncm_ranked: items-beam finalists, best first (kept for eval)
+        ncm_finalists: items-beam finalists not tried yet (kept for eval)
         hab_docs: web search hits on import permits (web_search_hab).
         hab_info: extracted habilitation requirements (analista_hab).
         attempts: Number of attempts to classify the product.
@@ -54,6 +56,8 @@ class GraphState(TypedDict):
     ncm_descripcion: str
     ncm_info: str
     ncm_feedback: str
+    ncm_ranked: list
+    ncm_finalists: list
     ncm_currency: str
     hab_docs: List[Document]
     hab_info: str

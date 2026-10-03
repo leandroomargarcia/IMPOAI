@@ -94,3 +94,10 @@ IIBB_RATES = {
     "Tierra del Fuego": 3.0,
     "Tucumán": 3.5,
 }
+
+# items-beam NCM method (docs/ncm-search-methods.md)
+BEAM_HEADINGS = 3
+BEAM_TOP_ITEMS = 20
+BEAM_FINALISTS = 3
+BEAM_MAX_CANDIDATES = 120
+BEAM_NOTES_CHAPTERS = 2

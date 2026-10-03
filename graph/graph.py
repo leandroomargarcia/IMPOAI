@@ -1,6 +1,8 @@
 # 0 BOOTSTRAP
 # Load secrets, the NCM catalog JSON, and the chat model.
 # Used to open the office: nothing is classified here.
+import os
+
 from dotenv import load_dotenv
 
 from langgraph.graph import StateGraph, START, END
@@ -18,6 +20,13 @@ from graph.nodes.ncm_node import (
     after_grade,
     ncm_done,
 )
+from graph.nodes.ncm_beam import (
+    after_beam_fetch,
+    after_beam_grade,
+    after_gather,
+    gather_candidates,
+    next_finalist,
+)
 from graph.nodes.search_price import search_price_start, search_price_wait
 from graph.nodes.calculate_costs import calc_duty
 from graph.nodes.web_search_hab import web_search_hab
@@ -29,28 +38,17 @@ from langfuse import get_client
 load_dotenv()
 
 
-def build_graph():
-    builder = StateGraph(GraphState)
+NCM_METHOD = os.getenv("IMPOAI_NCM_METHOD", "v1-chapter-first")
+NCM_METHODS = ("v1-chapter-first", "items-beam")
+
+
+def add_v1_ncm(builder: StateGraph) -> None:
     builder.add_node("pick_chapter", pick_chapter)
     builder.add_node("load_notes", load_notes)
     builder.add_node("choose_heading", choose_heading)
     builder.add_node("choose_subheading", choose_subheading)
     builder.add_node("choose_item", choose_item)
-    builder.add_node("fetch_ncm", fetch_ncm)
-    builder.add_node("grade_ncm", grade_ncm)
-    builder.add_node("ncm_done", ncm_done)
-    builder.add_node("web_search_hab", web_search_hab)
-    builder.add_node("hab_agent", hab_agent)
-    builder.add_node("join", join_branches)
-    builder.add_node("search_price_start", search_price_start)
-    builder.add_node("search_price_wait", search_price_wait)
-    builder.add_node("calc_duty", calc_duty)
-    builder.add_node("orchestrator", orchestrator)
-
     builder.add_edge(START, "pick_chapter")
-    builder.add_edge(START, "search_price_start")
-    builder.add_edge("web_search_hab", "hab_agent")
-
     builder.add_edge("pick_chapter", "load_notes")
     builder.add_edge("load_notes", "choose_heading")
     builder.add_conditional_edges(
@@ -71,6 +69,51 @@ def build_graph():
         {"ok": "ncm_done", "retry": "pick_chapter", "fail": "ncm_done"},
     )
 
+
+def add_beam_ncm(builder: StateGraph) -> None:
+    builder.add_node("gather_candidates", gather_candidates)
+    builder.add_node("next_finalist", next_finalist)
+    builder.add_edge(START, "gather_candidates")
+    builder.add_conditional_edges(
+        "gather_candidates",
+        after_gather,
+        {"next": "next_finalist", "fail": "ncm_done"},
+    )
+    builder.add_edge("next_finalist", "fetch_ncm")
+    builder.add_conditional_edges(
+        "fetch_ncm",
+        after_beam_fetch,
+        {"grade": "grade_ncm", "retry": "next_finalist", "fail": "ncm_done"},
+    )
+    builder.add_conditional_edges(
+        "grade_ncm",
+        after_beam_grade,
+        {"ok": "ncm_done", "retry": "next_finalist", "fail": "ncm_done"},
+    )
+
+
+def build_graph(method: str = NCM_METHOD):
+    if method not in NCM_METHODS:
+        raise ValueError(f"unknown NCM method: {method} (use one of {NCM_METHODS})")
+    builder = StateGraph(GraphState)
+    builder.add_node("fetch_ncm", fetch_ncm)
+    builder.add_node("grade_ncm", grade_ncm)
+    builder.add_node("ncm_done", ncm_done)
+    if method == "items-beam":
+        add_beam_ncm(builder)
+    else:
+        add_v1_ncm(builder)
+
+    builder.add_node("web_search_hab", web_search_hab)
+    builder.add_node("hab_agent", hab_agent)
+    builder.add_node("join", join_branches)
+    builder.add_node("search_price_start", search_price_start)
+    builder.add_node("search_price_wait", search_price_wait)
+    builder.add_node("calc_duty", calc_duty)
+    builder.add_node("orchestrator", orchestrator)
+
+    builder.add_edge(START, "search_price_start")
+    builder.add_edge("web_search_hab", "hab_agent")
     builder.add_edge("ncm_done", "web_search_hab")
     builder.add_edge("ncm_done", "calc_duty")
     builder.add_edge("ncm_done", "search_price_wait")
@@ -78,7 +121,6 @@ def build_graph():
     builder.add_edge("join", "orchestrator")
     builder.add_edge("orchestrator", END)
     return builder.compile()
-
 
 app = build_graph()
 

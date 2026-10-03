@@ -81,3 +81,37 @@ grade_chain = ChatPromptTemplate.from_messages(
         ("human", "Product:\n{question}\n\nNotes:\n{notes}\n\nItem:\n{item}\n\nCard:\n{card}"),
     ]
 ) | llm.with_structured_output(GradeChoice, method="function_calling")
+
+class HeadingBeam(BaseModel):
+    headings: list[str] = Field(description="Most likely 4-digit headings first, e.g. ['94.03', '44.20']")
+    motive: str
+
+class ItemRanking(BaseModel):
+    items: list[str] = Field(description="8-digit items from the list, best first, e.g. ['9403.50.00']")
+    motive: str
+
+heading_beam_chain = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "List the {beam} most likely 4-digit headings (XX.XX) for the product, most likely first. "
+            "Consider every chapter, not only the one suggested by the material. "
+            "Use real HS / Mercosur headings; do not invent codes.\n\nChapters:\n{chapters}",
+        ),
+        ("human", "Product:\n{question}"),
+    ]
+) | llm.with_structured_output(HeadingBeam, method="function_calling")
+
+rank_chain = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "Rank up to {finalists} 8-digit items from the candidate list, best first. "
+            "Candidates come from several headings: first decide the heading (RGI 1), "
+            "then compare subheadings and items at the same level (RGI 6). "
+            "Use 'Los demás' only if no more specific item fits. "
+            "Only codes from the list.\n\nRGI:\n{rgi}",
+        ),
+        ("human", "Product:\n{question}\n\nNotes:\n{notes}\n\nCandidates:\n{candidates}"),
+    ]
+) | llm.with_structured_output(ItemRanking, method="function_calling")

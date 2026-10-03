@@ -16,11 +16,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from eval.metrics import hits, summarize
+from eval.metrics import digits, hits, summarize
 
 GOLD_PATH = ROOT / "eval" / "gold.json"
 RESULTS_DIR = ROOT / "eval" / "results"
 DEFAULT_METHOD = "v1-chapter-first"
+METHODS = ("v1-chapter-first", "items-beam")
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,7 +32,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--method",
         default=DEFAULT_METHOD,
-        help="Classifier under test, e.g. v1-chapter-first, items-beam, hs6-first.",
+        choices=METHODS,
+        help="NCM classifier graph to build and tag the run with.",
     )
     p.add_argument(
         "--param",
@@ -115,8 +117,9 @@ def run_graph(
     from langfuse import get_client
     from langfuse.langchain import CallbackHandler
 
-    from graph.graph import app
+    from graph.graph import build_graph
 
+    app = build_graph(method)
     load_dotenv()
     lf = get_client()
     git = git_info()
@@ -173,6 +176,9 @@ def run_graph(
                 "ncm_pred": pred,
                 "chapter": out.get("ncm_chapter"),
                 "heading": out.get("ncm_heading"),
+                "ranked": out.get("ncm_ranked") or [],
+                "ranked_hit8": digits(row["ncm_gold"])
+                in [digits(c) for c in out.get("ncm_ranked") or []],
                 "attempts": out.get("attempts"),
                 "grade": out.get("es_valido"),
                 "wall_s": wall,
